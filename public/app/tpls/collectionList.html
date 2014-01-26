@@ -1,0 +1,19 @@
+<% if(docs.length) { %>
+<div class="pretable">
+	<a href="#" class="createdoc button" data-type="<%= type %>">Create new <%= type %></a>
+	<span class="count"><%//= from %> to <%//= to %> out of <%//= count %></span>
+</div>
+<table class="qtable">
+<% _.each(docs, function(doc){ %>
+<tr data-id="<%= doc._id %>">
+	<% _.each(fields, function(field){ %>
+	<td><%= doc[field] %></td>
+	<%	}) %>
+	<td class="control"><a href="#" class="edit"><span class="fa fa-pencil"></span></a></td>
+	<td class="control"><a href="#" class="remove"><span class="fa fa-times"></span></a></td>
+</tr>
+<% }) %>
+</table>
+<%} else { %>
+<p>No documents found for this collection. <a href="#" class="createdoc button" data-type="<%= type %>">Create new <%= type %></a></p>
+<% } %>

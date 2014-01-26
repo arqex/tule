@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Quinielo</title>
+	<script data-main="/app/bootstrap" src="/bower_components/requirejs/require.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/css/back.css">
+</head>
+<body>
+	<div id="menu">
+		<div class="logo"><h1>Quinielo</h1></div>
+		<nav class="navigation"></nav>
+		<div class="logout"><a href="#logout">Log out</a></div>
+	</div>
+	<div id="page">
+		<h2 class="pagetitle">Welcome</h2>
+		<div class="content">
+			Start kicking some asses selecting an option from the left menu.
+		</div>
+	</div>
+
+	<script>
+		var navData = <%= JSON.stringify(navigation) %>;
+	</script>
+</body>
+</html>

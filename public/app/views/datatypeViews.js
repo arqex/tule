@@ -1,0 +1,332 @@
+"use strict";
+
+var deps = [
+	'jquery', 'underscore', 'backbone',
+	'text!tpls/datatypes.html'
+];
+
+define(deps, function($,_,Backbone, tplSource){
+
+	var DataTypeDispatcher = function(){
+		this.types = {};
+		this.typeNames = [];
+	};
+
+	DataTypeDispatcher.prototype = {
+		getView: function(typeId, path, value){
+			var type = this.types[typeId];
+			if(!type){
+				console.log('Data type "' + typeId + '" unknown, returning String.');
+				type = this.types.string;
+			}
+
+			var defaultValue = type.defaultValue;
+			if(_.isUndefined(value))
+				value = defaultValue;
+
+			return new type.View({path: path, model: new FieldModel({type: type.id, value: value})});
+		},
+
+		registerType: function(type){
+			this.types[type.id] = type;
+			this.typeNames.push({id: type.id, name: type.name});
+		},
+
+		getDataType: function(value){
+			if(_.isObject(value))
+				return 'object';
+			return 'string';
+		}
+	};
+
+	var dispatcher = new DataTypeDispatcher();
+
+	var DATATYPE = {
+		OBJECT: 'object',
+		STRING: 'string',
+		ARRAY: 'array',
+		INTEGER: 'int',
+		DOUBLE: 'double',
+		BOOLEAN: 'bool'
+	};
+
+	var FieldModel = Backbone.Model.extend({
+		defaults: {
+			type: false,
+			value: false
+		}
+	});
+
+	var StringTypeView = Backbone.View.extend({
+		tpl: _.template($(tplSource).find('#stringTpl').html()),
+		editTpl: _.template($(tplSource).find('#stringEditTpl').html()),
+		events: {
+			'click .string-ok': 'onClickOk',
+			'keyup form': 'onKeyup',
+			'click .string-cancel': 'onClickCancel'
+		},
+		render: function(){
+			var me = this,
+				tpl = this.tpl
+			;
+			if(this.mode == 'edit')
+				tpl = this.editTpl;
+
+			this.$el.html(tpl({value: this.model.get('value')}));
+
+			if(this.mode == 'edit')
+				setTimeout(function(){
+					me.$('input').focus();
+				}, 50);
+		},
+
+		changeMode: function(mode){
+			if(!mode)
+				mode = this.mode == 'edit' ? 'display' : 'edit';
+			this.mode = mode;
+		},
+
+		onClickOk: function(e){
+			e.preventDefault();
+			this.saveString();
+		},
+
+		onKeyup: function(e){
+			if(e.which == 13){
+				e.preventDefault();
+				this.saveString();
+			}
+		},
+
+		saveString: function(){
+			this.model.set('value', this.$('input').val());
+			this.trigger('changeMode', 'display');
+		},
+
+		onClickCancel: function(e){
+			e.preventDefault();
+			this.trigger('changeMode', 'display');
+		},
+
+		getValue: function(){
+			return this.model.get('value');
+		}
+	});
+
+	dispatcher.registerType({
+		id: 'string',
+		name: 'String',
+		defaultValue: '',
+		View: StringTypeView
+	});
+
+	var ObjectPropertyView = Backbone.View.extend({
+		tpl: _.template($(tplSource).find('#objectPropertyTpl').html()),
+		events: {
+			'click .property-value': 'onClickFieldValue',
+			'click .property-key': 'onClickFieldKey'
+		},
+
+		initialize: function(opts){
+			this.mode = opts.mode || 'display';
+			this.key = opts.key;
+			this.path = opts.path;
+			this.propertyView = opts.view;
+			this.propertyView.mode = opts.mode;
+			this.model = this.propertyView.model;
+
+			this.listenTo(this.propertyView, 'changeMode', function(mode){
+				this.changeMode(mode);
+			});
+
+			this.listenTo(this.model, 'change', this.emitChange);
+		},
+
+		changeMode: function(mode){
+			if(!mode)
+				mode = this.mode == 'edit' ? 'display' : 'edit';
+			this.mode = mode;
+			this.propertyView.changeMode(mode);
+			this.render();
+		},
+
+		render: function(){
+			this.$el
+				.html(this.tpl({path: this.path, key: this.key, mode: this.mode}))
+				.find('.property-value')
+					.html(this.propertyView.el)
+			;
+			this.propertyView.render();
+			this.propertyView.delegateEvents();
+			return this;
+		},
+
+		onClickFieldValue: function(e){
+			if(this.mode == 'edit')
+				return;
+
+			var property = $(e.target).closest('.object-property');
+			if(property.data('path') == this.path)
+				this.changeMode();
+		},
+
+		onClickFieldKey: function(e){
+			var property = $(e.target).closest('.object-property');
+			if(property.data('path') == this.path)
+				this.changeMode();
+		},
+	});
+
+	var ObjectTypeView = Backbone.View.extend({
+		displayTpl: _.template($(tplSource).find('#objectTpl').html()),
+		editTpl: _.template($(tplSource).find('#objectEditTpl').html()),
+		fieldFormTpl: _.template($(tplSource).find('#fieldFormTpl').html()),
+		className: 'field field-object',
+
+		events: {
+			'click .object-add-property': 'onAddField',
+			'click .property-edit-ok': 'onClickFieldOk'
+		},
+
+		initialize: function(opts){
+			var me = this;
+			this.path = opts.path;
+			this.subViews = {};
+			this.mode = opts.mode || 'display';
+
+			//Ensure backbone model for listening to changes
+			if(!(this.model.get('value') instanceof Backbone.Model))
+				this.model.set('value', new Backbone.Model(this.model.get('value')));
+
+			_.each(this.model.get('value').toJSON(), function(fieldValue, fieldKey){
+				var fieldPath = me.path + '.' + fieldKey,
+					fieldType = dispatcher.getDataType(fieldValue),
+					fieldView = dispatcher.getView(fieldType, fieldPath, fieldValue)
+				;
+				me.subViews[fieldKey] = new ObjectPropertyView({
+					view: fieldView,
+					path: fieldPath,
+					key: fieldKey,
+					mode: 'display'
+				});
+				/*
+				me.listenTo(me.subViews[fieldKey].model, 'change', function(subViewModel){
+					var value = subViewModel.get('value');
+					if(value instanceof Backbone.Model)
+						value = value.toJSON();
+					me.model.get('value').set(fieldKey, value);
+					console.log(this.path);
+					console.log(me.model.get('value').toJSON());
+				});
+*/
+			});
+
+			this.listenTo(this.model, 'change', this.render);
+			this.listenTo(this.model.get('value'), 'change', this.render);
+		},
+
+		render: function(){
+			var tpl = this.editTpl;
+			if(this.mode == 'display')
+				tpl = this.displayTpl;
+
+			this.$el
+				.html(tpl({path: this.path, value: this.model.get('value').toJSON()}))
+				.attr('class', this.className + ' field-mode-' + this.mode)
+			;
+			this.delegateEvents();
+
+			if(this.mode == 'edit'){
+				var $props = this.$('.object-properties');
+				_.each(this.subViews, function(subView){
+					$props.append(subView.el);
+					subView.render();
+					subView.delegateEvents();
+				});
+
+				if(_.isEmpty(this.subViews))
+					this.onAddField();
+			}
+
+			return this;
+		},
+
+
+		onAddField: function(){
+			var me = this;
+			this.$('a.object-add-property[data-path="' + this.path + '"]')
+				.replaceWith(this.fieldFormTpl({
+					types: dispatcher.typeNames,
+					property:{key: '', type: ''},
+					path: this.path
+				}));
+			setTimeout(function(){
+				me.$('input').focus();
+			},50);
+		},
+
+		onClickFieldOk: function(e){
+			e.preventDefault();
+			var $form = $(e.target).closest('form');
+			this.saveField($form);
+		},
+
+		saveField: function($form) {
+			var me = this,
+				key = $form.find('input[type=text]').val(),
+				type = $form.find('select').val()
+			;
+			if(!key || !type)
+				return console.log('You need to set a name and a type for the property');
+
+			if(this.subViews[key])
+				return console.log('There is already a property named ' + key);
+
+
+
+			this.subViews[key] = new ObjectPropertyView({
+				view: dispatcher.getView(type, this.path + '.' + key),
+				key: key,
+				path: this.path + '.' + key,
+				mode: 'edit'
+			});
+			/*
+			this.listenTo(this.subViews[key].model, 'change', function(subViewModel){
+				var value = subViewModel.get('value');
+				if(value instanceof Backbone.Model)
+					value = value.toJSON();
+				me.model.get('value').set(key, value);
+				console.log(me.model.get('value').toJSON());
+			});
+			*/
+			this.model.get('value').set(key, this.subViews[key].model.get('value'));
+		},
+
+		changeMode: function(mode){
+			if(!mode)
+				mode = this.mode == 'edit' ? 'display' : 'edit';
+			this.mode = mode;
+		},
+		getValue: function(){
+			var value = {};
+			_.each(this.subViews, function(subView, key){
+				value[key] = subView.propertyView.getValue();
+			});
+			return value;
+		}
+	});
+
+	dispatcher.registerType({
+		id: 'object',
+		name: 'Hash',
+		View: ObjectTypeView,
+		defaultValue: {}
+	});
+
+	return {
+		TYPES: DATATYPE,
+		ObjectView: ObjectTypeView,
+		StringView: StringTypeView,
+		FieldModel: FieldModel
+	};
+});

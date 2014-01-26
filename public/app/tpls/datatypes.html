@@ -1,0 +1,46 @@
+<div> <!--	Wrapper to easily access to all the templates -->
+	
+<script type="text/template" id="objectTpl">
+	<div class="property-data" data-path="<%= path %>">
+		<%= _.keys(value).length  %> <%= _.keys(value).length == 1 ? 'property' : 'properties' %>
+	</div>
+</script>
+
+<script type="text/template" id="objectEditTpl">
+	<div class="object-properties"></div>
+	<a class="object-add-property" data-path="<%= path %>"><i class="fa fa-plus-circle"></i> Add a property</a>
+</script>
+
+<script type="text/template" id="objectPropertyTpl">
+	<div class="object-property" data-path="<%= path %>" data-key="<%= key %>">
+		<div class="property-key"><a href="#" class="property-delete fa fa-minus-circle" title="Delete <%= key %>"></a> <%= key %>:</div> 
+		<div class="property-value property-mode-<%= mode %>"></div>
+	</div>	
+</script>
+
+<script type="text/template" id="fieldFormTpl">
+	<form class="property-form" data-path="<%= path %>" data-key='<%= property.key %>'>
+		<input type="text" value="<%= property.key %>" placeholder="Property name">:
+		<select>
+			<option value="0">Select a type...</option>
+			<% _.each(types, function(type){ %>
+			<option value="<%= type.id %>" <%= type.id == property.type ? 'checked="checked"' : '' %>><%= type.name %></option>
+			<% }) %>
+		</select>
+		<button class="property-edit-ok"><%= property.name ? 'Ok' : 'Add' %></button>
+	</form>
+</script>
+
+<script type="text/template" id="stringTpl">
+	<div class="string-display">"<%= value %>"</a>
+</script>
+
+
+<script type="text/template" id="stringEditTpl">
+	<form class="string-form">
+		<input type="text" value="<%= value %>" placeholder="Value"> 
+		<button class="string-ok">Ok</button> 
+		<a href="#" class="string-cancel" data-bypass="true">Cancel</a>
+	</form>
+</script>
+</div>

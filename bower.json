@@ -1,0 +1,31 @@
+{
+  "name": "mongo-on-node",
+  "version": "0.0.0",
+  "authors": [
+    "marquex"
+  ],
+  "description": "A mongodb manager for node.js",
+  "main": "app.js",
+  "keywords": [
+    "mongodb",
+    "manager",
+    "cms"
+  ],
+  "license": "BDS",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "~1.1.0",
+    "underscore": "~1.5.2",
+    "jquery": "~2.0.3",
+    "requirejs": "~2.1.10",
+    "requirejs-text": "~2.0.10"
+  },
+  "directory": "public/js"
+}

@@ -1,0 +1,8 @@
+<table class="qtable">
+<% collections.each(function(collection){ %>
+<tr data-id="<%= collection.type %>">
+	<td class="collection-name"><%= collection.type %></td>
+	<td class="control"><a href="#" class="explore"><span class="fa fa-eye"></span></a></td>
+</tr>
+<%	}) %>
+</table>

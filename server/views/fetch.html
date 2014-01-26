@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Fetch text</title>
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="js/libs/socket.io.js"></script>
+	<script src="js/libs/consol.js"></script>
+	<script>
+		$(function(){
+			var socket = io.connect('http://localhost:3000'),
+				consolId = <%= consolId %>
+			;
+			socket.on('connect', function () {
+				$('#consol').consol({socket: socket, id:consolId});
+			});
+			socket.on('contents', function(data){
+				$('#contents').html(data.contents);
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="contents" style="width: 45%; display:inline-block"></div>	
+	<div id="consol" style="background: #222; color: #ddd; width: 45%; margin-left: 5%; display:inline-block"></div>	
+</body>
+</html>

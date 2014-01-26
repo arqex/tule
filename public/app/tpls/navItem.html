@@ -1,0 +1,8 @@
+<a class="navlink <%= url ? 'closed' : '' %>" href="<%= url ? url : '#' %>"><%= text %></a>
+<% if(subItems.length){ %>
+<div class="navsubitem">
+<% _.each(subItems, function(subitem){ %>
+	<a class="navlink" href="<%= subitem.url %>"><%= subitem.text %></a>
+<% }); %>
+</div>
+<% } %>

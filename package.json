@@ -1,0 +1,25 @@
+{
+  "name": "mongo-on-node",
+  "version": "0.0.0",
+  "description": "A mongodb manager for node.js",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mongodb",
+    "manager",
+    "cms",
+    "node.js"
+  ],
+  "author": "Javier Marquez",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "when": "~2.7.0",
+    "underscore": "~1.5.2",
+    "config": "~0.4.33",
+    "mongojs": "~0.9.11",
+    "express": "~3.4.7",
+    "underscore-template-additions": "0.0.2"
+  }
+}

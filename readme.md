@@ -1,0 +1,1 @@
+Cool, a readme file for mongo on node
