@@ -1,8 +1,8 @@
 'use strict';
 
 var mongojs = require('mongojs'),
-	_ = require('underscore'),
-	config = require('config'),
+	_ 		= require('underscore'),
+	config 	= require('config'),
 	defaults = {
 		fields: {},
 		tableFields: []
@@ -30,8 +30,8 @@ module.exports = {
 		});
 	},
 	getConfig: function(req, res){
-		var db = req.app.db,
-			type = req.params.type
+		var db		= req.app.db,
+			type 	= req.params.type
 		;
 
 		db.collection(config.mon.settingsCollection).findOne({type:type}, function(err, settings){
@@ -48,26 +48,29 @@ module.exports = {
 	},
 
 	updateConfig: function(req, res){
-		var db = req.app.db,
-			type = req.params.type,
-			doc = req.body
+
+		var db 		= req.app.db,
+			type 	= req.params.type,
+			doc 	= req.body
 		;
+
+		// Creates object id
+		doc['_id'] = new mongojs.ObjectId(doc['_id']);
 
 		if(!type)
 			res.send(400, {error: 'No document type given.'});
 
-		doc.type = type;
+		if(type != doc.type) {
+			res.send(400, {error: 'No type matches.'});
+		}
 
-		db.collection(config.mon.settingsCollection).save(doc,
-			function(err, newDoc){
-				if(err){
-					console.log(err);
-					return res.send(400, {error: 'Internal error'});
-				}
+		db.collection(config.mon.settingsCollection).save(doc, function(err, saved) {
+		  if( err || !saved ) return res.send(400, {error: 'Internal error'});
+		  return res.json(doc);
+		});
 
-				return res.json(newDoc);
-			}
-		);
+		
+
 	},
 
 	createConfig: function(req, res){
