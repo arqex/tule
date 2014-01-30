@@ -69,8 +69,6 @@ module.exports = {
 		  return res.json(doc);
 		});
 
-		
-
 	},
 
 	createConfig: function(req, res){

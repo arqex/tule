@@ -60,7 +60,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, docTpl){
 			});
 		},
 
-		render: function(){
+		render: function(){		
 			this.$el.html(this.tpl({collections: this.collection}));
 		},
 
@@ -78,7 +78,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, docTpl){
 		onCollectionCancel: function(e){
 			e.preventDefault();
 			var row = $(e.target).closest('tr.document-content'),
-				id = row.data('id');
+				id 	= row.data('id');
 			this.editViews[id].remove();
 			delete(this.editViews[id]);
 			row.remove();

@@ -43,4 +43,31 @@
 		<a href="#" class="string-cancel" data-bypass="true">Cancel</a>
 	</form>
 </script>
+
+<script type="text/template" id="integerTpl">
+	<div class="integer-display"><%= value %></a>
+</script>
+
+
+<script type="text/template" id="integerEditTpl">
+	<form class="integer-form">
+		<input type="number" value="<%= value %>" placeholder="Value"> 
+		<button class="integer-ok">Ok</button> 
+		<a href="#" class="integer-cancel" data-bypass="true">Cancel</a>
+	</form>
+</script>
+
+<script type="text/template" id="floatTpl">
+	<div class="float-display"><%= value %></a>
+</script>
+
+
+<script type="text/template" id="floatEditTpl">
+	<form class="float-form">
+		<input type="number" value="<%= value %>" placeholder="Value"> 
+		<button class="float-ok">Ok</button> 
+		<a href="#" class="float-cancel" data-bypass="true">Cancel</a>
+	</form>
+</script>
+
 </div>

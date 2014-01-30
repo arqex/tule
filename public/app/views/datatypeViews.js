@@ -33,8 +33,23 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 
 		getDataType: function(value){
-			if(_.isObject(value))
+			if(_.isObject(value)) {
+				console.log('object');
 				return 'object';
+			} else if( (value === parseInt(value, 10)) && (value != parseInt(NaN,10)) ) {
+				console.log('integer');
+				return 'integer';
+			} else if( (value === parseFloat(value)) && (value != parseFloat(NaN)) ) {
+				console.log('float');
+				return 'float';
+			} else if( _.isBoolean(value) ) {
+				console.log('boolean');
+				return 'bool';
+			} else if( _.isArray(value) ) {
+				console.log('array');
+				return 'array';
+			}
+			console.log('string');
 			return 'string';
 		}
 	};
@@ -44,10 +59,10 @@ define(deps, function($,_,Backbone, tplSource){
 	var DATATYPE = {
 		OBJECT: 'object',
 		STRING: 'string',
-		ARRAY: 'array',
-		INTEGER: 'int',
-		DOUBLE: 'double',
-		BOOLEAN: 'bool'
+		ARRAY: 	'array',
+		INTEGER:'int',
+		FLOAT: 	'float',
+		BOOLEAN:'bool'
 	};
 
 	var FieldModel = Backbone.Model.extend({
@@ -93,8 +108,12 @@ define(deps, function($,_,Backbone, tplSource){
 
 		onKeyup: function(e){
 			if(e.which == 13){
+				console.log("string");
 				e.preventDefault();
 				this.saveString();
+			} else if (e.which == 27) {
+				e.preventDefault();
+				this.cancel();
 			}
 		},
 
@@ -105,7 +124,11 @@ define(deps, function($,_,Backbone, tplSource){
 
 		onClickCancel: function(e){
 			e.preventDefault();
-			this.trigger('changeMode', 'display');
+			this.cancel();
+		},
+
+		cancel: function() {
+			this.trigger('changeMode', 'display');	
 		},
 
 		getValue: function(){
@@ -118,6 +141,148 @@ define(deps, function($,_,Backbone, tplSource){
 		name: 'String',
 		defaultValue: '',
 		View: StringTypeView
+	});
+
+	var IntegerTypeView = Backbone.View.extend({
+		tpl: _.template($(tplSource).find('#integerTpl').html()),
+		editTpl: _.template($(tplSource).find('#integerEditTpl').html()),
+		events: {
+			'click .integer-ok': 'onClickOk',
+			'keyup form': 'onKeyup',
+			'click .integer-cancel': 'onClickCancel'
+		},
+		render: function(){
+			var me = this,
+				tpl = this.tpl
+			;
+			if(this.mode == 'edit')
+				tpl = this.editTpl;
+
+			this.$el.html(tpl({value: this.model.get('value')}));
+
+			if(this.mode == 'edit')
+				setTimeout(function(){
+					me.$('input').focus();
+				}, 50);
+		},
+
+		changeMode: function(mode){
+			if(!mode)
+				mode = this.mode == 'edit' ? 'display' : 'edit';
+			this.mode = mode;
+		},
+
+		onClickOk: function(e){
+			e.preventDefault();
+			this.saveInteger();
+		},
+
+		onKeyup: function(e){
+			if(e.which == 13){
+				console.log("integer");
+				e.preventDefault();
+				this.saveInteger();
+			} else if (e.which == 27) {
+				e.preventDefault();
+				this.cancel();
+			}
+		},
+
+		saveInteger: function(){
+			this.model.set('value', parseInt(this.$('input').val()), 10);
+			this.trigger('changeMode', 'display');
+		},
+
+		onClickCancel: function(e){
+			e.preventDefault();
+			this.cancel();
+		},
+
+		cancel: function() {
+			this.trigger('changeMode', 'display');	
+		},
+
+		getValue: function(){
+			return this.model.get('value');
+		}
+	});
+
+	dispatcher.registerType({
+		id: 'integer',
+		name: 'Integer',
+		defaultValue: 0,
+		View: IntegerTypeView
+	});
+
+	var FloatTypeView = Backbone.View.extend({
+		tpl: _.template($(tplSource).find('#floatTpl').html()),
+		editTpl: _.template($(tplSource).find('#floatEditTpl').html()),
+		events: {
+			'click .float-ok': 'onClickOk',
+			'onKeyup form': 'onKeyup',
+			'click .float-cancel': 'onClickCanel'
+		},
+
+		render: function() {
+			var me 	= this,
+				tpl = this.tpl
+			;
+			if(this.mode == 'edit')
+				tpl = this.editTpl;
+
+			this.$el.html(tpl({value: this.model.get('value')}));
+
+			if(this.mode == 'edit')
+				setTimeout(function(){
+					me.$('input').focus();
+				}, 50);
+		},
+
+		changeMode: function(mode){
+			if(!mode)
+				mode = this.mode == 'edit' ? 'display' : 'edit';
+			this.mode = mode;
+		},
+
+		onClickOk: function(e){
+			e.preventDefault();
+			this.saveFloat();
+		},
+
+		onKeyup: function(e){
+			if(e.which == 13){
+				e.preventDefault();
+				this.saveFloat();
+			} else if (e.which == 27) {
+				e.preventDefault();
+				this.cancel();
+			}
+		},
+
+		saveFloat: function(){
+			this.model.set('value', parseFloat(this.$('input').val()));
+			this.trigger('changeMode', 'display');
+		},
+
+		onClickCancel: function(e){
+			e.preventDefault();
+			this.cancel();
+		},
+
+		cancel: function() {
+			this.trigger('changeMode', 'display');	
+		},
+
+		getValue: function(){
+			return this.model.get('value');
+		}
+	});
+
+	dispatcher.registerType({
+		id: 'float',
+		name: 'Double',
+		defaultValue: 0.0,
+		View: FloatTypeView
 	});
 
 	var ObjectPropertyView = Backbone.View.extend({
@@ -327,6 +492,8 @@ define(deps, function($,_,Backbone, tplSource){
 		TYPES: DATATYPE,
 		ObjectView: ObjectTypeView,
 		StringView: StringTypeView,
+		IntegerView: IntegerTypeView,
+		FloatView: FloatTypeView,
 		FieldModel: FieldModel
 	};
 });
