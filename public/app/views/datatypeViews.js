@@ -34,22 +34,17 @@ define(deps, function($,_,Backbone, tplSource){
 
 		getDataType: function(value){
 			if(_.isObject(value)) {
-				console.log('object');
 				return 'object';
 			} else if( (value === parseInt(value, 10)) && (value != parseInt(NaN,10)) ) {
-				console.log('integer');
 				return 'integer';
 			} else if( (value === parseFloat(value)) && (value != parseFloat(NaN)) ) {
-				console.log('float');
 				return 'float';
 			} else if( _.isBoolean(value) ) {
 				console.log('boolean');
 				return 'bool';
 			} else if( _.isArray(value) ) {
-				console.log('array');
 				return 'array';
 			}
-			console.log('string');
 			return 'string';
 		}
 	};
@@ -285,6 +280,45 @@ define(deps, function($,_,Backbone, tplSource){
 		View: FloatTypeView
 	});
 
+	var BooleanTypeView = Backbone.View.extend({
+		editTpl: _.template($(tplSource).find('#booleanEditTpl').html()),
+		events: {
+			'click input:checkbox': 'saveBoolean'
+		},
+
+		render: function(){
+			var me = this,
+				tpl = this.editTpl
+			;
+			
+			this.$el.html(tpl({value: this.model.get('value')}));
+		},
+
+		changeMode: function(){
+			// Forced by interface. Useless. Ignore it.
+		},
+
+		saveBoolean: function(){
+			if(this.$('input:checked').length == 1)
+				this.model.set('value', true);
+			else 
+				this.model.set('value', false);
+			
+		},
+
+		getValue: function(){
+			return this.model.get('value');
+		}
+	});
+
+	dispatcher.registerType({
+		id: 'bool',
+		name: 'Boolean',
+		defaultValue: false,
+		View: BooleanTypeView
+	});
+
+
 	var ObjectPropertyView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#objectPropertyTpl').html()),
 		events: {
@@ -494,6 +528,7 @@ define(deps, function($,_,Backbone, tplSource){
 		StringView: StringTypeView,
 		IntegerView: IntegerTypeView,
 		FloatView: FloatTypeView,
+		BooleanView: BooleanTypeView,
 		FieldModel: FieldModel
 	};
 });

@@ -32,7 +32,7 @@
 </script>
 
 <script type="text/template" id="stringTpl">
-	<div class="string-display">"<%= value %>"</a>
+	<div class="string-display">"<%= value %>"</div>
 </script>
 
 
@@ -45,7 +45,7 @@
 </script>
 
 <script type="text/template" id="integerTpl">
-	<div class="integer-display"><%= value %></a>
+	<div class="integer-display"><%= value %></div>
 </script>
 
 
@@ -58,7 +58,7 @@
 </script>
 
 <script type="text/template" id="floatTpl">
-	<div class="float-display"><%= value %></a>
+	<div class="float-display"><%= value %></div>
 </script>
 
 
@@ -68,6 +68,11 @@
 		<button class="float-ok">Ok</button> 
 		<a href="#" class="float-cancel" data-bypass="true">Cancel</a>
 	</form>
+</script>
+
+
+<script type="text/template" id="booleanEditTpl">
+	<input type="checkbox" value="<%= value %>" placeholder="Value" <%= value == true ? 'checked' : '' %> >
 </script>
 
 </div>
