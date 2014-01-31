@@ -23,6 +23,8 @@ module.exports = function(baseUrl){
 		'put::/api/docs/:type/:id': 'apiDocument::update',
 		'delete::/api/docs/:type/:id': 'apiDocument::remove',
 
+		'get::/mongoreset': 'mongoReset::main',
+
 		'*': 'main'
 	};
 };

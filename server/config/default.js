@@ -1,6 +1,7 @@
 var path = require('path'),
 	basepath = path.join(__dirname, '../..'),
-	monBaseUrl = '/'
+	monBaseUrl = '/',
+	dbName = 'mongo_on_node'
 ;
 
 module.exports = {
@@ -8,7 +9,8 @@ module.exports = {
 		baseUrl: monBaseUrl,
 		settingsCollection: 'monSettings'
 	},
-	mongo: 'mongodb://localhost:27017/quinielo',
+	dbName: dbName,
+	mongo: 'mongodb://localhost:27017/' + dbName,
 	routes: require('./routes')(monBaseUrl),
 	navigation: require('./navigation'),
 	path: {
