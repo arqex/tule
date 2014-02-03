@@ -1,0 +1,33 @@
+<div> <!--	Wrapper to easily access to all the templates -->
+
+<script type="text/template" id="tableTpl">
+	<table class="collection-table"></table>
+</script>
+
+<script type="text/template" id="docTpl">
+<tr data-id="<%= id %>" class="document-header" id="document-<%= id %>">
+<% _.each(fields, function(field){ %>
+	<% if(_.isObject(field)){ // icon control %>		
+		<td class="document-control document-control-<%= field.action %>" data-action="<%= field.action %>">
+			<a href="<%= field.href %>" data-bypass="true">
+				<span class="fa fa-<%= field.icon %>"></span>
+			</a>
+		</td>
+	<% } else { // Doc field %>
+		<td class="document-field-<%= field %>" data-action="<%= field %>"><%= doc[field] %></td>
+	<% } %>
+<%	}) %>
+</tr>
+<% if(editing){ %>
+<tr class="document-content" data-id="<%= id %>" id="document-editing-<%= id %>">
+	<td colspan="<%= fields.length %>">
+		<div class="document-options">
+			<a href="#" data-bypass="true" class="document-cancel">Cancel</a> 
+			<button class="document-ok">Save</button>
+		</div>
+	</td>
+</tr>
+<% } //Endif editing %>
+</script>
+
+</div>

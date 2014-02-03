@@ -19,8 +19,11 @@ var MQuery = Backbone.Collection.extend({
 });
 
 var MCollection = MDoc.extend({
+	idAttribute: 'type',
 	initialize: function(attrs, opts){
 		this.type = opts.type;
+		this.set('type', opts.type);
+		this.settingsFetched = false;
 	},
 	query: function(opts){
 		var query = new MQuery([], {type: this.type}),
@@ -38,10 +41,11 @@ var MCollection = MDoc.extend({
 		var me = this,
 			deferred = $.Deferred()
 		;
-		if(!this.isNew())
+		if(this.settingsFetched)
 			deferred.resolve(this.toJSON());
 		else
 			this.fetch({success:function(){
+				me.settingsFetched = true;
 				deferred.resolve(me.toJSON());
 			}});
 

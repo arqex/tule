@@ -125,39 +125,47 @@ button:hover {
 	margin-top: 30px;
 }
 
+.collection-table,
 .qtable {
 	border:1px solid #eafafa;
 	width: 100%;
 }
 
+.collection-table tr,
 .qtable tr {
 	background: #e0f0f0;
 }
 
+.collection-table tr:nth-child(2n),
 .qtable tr:nth-child(2n) {
 	background: #e5f5f5;
 }
 
+.collection-table td,
 .qtable td {
 	padding: 2px 5px;
 }
 
+.collection-table .document-control,
 .qtable .control {
 	width: 20px;
 }
 
+.collection-table .document-control a,
 .qtable .control a {
 	display: block;
 	padding: 0 2px;
 	color: #2F4F4F;
 }
 
+.collection-table .document-control a:hover,
 .qtable .control a:hover {
 	color: #fff;
 	background: #2F4F4F;
 }
 
-.qtable .control a.remove:hover{
+.collection-table .control a.remove:hover,
+.qtable .control a.remove:hover {
 	background: #d02;
 }
 

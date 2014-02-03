@@ -107,9 +107,6 @@ module.exports = {
 			if(names.indexOf(type) == -1)
 				return res.send(400, {error: 'Unknown collection type.'});
 
-			var doc = {message: "Un mensaje"};
-			req.app.db.collection(type).insert(doc, function(err, newDoc){});
-
 			var page = params.page || 1,
 				pageSize = 20,
 				collection = req.app.db.collection(type)

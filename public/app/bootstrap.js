@@ -13,7 +13,8 @@ require.config({
 			deps: ['underscore', 'jquery'],
 			exports: 'Backbone'
 		},
-	}
+	},
+	//urlArgs: "time=" + (new Date()).getTime()
 });
 
 require(['app'], function(App) {
