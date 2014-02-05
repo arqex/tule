@@ -10,7 +10,7 @@ var mongojs = require('mongojs'),
 ;
 
 module.exports = {
-	list: function(req, res){
+	list: function(req, res){		
 		req.app.db.getCollectionNames(function(err, names){
 			if(err){
 				console.log(err);
@@ -29,7 +29,7 @@ module.exports = {
 			res.json(names);
 		});
 	},
-	getConfig: function(req, res){
+	getConfig: function(req, res){				
 		var db		= req.app.db,
 			type 	= req.params.type
 		;
@@ -101,4 +101,6 @@ module.exports = {
 		});
 
 	}
+
+	
 }

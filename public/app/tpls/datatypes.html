@@ -13,8 +13,8 @@
 
 <script type="text/template" id="objectPropertyTpl">
 	<div class="object-property" data-path="<%= path %>" data-key="<%= key %>">
-		<div class="property-key"><a href="#" class="property-delete fa fa-minus-circle" title="Delete <%= key %>"></a> <%= key %>:</div> 
-		<div class="property-value property-mode-<%= mode %>"></div>
+		<div class="property-key"><a href="#" data-bypass="true" class="property-delete" title="Delete <%= key %>"><i class="fa fa-minus-circle"></i></a> <%= key %>:</div> 
+		<div class="property-value property-mode-<%= mode %>"></div>		
 	</div>	
 </script>
 
@@ -31,10 +31,10 @@
 	</form>
 </script>
 
+
 <script type="text/template" id="stringTpl">
 	<div class="string-display">"<%= value %>"</div>
 </script>
-
 
 <script type="text/template" id="stringEditTpl">
 	<form class="string-form">
@@ -44,10 +44,10 @@
 	</form>
 </script>
 
+
 <script type="text/template" id="integerTpl">
 	<div class="integer-display"><%= value %></div>
 </script>
-
 
 <script type="text/template" id="integerEditTpl">
 	<form class="integer-form">
@@ -74,5 +74,41 @@
 <script type="text/template" id="booleanEditTpl">
 	<input type="checkbox" value="<%= value %>" placeholder="Value" <%= value == true ? 'checked' : '' %> >
 </script>
+
+
+<!-- Array -->
+
+	
+<script type="text/template" id="arrayTpl">
+	<div class="element-data" data-path="<%= path %>">
+		<%= _.keys(value).length  %> <%= _.keys(value).length == 1 ? 'element' : 'elements' %>
+	</div>
+</script>
+
+<script type="text/template" id="arrayEditTpl">
+	<div class="array-elements"></div>
+	<a class="array-add-element"><i class="fa fa-plus-circle"></i> Add an element</a>
+</script>
+
+<script type="text/template" id="arrayElementTpl">
+	<div class="array-element" data-path="<%= path %>" data-key="<%= idx %>">
+		<div class="element-idx"><a href="#" class="element-delete fa fa-minus-circle" title="Delete <%= key %>"></a> <%= idx %>:</div> 
+		<div class="element-value element-mode-<%= mode %>"></div>
+	</div>	
+</script>
+
+<script type="text/template" id="elementFormTpl">
+	<form class="element-form" data-key='<%= idx %>'>
+		<span class="element-index"><%= idx %></span>
+		<select>
+			<option value="0">Select a type...</option>
+			<% _.each(types, function(type){ %>
+			<option value="<%= type.id %>" <%= type.id == element.type ? 'checked="checked"' : '' %>><%= type.name %></option>
+			<% }) %>
+		</select>
+		<button class="element-edit-ok"><%= element.name ? 'Ok' : 'Add' %></button>
+	</form>
+</script>
+
 
 </div>

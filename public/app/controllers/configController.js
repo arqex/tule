@@ -18,7 +18,7 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 					collection: collections,
 					fields: [
 						'type',
-						{action: 'browse', href:'#', icon:'eye'}
+						{action: 'browse', href:'#', icon:'eye'}						
 					]
 				});
 				view.render();
