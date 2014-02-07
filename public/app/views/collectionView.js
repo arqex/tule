@@ -20,7 +20,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 						path: this.model.id,
 						model: new DatatypeViews.FieldModel({
 							type: 'object',
-							value: this.model.toJSON()
+							value: this.model
 						}),
 						mode: 'edit'
 					})

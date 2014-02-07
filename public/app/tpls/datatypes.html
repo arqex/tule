@@ -92,7 +92,7 @@
 
 <script type="text/template" id="arrayElementTpl">
 	<div class="array-element" data-path="<%= path %>" data-key="<%= idx %>">
-		<div class="element-idx"><a href="#" class="element-delete fa fa-minus-circle" title="Delete <%= key %>"></a> <%= idx %>:</div> 
+		<div class="element-idx"><a href="#" data-bypass="true" class="element-delete fa fa-minus-circle" title="Delete <%= idx %>"></a> <%= idx %>:</div> 
 		<div class="element-value element-mode-<%= mode %>"></div>
 	</div>	
 </script>

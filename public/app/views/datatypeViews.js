@@ -427,7 +427,7 @@ define(deps, function($,_,Backbone, tplSource){
 				me.listenTo(me.subViews[fieldKey].model, 'destroy', function(subViewModel){
 					me.subViews[fieldKey].remove();
 					delete me.subViews[fieldKey];
-					// Update parent model:
+					// Update parent model:					
 					this.model.get('value').unset(fieldKey);					
 				});
 			});
@@ -567,7 +567,7 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 
 		render: function(){
-			console.log("RENDERING ARRAY");
+			console.log("RENDERING ARRAY ELEMENT");
 			this.$el
 				.html(this.tpl({path: this.path, idx: this.idx, mode: this.mode}))
 				.find('.element-value')
@@ -615,35 +615,34 @@ define(deps, function($,_,Backbone, tplSource){
 			if(!(this.model.get('value') instanceof Backbone.Collection))
 				this.model.set('value', new Backbone.Collection(this.model.get('value')));
 
-			this.model.get('value').each(function(element){
-				console.log("ola");
-				// var fieldPath = me.path + '.' + fieldKey,
-				// 	fieldType = dispatcher.getDataType(fieldValue),
-				// 	fieldView = dispatcher.getView(fieldType, fieldPath, fieldValue)
-				// ;
-				// me.subViews[fieldKey] = new ArrayElementView({
-				// 	view: fieldView,
-				// 	path: fieldPath,
-				// 	key: fieldKey,
-				// 	mode: 'display'
-				// });
-				/*
-				me.listenTo(me.subViews[fieldKey].model, 'change', function(subViewModel){
-					var value = subViewModel.get('value');
-					if(value instanceof Backbone.Model)
-						value = value.toJSON();
-					me.model.get('value').set(fieldKey, value);
-					console.log(this.path);
-					console.log(me.model.get('value').toJSON());
+			_.each(this.model.get('value'), function(element, idx){	
+				var	elementPath = me.path + '.' + idx,
+					elementType = dispatcher.getDataType(element),
+					elementView = dispatcher.getView(elementType, elementPath, element)
+				;
+				me.subViews[idx] = new ArrayElementView({
+					view: elementView,
+					path: elementPath,
+					idx: idx,
+					mode: 'display'
 				});
-*/
+
+				me.listenTo(me.subViews[idx].model, 'destroy', function(subViewModel){
+					me.subViews[idx].remove();
+					delete me.subViews[idx];
+					// Update parent model:					
+					//this.model.get('value').unset(idx);					
+				});				
+
 			});
 
+			this.model.set('value', new Backbone.Collection(this.model.get('value')));
 			this.listenTo(this.model, 'change', this.render);
-			this.listenTo(this.model.get('value'), 'change', this.render);
+			this.listenTo(this.model.get('value'), 'change add remove', this.render);
 		},
 
 		render: function(){
+			console.log("RENDERING ARRAY");
 			var tpl = this.editTpl;
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
@@ -663,6 +662,7 @@ define(deps, function($,_,Backbone, tplSource){
 				});
 
 				if(_.isEmpty(this.subViews))
+					console.log("empty");
 					this.onAddField();
 			}
 
@@ -670,8 +670,7 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 
 
-		onAddField: function(){
-			console.log("onAddField");
+		onAddField: function(){			
 			var me = this;
 			this.$('a.array-add-element')
 				.replaceWith(this.elementFormTpl({
