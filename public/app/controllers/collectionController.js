@@ -16,6 +16,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser){
 				var view = new CollectionViews.CollectionView({
 					collection: results,
 					fields: [
+						'message',
 						{action: 'edit', href: "#", icon: 'pencil'},
 						{action: 'remove', href: "#", icon: 'times'}
 					]
@@ -36,6 +37,9 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser){
 							}
 						});
 					return false;
+				});
+				view.on('click:message', function(docView){
+					docView.open();
 				});
 				view.render();
 				mainView.loadView(view);

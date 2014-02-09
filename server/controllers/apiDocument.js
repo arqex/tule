@@ -39,8 +39,7 @@ module.exports = {
 	update: function(req, res){
 		var id = req.params.id,
 			type = req.params.type,
-			doc = req.body,
-			collection
+			doc = req.body
 		;
 		if(!id)
 			res.send(400, {error: 'No document id given.'});
@@ -48,18 +47,13 @@ module.exports = {
 			res.send(400, {error: 'No document type given.'});
 
 		if(id != doc._id)
-			res.send(400, {error: 'Wrong id for the document.'})
+			res.send(400, {error: 'Wrong id for the document.'});
 
-		doc.delete('_id');
+		doc._id = new mongojs.ObjectId(doc._id);
 
-		req.app.db.collection(type).findAndModify(
-			{
-				query: {_id: mongojs.ObjectId(id)},
-				update: doc,
-			}, 
-			function(err, newDoc){
+		req.app.db.collection(type).save(doc, function(err, newDoc){
 				if(err){
-					console.log(error);
+					console.log(err);
 					res.send(400, {error: 'Internal Error'});
 				}
 				res.json(newDoc);
@@ -69,9 +63,9 @@ module.exports = {
 
 	remove: function(req, res){
 		var id = req.params.id,
-			type = req.params.type,
-			collection
+			type = req.params.type
 		;
+
 		if(!id)
 			res.send(400, {error: 'No document id given.'});
 		if(!type)
@@ -81,8 +75,8 @@ module.exports = {
 			{_id: mongojs.ObjectId(id)},
 			function(err){
 				if(err){
-					console.log(error);
-					res.send(400, {error: 'Internal Error'});					
+					console.log(err);
+					res.send(400, {error: 'Internal Error'});
 				}
 				res.send(200, {}); // Empty hash needed for trigger backbone's success callback
 			}
