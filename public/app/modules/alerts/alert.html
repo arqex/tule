@@ -1,0 +1,12 @@
+<div class="mon-alert mon-alert-<%= level %>" id="<%= id %>">
+	<% if(!confirmButtons){ %>
+	<a href="#" data-bypass="1" class="mon-alert-close fa fa-times-circle"></a>
+	<% } %>
+	<div class="mon-alert-content"><%= message %></div>
+	<% if(confirmButtons){ %>
+	<div class="mon-alert-confirm">
+		<button class="mon-alert-cancel"><%= confirmButtons.cancel %></button>
+		<button class="mon-alert-ok"><%= confirmButtons.ok %></button>
+	</div>
+	<% } %>
+</div>

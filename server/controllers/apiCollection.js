@@ -10,16 +10,12 @@ var mongojs = require('mongojs'),
 ;
 
 module.exports = {
-	list: function(req, res){		
+	list: function(req, res){
 		req.app.db.getCollectionNames(function(err, names){
 			if(err){
 				console.log(err);
 				return res.send(400, {error: 'Internal error.'});
 			}
-
-			req.app.db.collection('test').insert({
-				message: 'Documento de prueba'
-			});
 
 			var collections = [];
 			_.each(names, function(name){
@@ -48,7 +44,6 @@ module.exports = {
 	},
 
 	updateConfig: function(req, res){
-
 		var db 		= req.app.db,
 			type 	= req.params.type,
 			doc 	= req.body
@@ -99,8 +94,6 @@ module.exports = {
 		req.app.db.collection(type).insert(doc, function(err, newDoc){
 			res.json(newDoc);
 		});
-
 	}
-
 	
 }

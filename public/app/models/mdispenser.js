@@ -7,7 +7,7 @@ var fields = {
 };
 
 var MDoc = Backbone.Model.extend({
-	idAttribute: '_id',
+	idAttribute: '_id'
 });
 
 var MQuery = Backbone.Collection.extend({

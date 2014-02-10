@@ -1,6 +1,10 @@
-define(['jquery', 'underscore', 'backbone'], function($,_,Backbone){
+define(['jquery', 'underscore', 'backbone', 'modules/alerts/alerts'], function($,_,Backbone, Alerts){
 	var MainView = Backbone.View.extend({
 		contentView: false,
+		initialize: function() {
+			window.alerter = Alerts.alerter;
+			this.$('.pagetitle').after(Alerts.alerter.el);
+		},
 		loadView: function(view){
 			if(view.close)
 				view.close();

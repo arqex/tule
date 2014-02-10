@@ -124,14 +124,16 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			e.preventDefault();
 			var	docId = $(e.target).closest('tr').data('id'),
 				doc = this.collection.get(docId),
-				values = this.docViews[docId].getValue()
+				view = this.docViews[docId]
 			;
 
-			_.each(values, function(value, key){
+			_.each(view.getValue(), function(value, key){
 				doc.set(key, value, {silent:true});
 			});
 
-			doc.save();
+			doc.save(null, {success: function(){
+				view.render();
+			}});
 		},
 
 		onClickCancel: function(e){
