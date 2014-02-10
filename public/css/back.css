@@ -287,7 +287,10 @@ a.element-delete {
 	color: #d02;
 }
 
-.colorize { color: red; }
+.inline { 
+	color: blue;	
+
+}
 /******
 Alerter
 *******/

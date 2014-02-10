@@ -12,7 +12,7 @@
 </script>
 
 <script type="text/template" id="objectPropertyTpl">
-	<div class="object-property" data-path="<%= path %>" data-key="<%= key %>">
+	<div class="<%= (inline) ? 'object-property inline' : 'object-property' %>" data-path="<%= path %>" data-key="<%= key %>">
 		<div class="property-key"><a href="#" data-bypass="true" class="property-delete" title="Delete <%= key %>"><i class="fa fa-minus-circle"></i></a> <%= key %>:</div> 
 		<div class="property-value property-mode-<%= mode %>"></div>		
 	</div>	
@@ -81,7 +81,7 @@
 	
 <script type="text/template" id="arrayTpl">
 	<div class="element-data" data-path="<%= path %>">
-		<%= _.keys(value).length  %> <%= _.keys(value).length == 1 ? 'element' : 'elements' %>
+		<%= idx  %> <%= idx == 1 ? 'element' : 'elements' %>
 	</div>
 </script>
 
@@ -91,7 +91,7 @@
 </script>
 
 <script type="text/template" id="arrayElementTpl">
-	<div class="array-element" data-path="<%= path %>" data-key="<%= idx %>">
+	<div  class="<%= (inline) ? 'array-element inline' : 'array-element' %>" data-path="<%= path %>" data-key="<%= idx %>">
 		<div class="element-idx"><a href="#" data-bypass="true" class="element-delete fa fa-minus-circle" title="Delete <%= idx %>"></a> <%= idx %>:</div> 
 		<div class="element-value element-mode-<%= mode %>"></div>
 	</div>	

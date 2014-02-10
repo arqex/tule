@@ -91,11 +91,16 @@ define(deps, function($,_,Backbone, tplSource){
 		}
 	});
 
-	var singletonAlert = new AlertView();
+	var singletonAlert  = new AlertView();
+	var singletonAdd	= function(alertOptions) {
+		return singletonAlert.add(alertOptions);
+	} 
 
 	return {
 		AlertView: AlertView,
 		Alert: Alert,
-		alerter: singletonAlert
+		alerter: singletonAlert,
+		add: singletonAdd
+
 	};
 });

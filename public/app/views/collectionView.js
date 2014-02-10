@@ -1,9 +1,10 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
 	'text!tpls/docTable.html',
-	'views/datatypeViews'
+	'views/datatypeViews',
+	'modules/alerts/alerts'
 ];
-define(deps, function($,_,Backbone, tplSource, DatatypeViews){
+define(deps, function($,_,Backbone, tplSource, DatatypeViews, Alerts){
 	'use strict';
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
@@ -132,6 +133,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			});
 
 			doc.save(null, {success: function(){
+				Alerts.add({message:'Document saved correctly', autoclose:6000});
 				view.render();
 			}});
 		},

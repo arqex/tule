@@ -13,7 +13,7 @@ define(deps, function($,_,Backbone, tplSource){
 	};
 
 	DataTypeDispatcher.prototype = {
-		getView: function(typeId, path, value){
+		getView: function(typeId, path, value, inline){
 			var type = this.types[typeId];
 			if(!type){
 				console.log('Data type "' + typeId + '" unknown, returning String.');
@@ -24,7 +24,7 @@ define(deps, function($,_,Backbone, tplSource){
 			if(_.isUndefined(value))
 				value = defaultValue;
 
-			return new type.View({path: path, model: new FieldModel({type: type.id, value: value})});
+			 return new type.View({path: path, model: new FieldModel({type: type.id, value: value, inline:type.inline})});
 		},
 
 		registerType: function(type){
@@ -62,7 +62,8 @@ define(deps, function($,_,Backbone, tplSource){
 	var FieldModel = Backbone.Model.extend({
 		defaults: {
 			type: false,
-			value: false
+			value: false,
+			inline: false
 		}
 	});
 
@@ -135,6 +136,7 @@ define(deps, function($,_,Backbone, tplSource){
 		id: 'string',
 		name: 'String',
 		defaultValue: '',
+		inline: true,
 		View: StringTypeView
 	});
 
@@ -206,6 +208,7 @@ define(deps, function($,_,Backbone, tplSource){
 		id: 'integer',
 		name: 'Integer',
 		defaultValue: 0,
+		inline: true,
 		View: IntegerTypeView
 	});
 
@@ -215,7 +218,7 @@ define(deps, function($,_,Backbone, tplSource){
 		events: {
 			'click .float-ok': 'onClickOk',
 			'onKeyup form': 'onKeyup',
-			'click .float-cancel': 'onClickCanel'
+			'click .float-cancel': 'onClickCancel'
 		},
 
 		render: function() {
@@ -277,6 +280,7 @@ define(deps, function($,_,Backbone, tplSource){
 		id: 'float',
 		name: 'Double',
 		defaultValue: 0.0,
+		inline: true,
 		View: FloatTypeView
 	});
 
@@ -315,6 +319,7 @@ define(deps, function($,_,Backbone, tplSource){
 		id: 'bool',
 		name: 'Boolean',
 		defaultValue: false,
+		inline: true,
 		View: BooleanTypeView
 	});
 
@@ -334,6 +339,7 @@ define(deps, function($,_,Backbone, tplSource){
 			this.propertyView = opts.view;
 			this.propertyView.mode = opts.mode;
 			this.model = this.propertyView.model;
+			this.inline = opts.inline;
 
 			this.listenTo(this.propertyView, 'changeMode', function(mode){
 				this.changeMode(mode);
@@ -352,7 +358,7 @@ define(deps, function($,_,Backbone, tplSource){
 
 		render: function(){
 			this.$el
-				.html(this.tpl({path: this.path, key: this.key, mode: this.mode}))
+				.html(this.tpl({inline:this.inline, path: this.path, key: this.key, mode: this.mode}))
 				.find('.property-value')
 					.html(this.propertyView.el)
 			;
@@ -415,12 +421,14 @@ define(deps, function($,_,Backbone, tplSource){
 			_.each(this.model.get('value').toJSON(), function(fieldValue, fieldKey){
 				var fieldPath = me.path + '.' + fieldKey,
 					fieldType = dispatcher.getDataType(fieldValue),
-					fieldView = dispatcher.getView(fieldType, fieldPath, fieldValue)
+					fieldView = dispatcher.getView(fieldType, fieldPath, fieldValue),
+					fieldInline = fieldView.model.get('inline');
 				;
 				me.subViews[fieldKey] = new ObjectPropertyView({
 					view: fieldView,
 					path: fieldPath,
 					key: fieldKey,
+					inline: fieldInline,
 					mode: 'display'
 				});
 				
@@ -530,6 +538,7 @@ define(deps, function($,_,Backbone, tplSource){
 		id: 'object',
 		name: 'Hash',
 		View: ObjectTypeView,
+		inline: false,
 		defaultValue: {}
 	});
 
@@ -550,6 +559,7 @@ define(deps, function($,_,Backbone, tplSource){
 			this.elementView = opts.view;
 			this.elementView.mode = opts.mode;
 			this.model = this.elementView.model;
+			this.inline = opts.inline;
 
 			this.listenTo(this.elementView, 'changeMode', function(mode){
 				this.changeMode(mode);
@@ -567,9 +577,9 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 
 		render: function(){
-			console.log("RENDERING ARRAY ELEMENT");
+			
 			this.$el
-				.html(this.tpl({path: this.path, idx: this.idx, mode: this.mode}))
+				.html(this.tpl({path: this.path, idx: this.idx, mode: this.mode, inline:this.inline}))
 				.find('.element-value')
 					.html(this.elementView.el)
 			;
@@ -612,18 +622,20 @@ define(deps, function($,_,Backbone, tplSource){
 			this.mode = opts.mode || 'display';
 
 			//Ensure backbone model for listening to changes
-			if(!(this.model.get('value') instanceof Backbone.Collection))
-				this.model.set('value', new Backbone.Collection(this.model.get('value')));
+			//if(!(this.model.get('value') instanceof Backbone.Collection))
+			//	this.model.set('value', new Backbone.Collection(this.model.get('value')));
 
 			_.each(this.model.get('value'), function(element, idx){	
 				var	elementPath = me.path + '.' + idx,
 					elementType = dispatcher.getDataType(element),
-					elementView = dispatcher.getView(elementType, elementPath, element)
+					elementView = dispatcher.getView(elementType, elementPath, element),
+					elementInline = elementView.model.get('inline')
 				;
 				me.subViews[idx] = new ArrayElementView({
 					view: elementView,
 					path: elementPath,
 					idx: idx,
+					inline: elementInline,
 					mode: 'display'
 				});
 
@@ -642,13 +654,17 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 
 		render: function(){
-			console.log("RENDERING ARRAY");
+			
 			var tpl = this.editTpl;
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
 
 			this.$el
-				.html(tpl({path: this.path, value: this.model.get('value')}))
+				.html(tpl({
+					idx:this.model.get('value').length, 
+					path: this.path, 
+					value: this.model.get('value')
+				}))
 				.attr('class', this.className + ' field-mode-' + this.mode)
 			;
 			this.delegateEvents();
@@ -729,6 +745,7 @@ define(deps, function($,_,Backbone, tplSource){
 		id: 'array',
 		name: 'Array',
 		View: ArrayTypeView,
+		inline: false,
 		defaultValue: []
 	});
 
