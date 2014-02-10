@@ -189,6 +189,8 @@ Documents
 /*******
 Data types
 ********/
+.inline { display: inline-block; }
+
 .object-properties div{
 	margin-bottom: 0;
 }
@@ -253,3 +255,36 @@ td>div.field-mode-edit:before {
 	display: block;
 	margin-left: 17px;
 }
+
+/*******
+ARRAY
+*******/
+.array-elements .array-element:nth-child(1) {
+	width: 100%;
+}
+.array-elements div{
+	margin-bottom: 0;
+}
+
+.element-idx,
+.element-mode-display {
+	display: inline-block;	
+}
+
+a.element-delete {
+	visibility: hidden;
+}
+
+.element-idx {
+	color:#335153;
+}
+
+.element-idx:hover .element-delete {
+	visibility: visible;
+}
+
+.element-data a.fa-minus-circle:hover {
+	color: #d02;
+}
+
+.colorize { color: red; }
