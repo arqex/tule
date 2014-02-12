@@ -543,22 +543,22 @@ define(deps, function($,_,Backbone, tplSource){
 	});
 
 
-
 	var ArrayElementView = Backbone.View.extend({
 
 		tpl: _.template($(tplSource).find('#arrayElementTpl').html()),
 		events: {
 			'click .element-value': 'onClickFieldValue',
-			'click .element-idx': 'onClickFieldIdx'
+			'click .element-idx': 'onClickFieldIdx',
+			'click .element-delete': 'onClickDelete'
 		},
 
 		initialize: function(opts){		
-			this.mode = opts.mode || 'display';
-			this.idx = opts.idx;
-			this.path = opts.path;
+			this.mode 	= opts.mode || 'display';
+			this.idx 	= opts.idx;
+			this.path 	= opts.path;
 			this.elementView = opts.view;
 			this.elementView.mode = opts.mode;
-			this.model = this.elementView.model;
+			this.model 	= this.elementView.model;
 			this.inline = opts.inline;
 
 			this.listenTo(this.elementView, 'changeMode', function(mode){
@@ -576,8 +576,7 @@ define(deps, function($,_,Backbone, tplSource){
 			this.render();
 		},
 
-		render: function(){
-			
+		render: function(){			
 			this.$el
 				.html(this.tpl({path: this.path, idx: this.idx, mode: this.mode, inline:this.inline}))
 				.find('.element-value')
@@ -597,12 +596,22 @@ define(deps, function($,_,Backbone, tplSource){
 				this.changeMode();
 		},
 
+		onClickDelete: function(e){						
+			e.preventDefault();
+			
+			var idx = $(e.target).closest('.array-element').data('key');
+			if(this.idx == idx) {
+				this.model.destroy();
+			}
+		},
+
 		onClickFieldIdx: function(e){
 			var element = $(e.target).closest('.array-element');
 			if(element.data('path') == this.path)
 				this.changeMode();
 		},
 	});
+
 
 	var ArrayTypeView = Backbone.View.extend({
 		displayTpl: _.template($(tplSource).find('#arrayTpl').html()),
@@ -629,38 +638,36 @@ define(deps, function($,_,Backbone, tplSource){
 				var	elementPath = me.path + '.' + idx,
 					elementType = dispatcher.getDataType(element),
 					elementView = dispatcher.getView(elementType, elementPath, element),
-					elementInline = elementView.model.get('inline')
+					elementInline = elementView.model.get('inline'),
+					elementActualView = new ArrayElementView({
+						view: elementView,
+						path: elementPath,
+						idx: idx,
+						inline: elementInline,
+						mode: 'display'
+					})
 				;
-				me.subViews[idx] = new ArrayElementView({
-					view: elementView,
-					path: elementPath,
-					idx: idx,
-					inline: elementInline,
-					mode: 'display'
-				});
+				me.subViews[idx] = elementActualView;
 
 				me.listenTo(me.subViews[idx].model, 'destroy', function(subViewModel){
-					me.subViews[idx].remove();
-					delete me.subViews[idx];
-					// Update parent model:					
-					//this.model.get('value').unset(idx);					
+					var idx = elementActualView.idx;
+					me.deleteElements(idx);
 				});				
 
 			});
-
+			
 			this.model.set('value', new Backbone.Collection(this.model.get('value')));
 			this.listenTo(this.model, 'change', this.render);
 			this.listenTo(this.model.get('value'), 'change add remove', this.render);
 		},
 
-		render: function(){
-			
+		render: function(){	
 			var tpl = this.editTpl;
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
-
+			
 			this.$el
-				.html(tpl({
+				.html(tpl({					
 					idx:this.model.get('value').length, 
 					path: this.path, 
 					value: this.model.get('value')
@@ -716,14 +723,33 @@ define(deps, function($,_,Backbone, tplSource){
 			if(!type)
 				return console.log('You need to set a type for the element');
 
-			this.subViews[idx] = new ArrayElementView({
+			var elementActualView = new ArrayElementView({
 				view: dispatcher.getView(type, this.path + '.' + idx),
 				idx: idx,
 				path: this.path + '.' + idx,
 				mode: 'edit'
 			});
 
+			this.subViews[idx] = elementActualView;			
+
 			this.model.get('value').add(this.subViews[idx].model);
+
+			this.listenTo(this.subViews[idx].model, 'destroy', function(){				
+				var idx = elementActualView.idx;
+				me.deleteElements(idx);
+			});
+		},
+
+		deleteElements: function(idx){
+			this.subViews[idx].remove();
+			this.subViews.splice(idx,1);
+			var looper = idx + 1;		
+			while (this.subViews.length > idx) {						
+				this.subViews[idx].idx = ((this.subViews[idx].idx) - 1);
+				idx ++;
+			}
+			var modelToDie = this.model.get('value').at(idx);
+			this.model.get('value').remove(modelToDie);
 		},
 
 		changeMode: function(mode){

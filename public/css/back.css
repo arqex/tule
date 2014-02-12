@@ -189,8 +189,6 @@ Documents
 /*******
 Data types
 ********/
-.inline { display: inline-block; }
-
 .object-properties div{
 	margin-bottom: 0;
 }
@@ -287,10 +285,16 @@ a.element-delete {
 	color: #d02;
 }
 
-.inline { 
-	color: blue;	
-
+.inline,
+.inline .element-mode-edit,
+.inline .property-mode-edit { 	
+	display: inline-block;
 }
+
+.element-value {
+	margin-left: 15px;
+}
+
 /******
 Alerter
 *******/
