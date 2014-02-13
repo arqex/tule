@@ -1,11 +1,12 @@
 "use strict";
 
 var deps = [
-	'jquery', 'underscore', 'backbone',
-	'text!tpls/datatypes.html'
+	'underscore', 'backbone',
+	'text!tpls/datatypes.html',
+	'jquery', 'jquery.ui.sortable'
 ];
 
-define(deps, function($,_,Backbone, tplSource){
+define(deps, function(_,Backbone, tplSource, $){
 
 	var DataTypeDispatcher = function(){
 		this.types = {};
@@ -467,6 +468,8 @@ define(deps, function($,_,Backbone, tplSource){
 					this.onAddField();
 			}
 
+			this.$('.object-properties').sortable();
+
 			return this;
 		},	
 
@@ -582,6 +585,7 @@ define(deps, function($,_,Backbone, tplSource){
 				.find('.element-value')
 					.html(this.elementView.el)
 			;
+
 			this.elementView.render();
 			this.elementView.delegateEvents();
 			return this;
@@ -688,6 +692,8 @@ define(deps, function($,_,Backbone, tplSource){
 					console.log("empty");
 					this.onAddField();
 			}
+
+			this.$('.array-elements').sortable();
 
 			return this;
 		},
