@@ -12,7 +12,7 @@
 </script>
 
 <script type="text/template" id="objectPropertyTpl">
-	<div class="<%= (inline) ? 'object-property inline' : 'object-property' %>" data-path="<%= path %>" data-key="<%= key %>">
+	<div id="<%= id %>" class="<%= (inline) ? 'object-property inline' : 'object-property' %>" data-path="<%= path %>" data-key="<%= key %>">
 		<div class="property-key"><a href="#" data-bypass="true" class="property-delete" title="Delete <%= key %>"><i class="fa fa-minus-circle"></i></a> <%= key %>:</div> 
 		<div class="property-value property-mode-<%= mode %>"></div>		
 	</div>	

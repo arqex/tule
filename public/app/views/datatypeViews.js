@@ -3,7 +3,7 @@
 var deps = [
 	'underscore', 'backbone',
 	'text!tpls/datatypes.html',
-	'jquery', 'jquery.ui.sortable'
+	'jquery', 'jquery.ui.sortable', 'jquery.ui.widget'
 ];
 
 define(deps, function(_,Backbone, tplSource, $){
@@ -334,13 +334,14 @@ define(deps, function(_,Backbone, tplSource, $){
 		},
 
 		initialize: function(opts){
-			this.mode = opts.mode || 'display';
-			this.key = opts.key;
-			this.path = opts.path;
+			this.mode 	= opts.mode || 'display';
+			this.key 	= opts.key;
+			this.path 	= opts.path;
 			this.propertyView = opts.view;
 			this.propertyView.mode = opts.mode;
-			this.model = this.propertyView.model;
+			this.model 	= this.propertyView.model;
 			this.inline = opts.inline;
+			this.cid 	= "property_" + this.model.cid;
 
 			this.listenTo(this.propertyView, 'changeMode', function(mode){
 				this.changeMode(mode);
@@ -359,7 +360,7 @@ define(deps, function(_,Backbone, tplSource, $){
 
 		render: function(){
 			this.$el
-				.html(this.tpl({inline:this.inline, path: this.path, key: this.key, mode: this.mode}))
+				.html(this.tpl({id:this.cid, inline:this.inline, path: this.path, key: this.key, mode: this.mode}))
 				.find('.property-value')
 					.html(this.propertyView.el)
 			;
@@ -423,7 +424,7 @@ define(deps, function(_,Backbone, tplSource, $){
 				var fieldPath = me.path + '.' + fieldKey,
 					fieldType = dispatcher.getDataType(fieldValue),
 					fieldView = dispatcher.getView(fieldType, fieldPath, fieldValue),
-					fieldInline = fieldView.model.get('inline');
+					fieldInline = fieldView.model.get('inline')					
 				;
 				me.subViews[fieldKey] = new ObjectPropertyView({
 					view: fieldView,
@@ -446,7 +447,10 @@ define(deps, function(_,Backbone, tplSource, $){
 		},
 
 		render: function(){			
-			var tpl = this.editTpl;
+			var tpl = this.editTpl,
+				me  = this
+			;
+
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
 
@@ -468,11 +472,9 @@ define(deps, function(_,Backbone, tplSource, $){
 					this.onAddField();
 			}
 
-			this.$('.object-properties').sortable();
-
 			return this;
 		},	
-
+		
 		onAddField: function(){
 			var me = this;
 			this.$('a.object-add-property')
@@ -666,7 +668,8 @@ define(deps, function(_,Backbone, tplSource, $){
 		},
 
 		render: function(){	
-			var tpl = this.editTpl;
+			var tpl = this.editTpl,
+				me  = this;
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
 			
@@ -693,11 +696,32 @@ define(deps, function(_,Backbone, tplSource, $){
 					this.onAddField();
 			}
 
-			this.$('.array-elements').sortable();
-
+			var oldidx, newidx;
+			this.$('.array-elements').sortable({
+				start: function(event, ui) {
+					this.oldidx = $(ui.item).index();
+				},
+				update: function(event, ui) {
+					this.newidx = $(ui.item).index();
+					me.remake(this.newidx, this.oldidx);
+				}
+			});
 			return this;
 		},
 
+		remake: function(newidx, oldidx){
+			Array.prototype.move = function (from, to) {
+			  this.splice(to, 0, this.splice(from, 1)[0]);
+			};
+			this.subViews.move(oldidx,newidx);
+			_.each(this.subViews, function(subView, idx){
+				subView.idx = idx;
+			});
+			
+			var model = this.model.get('value').at(oldidx);
+			this.model.get('value').remove(model, {silent: true});
+			this.model.get('value').add(model, {at: newidx});
+		},
 
 		onAddField: function(){			
 			var me = this;
