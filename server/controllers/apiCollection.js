@@ -45,18 +45,18 @@ module.exports = {
 
 	updateConfig: function(req, res){
 		var db 		= req.app.db,
-			type 	= req.params.type,
+			name 	= req.params.name,
 			doc 	= req.body
 		;
 
 		// Creates object id
 		doc['_id'] = new mongojs.ObjectId(doc['_id']);
 
-		if(!type)
-			res.send(400, {error: 'No document type given.'});
+		if(!name)
+			res.send(400, {error: 'No document name given.'});
 
-		if(type != doc.type) {
-			res.send(400, {error: 'No type matches.'});
+		if(name != doc.name) {
+			res.send(400, {error: 'No name matches.'});
 		}
 
 		db.collection(config.mon.settingsCollection).save(doc, function(err, saved) {
@@ -67,13 +67,13 @@ module.exports = {
 	},
 
 	createConfig: function(req, res){
-		var type = req.params.type,
+		var name = req.params.name,
 			doc = req.body
 		;
-		if(!type)
-			res.send(400, {error: 'No document type given.'});
+		if(!name)
+			res.send(400, {error: 'No document name given.'});
 
-		doc.type = type;
+		doc.name = name;
 
 		req.app.db.collection(config.mon.settingsCollection).insert(doc, function(err, newDoc){
 			if(err){

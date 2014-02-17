@@ -474,7 +474,7 @@ define(deps, function(_,Backbone, tplSource, $){
 
 			return this;
 		},	
-		
+
 		onAddField: function(){
 			var me = this;
 			this.$('a.object-add-property')

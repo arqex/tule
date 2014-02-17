@@ -8,7 +8,7 @@ var deps = [
 
 define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 	return {
-		main: function(type, page){
+		main: function(){
 			var collections = Dispenser.getMCollectionList(),
 				view
 			;
@@ -17,18 +17,18 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 				view = new Collection.CollectionView({
 					collection: collections,
 					fields: [
-						'type',
+						'name',
 						{action: 'browse', href:'#', icon:'eye'}						
 					]
 				});
 				view.render();
-				view.on('click:type', function(docView){
+				view.on('click:name', function(docView){
 					docView.model.getSettings().then(function(){
 						docView.open();
 					});
 				});
 				view.on('click:browse', function(docView){
-					Backbone.history.navigate('/collections/list/' + docView.model.get('type'), {trigger: true});
+					Backbone.history.navigate('/collections/list/' + docView.model.get('name'), {trigger: true});
 				});
 				mainView.loadView(view);
 				mainView.setTitle('Settings');				
