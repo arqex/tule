@@ -25,8 +25,8 @@ var MCollection = MDoc.extend({
 		this.set('name', opts.type);
 		this.settingsFetched = false;
 	},
-	query: function(opts){		
-		var query = new MQuery([], {type: this.name}),
+	query: function(opts){
+		var query = new MQuery([], {type: this.get('name')}),
 			deferred = $.Deferred()
 		;
 		query.fetch({
@@ -52,7 +52,7 @@ var MCollection = MDoc.extend({
 		return deferred.promise();
 	},
 	url: function() {
-		return '/api/collections/' + this.type;
+		return '/api/settings/collection_' + this.type;
 	}
 });
 
