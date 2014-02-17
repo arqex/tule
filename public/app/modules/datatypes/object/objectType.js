@@ -23,6 +23,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			this.propertyView.mode = opts.mode;
 			this.model = this.propertyView.model;
 			this.inline = opts.inline;
+			this.allowDelete = opts.allowDelete;
 
 			this.listenTo(this.propertyView, 'changeMode', function(mode){
 				this.changeMode(mode);
@@ -41,7 +42,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 		render: function(){
 			this.$el
-				.html(this.tpl({inline:this.inline, path: this.path, key: this.key, mode: this.mode}))
+				.html(this.tpl({inline:this.inline, path: this.path, key: this.key, mode: this.mode, allowDelete: this.allowDelete}))
 				.find('.property-value')
 					.html(this.propertyView.el)
 			;
@@ -111,14 +112,15 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				var fieldPath = me.path + '.' + fieldKey,
 					fieldType = dispatcher.getDataType(fieldValue),
 					fieldView = dispatcher.getView(fieldType, {path:fieldPath}, fieldValue),
-					fieldInline = fieldView.model.get('inline');
+					fieldInline = fieldView.model.get('inline')
 				;
 				me.subViews[fieldKey] = new ObjectPropertyView({
 					view: fieldView,
 					path: fieldPath,
 					key: fieldKey,
 					inline: fieldInline,
-					mode: 'display'
+					mode: 'display',
+					allowDelete: me.options.customProperties
 				});
 
 				me.listenTo(me.subViews[fieldKey].model, 'destroy', function(subViewModel){

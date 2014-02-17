@@ -12,12 +12,13 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
 			this.editing = opts.editing || false;
 			this.objectView = false;
+			this.customFields = opts.customFields;
 		},
 		render: function(){
 			this.$el.html(this.tpl({id: this.model.id, editing: this.editing, fields: this.fields, doc: this.model.toJSON()}));
 
 			if(this.editing){
-				this.objectView = dispatcher.getView('object', {path: this.model.id, mode: 'edit'}, this.model);
+				this.objectView = dispatcher.getView('object', {path: this.model.id, mode: 'edit', customProperties: this.customFields}, this.model);
 				this.$('.document-content').find('td').prepend(this.objectView.$el);
 				this.objectView.render();
 			}
@@ -60,6 +61,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 		},
 		initialize: function(opts) {
 			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
+			this.customFields = opts.customFields;
 			this.docViews = {};
 			this.createDocViews();
 			this.listenTo(this.collection, 'remove', $.proxy(this.removeSubView, this));
@@ -73,7 +75,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				docViews[docId] = new DocumentView({
 					model: doc,
 					fields: me.fields,
-					editing: (me.docViews[docId] ? me.docViews[docId].editing : false)
+					editing: (me.docViews[docId] ? me.docViews[docId].editing : false),
+					customFields: me.customFields
 				});
 				docViews[docId].on('rendered', function(){
 					me.renderSubview(docViews[docId]);

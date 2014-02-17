@@ -20,7 +20,8 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 						'message',
 						{action: 'edit', href: "#", icon: 'pencil'},
 						{action: 'remove', href: "#", icon: 'times'}
-					]
+					],
+					customFields: 0
 				});
 				view.on('click:edit', function(docView){
 					docView.open();
