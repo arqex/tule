@@ -91,7 +91,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		defaultOptions: {
 			path: 'nopath',
 			model: 'display'
-		}
+		},
 
 		initialize: function(opts){
 			var me = this;

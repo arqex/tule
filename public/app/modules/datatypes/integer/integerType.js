@@ -8,7 +8,7 @@ var deps = [
 
 define(deps, function($,_,Backbone, tplSource, dispatcher){
 
-	var IntegerTypeView = Backbone.View.extend({
+	var IntegerTypeView = dispatcher.BaseView.extend({
 		tpl: _.template($(tplSource).find('#integerTpl').html()),
 		editTpl: _.template($(tplSource).find('#integerEditTpl').html()),
 		events: {
