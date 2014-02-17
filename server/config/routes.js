@@ -11,10 +11,11 @@ module.exports = function(baseUrl){
 	};
 
 	return {
+		'get::/api/settings/:name': 'apiSettings::getConfig',
+		'put::/api/settings/:name': 'apiSettings::updateConfig',
+		'post::/api/settings/:name': 'apiSettings::createConfig',
+		'delete::/api/settings/:name': 'apiSettings::removeConfig',
 		'get::/api/collections': 'apiCollection::list',
-		'get::/api/collections/:name': 'apiCollection::getConfig',
-		'put::/api/collections/:name': 'apiCollection::updateConfig',
-		'post::/api/collections/:name': 'apiCollection::createConfig',
 		'get::/api/collectionstatus/:name': 'apiCollection::getStatus',
 
 		'get::/api/docs/:type': 'apiDocument::collection',
