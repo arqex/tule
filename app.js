@@ -21,10 +21,15 @@ app.db.runCommand({ping:1}, function(err, res){
 
 	//Create the settings collection if it doesn't exist
 	app.db.collection(config.mon.settingsCollection).findOne(function(err, result){
-		if(err){
+		if(!result){
 			var collectionName = config.mon.settingsCollection,
 				settings = app.db.collection(collectionName);
-			settings.insert({name: 'globals', value: {settingsCollection: collectionName}});
+			settings.insert({
+				name: 'globals',
+				value: {settingsCollection: collectionName},
+				datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string'],
+				datatypesPath: 'modules/datatypes/'
+			});
 			settings.createIndex({name: 1}, {unique:true});
 			console.log("Settings created: " + collectionName);
 		}

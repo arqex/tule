@@ -22,7 +22,7 @@ var MCollection = MDoc.extend({
 	idAttribute: 'name',
 	initialize: function(attrs, opts){
 		this.type = opts.type;
-		this.set('name', opts.type);
+		this.set('name', 'collection_' + opts.type);
 		this.settingsFetched = false;
 	},
 	query: function(opts){

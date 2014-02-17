@@ -12,10 +12,10 @@ var mongojs = require('mongojs'),
 module.exports = {
     getConfig: function(req, res){
         var db      = req.app.db,
-            type    = req.params.type
+            name    = req.params.name
         ;
 
-        db.collection(config.mon.settingsCollection).findOne({type:type}, function(err, settings){
+        db.collection(config.mon.settingsCollection).findOne({name:name}, function(err, settings){
             if(err){
                 console.log(err);
                 return res.send(400, {error: 'Internal error.'});
@@ -86,7 +86,7 @@ module.exports = {
                     console.log(err);
                     res.send(400, {error: 'Internal Error'});
                 }
-                res.send(200, {}); // Empty hash needed for trigger backbone's success callback
+                res.send(200, {});
             }
         );
     }
