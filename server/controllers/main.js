@@ -1,6 +1,10 @@
 var config = require('config'),
 	templateData = {
-		navigation: config.navigation
+		navigation: config.navigation,
+		globals: {
+			datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string'],
+			datatypesPath: 'modules/datatypes/'
+		}
 	}
 ;
 

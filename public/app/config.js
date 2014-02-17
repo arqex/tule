@@ -5,6 +5,7 @@ define(['jquery', 'underscore', 'backbone'], function($,_,Backbone){
 			'collections/list/:id(/page/:page)': 'collectionController#list',
 			'config': 'configController#main',
 			'*path': 'homeController#notfound'
-		}
+		},
+		globals: globals
 	}
 });

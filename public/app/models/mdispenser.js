@@ -59,7 +59,7 @@ var MCollection = MDoc.extend({
 var MCollectionList = Backbone.Collection.extend({
 	model: MCollection,
 	url: '/api/collections',
-	fetch: function() {
+	fetch: function(options) {
 		var me = this,
 			deferred = $.Deferred()
 		;
@@ -91,7 +91,7 @@ var dispenser = function(){
 				return collections.type;
 
 			var collection = new MCollection([], {type: type});
-			
+
 			return collection;
 		},
 		list = function(){

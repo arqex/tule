@@ -13,7 +13,7 @@ define(deps, function($,_,Backbone, tplSource){
 	};
 
 	DataTypeDispatcher.prototype = {
-		getView: function(typeId, path, value, inline){
+		getView: function(typeId, path, value, mode){
 			var type = this.types[typeId];
 			if(!type){
 				console.log('Data type "' + typeId + '" unknown, returning String.');
@@ -24,7 +24,7 @@ define(deps, function($,_,Backbone, tplSource){
 			if(_.isUndefined(value))
 				value = defaultValue;
 
-			 return new type.View({path: path, model: new FieldModel({type: type.id, value: value, inline:type.inline})});
+			 return new type.View({path: path, model: new FieldModel({type: type.id, value: value, inline:type.inline}), mode: mode});
 		},
 
 		registerType: function(type){
@@ -45,10 +45,22 @@ define(deps, function($,_,Backbone, tplSource){
 				return 'bool';
 			}
 			return 'string';
+		},
+		getModel: function(properties){
+			return new FieldModel(properties);
 		}
 	};
 
 	var dispatcher = new DataTypeDispatcher();
+
+
+	var FieldModel = Backbone.Model.extend({
+		defaults: {
+			type: false,
+			value: false,
+			inline: false
+		}
+	});
 
 	var DataTypeView = Backbone.View.extend({
 		construct: function(options){
@@ -82,4 +94,4 @@ define(deps, function($,_,Backbone, tplSource){
 	});
 
 	return dispatcher;
-}
+});
