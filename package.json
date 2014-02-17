@@ -20,6 +20,7 @@
     "config": "~0.4.33",
     "mongojs": "~0.9.11",
     "express": "~3.4.7",
-    "underscore-template-additions": "0.0.2"
+    "underscore-template-additions": "0.0.2",
+    "node-inspector": "~0.7.0-2"
   }
 }

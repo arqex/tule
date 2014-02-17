@@ -12,10 +12,10 @@ module.exports = function(baseUrl){
 
 	return {
 		'get::/api/collections': 'apiCollection::list',
-		'get::/api/collections/:type': 'apiCollection::getConfig',
-		'put::/api/collections/:type': 'apiCollection::updateConfig',
-		'post::/api/collections/:type': 'apiCollection::createConfig',
-		'get::/api/collectionstatus/:type': 'apiCollection::getStatus',
+		'get::/api/collections/:name': 'apiCollection::getConfig',
+		'put::/api/collections/:name': 'apiCollection::updateConfig',
+		'post::/api/collections/:name': 'apiCollection::createConfig',
+		'get::/api/collectionstatus/:name': 'apiCollection::getStatus',
 
 		'get::/api/docs/:type': 'apiDocument::collection',
 		'post::/api/docs/:type': 'apiDocument::create',
