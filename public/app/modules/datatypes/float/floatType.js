@@ -7,7 +7,7 @@ var deps = [
 ];
 
 define(deps, function($,_,Backbone, tplSource, dispatcher){
-	var FloatTypeView = Backbone.View.extend({
+	var FloatTypeView = dispatcher.BaseView.extend({
 		tpl: _.template($(tplSource).find('#floatTpl').html()),
 		editTpl: _.template($(tplSource).find('#floatEditTpl').html()),
 		events: {

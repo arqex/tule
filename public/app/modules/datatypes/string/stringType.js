@@ -8,7 +8,7 @@ var deps = [
 
 define(deps, function($,_,Backbone, tplSource, dispatcher){
 
-	var StringTypeView = Backbone.View.extend({
+	var StringTypeView = dispatcher.BaseView.extend({
 		tpl: _.template($(tplSource).find('#stringTpl').html()),
 		editTpl: _.template($(tplSource).find('#stringEditTpl').html()),
 		events: {

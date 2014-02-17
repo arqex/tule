@@ -7,7 +7,7 @@ var deps = [
 ];
 
 define(deps, function($,_,Backbone, tplSource, dispatcher){
-	var BooleanTypeView = Backbone.View.extend({
+	var BooleanTypeView = dispatcher.BaseView.extend({
 		editTpl: _.template($(tplSource).find('#booleanEditTpl').html()),
 		events: {
 			'click input:checkbox': 'saveBoolean'

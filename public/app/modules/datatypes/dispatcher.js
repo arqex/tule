@@ -13,7 +13,7 @@ define(deps, function($,_,Backbone, tplSource){
 	};
 
 	DataTypeDispatcher.prototype = {
-		getView: function(typeId, path, value, mode){
+		getView: function(typeId, options, value){
 			var type = this.types[typeId];
 			if(!type){
 				console.log('Data type "' + typeId + '" unknown, returning String.');
@@ -24,7 +24,13 @@ define(deps, function($,_,Backbone, tplSource){
 			if(_.isUndefined(value))
 				value = defaultValue;
 
-			 return new type.View({path: path, model: new FieldModel({type: type.id, value: value, inline:type.inline}), mode: mode});
+			var typeOptions = _.extend({}, options, {model: new FieldModel({type: type.id, value: value, inline:type.inline})});
+
+			return new type.View(typeOptions);
+		},
+
+		getModel: function(properties){
+			return new FieldModel(properties);
 		},
 
 		registerType: function(type){
@@ -45,9 +51,6 @@ define(deps, function($,_,Backbone, tplSource){
 				return 'bool';
 			}
 			return 'string';
-		},
-		getModel: function(properties){
-			return new FieldModel(properties);
 		}
 	};
 
@@ -63,9 +66,11 @@ define(deps, function($,_,Backbone, tplSource){
 	});
 
 	var DataTypeView = Backbone.View.extend({
-		construct: function(options){
-			this.typeOptions = options && options.typeOptions ? options.typeOptions : {};
-			Backbone.View.prototype.construct.call(this, options);
+		constructor: function(options){
+			if(!this.defaultOptions)
+				this.defaultOptions = {};
+			this.options = _.extend({}, this.defaultOptions, options);
+			Backbone.View.prototype.constructor.call(this, options);
 		},
 		render: function(){
 			var me = this,
@@ -92,6 +97,9 @@ define(deps, function($,_,Backbone, tplSource){
 			this.mode = mode;
 		}
 	});
+
+	dispatcher.BaseModel = FieldModel;
+	dispatcher.BaseView = DataTypeView;
 
 	return dispatcher;
 });
