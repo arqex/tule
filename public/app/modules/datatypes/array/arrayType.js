@@ -77,7 +77,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 	});
 
 
-	var ArrayTypeView = Backbone.View.extend({
+	var ArrayTypeView = dispatcher.BaseView.extend({
 		displayTpl: _.template($(tplSource).find('#arrayTpl').html()),
 		editTpl: _.template($(tplSource).find('#arrayEditTpl').html()),
 		elementFormTpl: _.template($(tplSource).find('#elementFormTpl').html()),
@@ -88,11 +88,16 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			'click .element-edit-ok': 'onClickFieldOk'
 		},
 
+		defaultOptions: {
+			path: 'nopath',
+			model: 'display'
+		}
+
 		initialize: function(opts){
 			var me = this;
-			this.path = opts.path;
+			this.path = this.options.path;
 			this.subViews = [];
-			this.mode = opts.mode || 'display';
+			this.mode = this.options.mode;
 
 			//Ensure backbone model for listening to changes
 			//if(!(this.model.get('value') instanceof Backbone.Collection))
@@ -101,7 +106,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			_.each(this.model.get('value'), function(element, idx){
 				var	elementPath = me.path + '.' + idx,
 					elementType = dispatcher.getDataType(element),
-					elementView = dispatcher.getView(elementType, elementPath, element),
+					elementView = dispatcher.getView(elementType, {path: elementPath}, element),
 					elementInline = elementView.model.get('inline'),
 					elementActualView = new ArrayElementView({
 						view: elementView,
@@ -202,7 +207,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 
 		saveField: function($form) {
-
 			var me = this,
 				idx = this.model.get('value').length,
 				type = $form.find('select').val()
@@ -212,7 +216,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				return console.log('You need to set a type for the element');
 
 			var elementActualView = new ArrayElementView({
-				view: dispatcher.getView(type, this.path + '.' + idx),
+				view: dispatcher.getView(type, {path: this.path + '.' + idx}),
 				idx: idx,
 				path: this.path + '.' + idx,
 				mode: 'edit'

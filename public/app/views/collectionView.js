@@ -17,7 +17,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.$el.html(this.tpl({id: this.model.id, editing: this.editing, fields: this.fields, doc: this.model.toJSON()}));
 
 			if(this.editing){
-				this.objectView = dispatcher.getView('object', this.model.id, this.model, 'edit');
+				this.objectView = dispatcher.getView('object', {path: this.model.id, mode: 'edit'}, this.model);
 				this.$('.document-content').find('td').prepend(this.objectView.$el);
 				this.objectView.render();
 			}

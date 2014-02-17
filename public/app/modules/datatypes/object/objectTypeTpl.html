@@ -8,7 +8,9 @@
 
 <script type="text/template" id="objectEditTpl">
 	<div class="object-properties"></div>
+	<% if(customProperties) { %>
 	<a class="object-add-property" data-path="<%= path %>"><i class="fa fa-plus-circle"></i> Add a property</a>
+	<% } %>
 </script>
 
 <script type="text/template" id="objectPropertyTpl">

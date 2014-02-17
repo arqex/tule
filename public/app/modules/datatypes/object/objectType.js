@@ -80,7 +80,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 	});
 
-	var ObjectTypeView = Backbone.View.extend({
+	var ObjectTypeView = dispatcher.BaseView.extend({
 		displayTpl: _.template($(tplSource).find('#objectTpl').html()),
 		editTpl: _.template($(tplSource).find('#objectEditTpl').html()),
 		fieldFormTpl: _.template($(tplSource).find('#fieldFormTpl').html()),
@@ -91,16 +91,17 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			'click .property-edit-ok': 'onClickFieldOk'
 		},
 
-		typeOptionsDefaults: {
-			properties: [], // Items: {type, typeOptions, key, defaultValue, label}
+		defaultOptions: {
+			mode: 'display',
+			path: 'nopath',
 			customProperties: true
 		},
 
 		initialize: function(opts){
 			var me = this;
-			this.path = opts.path;
+			this.path = this.options.path;
 			this.subViews = {};
-			this.mode = opts.mode || 'display';
+			this.mode = this.options.mode;
 
 			//Ensure backbone model for listening to changes
 			if(!(this.model.get('value') instanceof Backbone.Model))
@@ -109,7 +110,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			_.each(this.model.get('value').toJSON(), function(fieldValue, fieldKey){
 				var fieldPath = me.path + '.' + fieldKey,
 					fieldType = dispatcher.getDataType(fieldValue),
-					fieldView = dispatcher.getView(fieldType, fieldPath, fieldValue),
+					fieldView = dispatcher.getView(fieldType, {path:fieldPath}, fieldValue),
 					fieldInline = fieldView.model.get('inline');
 				;
 				me.subViews[fieldKey] = new ObjectPropertyView({
@@ -138,7 +139,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				tpl = this.displayTpl;
 
 			this.$el
-				.html(tpl({path: this.path, value: this.model.get('value').toJSON()}))
+				.html(tpl({
+					path: this.path,
+					value: this.model.get('value').toJSON(),
+					customProperties: this.options.customProperties
+				}))
 				.attr('class', this.className + ' field-mode-' + this.mode)
 			;
 			this.delegateEvents();
@@ -191,7 +196,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 
 			this.subViews[key] = new ObjectPropertyView({
-				view: dispatcher.getView(type, this.path + '.' + key),
+				view: dispatcher.getView(type, {path: this.path + '.' + key}),
 				key: key,
 				path: this.path + '.' + key,
 				mode: 'edit'
@@ -208,11 +213,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			this.model.get('value').set(key, this.subViews[key].model.get('value'));
 		},
 
-		changeMode: function(mode){
-			if(!mode)
-				mode = this.mode == 'edit' ? 'display' : 'edit';
-			this.mode = mode;
-		},
 		getValue: function(){
 			var value = {};
 			_.each(this.subViews, function(subView, key){
