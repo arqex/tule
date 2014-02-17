@@ -1,10 +1,10 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
 	'text!tpls/docTable.html',
-	'views/datatypeViews',
+	'modules/datatypes/dispatcher',
 	'modules/alerts/alerts'
 ];
-define(deps, function($,_,Backbone, tplSource, DatatypeViews, Alerts){
+define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 	'use strict';
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
@@ -17,15 +17,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Alerts){
 			this.$el.html(this.tpl({id: this.model.id, editing: this.editing, fields: this.fields, doc: this.model.toJSON()}));
 
 			if(this.editing){
-				this.objectView = new DatatypeViews.ObjectView({
-						path: this.model.id,
-						model: new DatatypeViews.FieldModel({
-							type: 'object',
-							value: this.model
-						}),
-						mode: 'edit'
-					})
-				;
+				this.objectView = dispatcher.getView('object', this.model.id, this.model, 'edit');
 				this.$('.document-content').find('td').prepend(this.objectView.$el);
 				this.objectView.render();
 			}
@@ -89,7 +81,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Alerts){
 			});
 			this.docViews = docViews;
 		},
-		
+
 		render: function(){
 			this.$el.html(this.tpl);
 			var table = this.$('table');
@@ -159,84 +151,4 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Alerts){
 		CollectionView: CollectionView
 	};
 
-	return Backbone.View.extend({
-		tpl: _.template(tplSource),
-		docTpl: _.template(docTpl),
-		events: {
-			'click .createdoc': 'showCreateForm',
-			'click .edit': 'showEditForm',
-			'click .remove': 'confirmDeleteDoc'
-		},
-
-		initialize: function(){
-			this.listenTo(this.collection, 'add remove change reset destroy', this.render);
-			this.editViews = {};
-
-		},
-
-		render: function(){
-			this.$el.html(this.tpl({
-				type: this.type,
-				docs: this.collection.toJSON(),
-				fields: this.collection.fields
-			}));
-		},
-
-		confirmDeleteDoc: function(e){
-			e.preventDefault();
-			var me = this,
-				docId = $(e.target).closest('tr').data('id'),
-				doc = this.collection.get(docId)
-			;
-
-			if(confirm('Are you sure to delete this document?'))
-				doc.destroy({
-					wait: true,
-					success: function(){
-						console.log('Document deleted');
-						me.collection.trigger('destroy');
-					},
-					error: function(){
-						console.log('Document NOT deleted');
-					}
-				});
-			return false;
-		},
-		showEditForm: function(e){
-			e.preventDefault();
-			var me = this,
-				row = $(e.target).closest('tr'),
-				docId = row.data('id'),
-				doc = this.collection.get(docId)
-			;
-
-			if(this.editViews[docId])
-				return;
-
-			if(row.hasClass('editing'))
-				return row.toggleClass('closed');
-
-			var view = new DatatypeViews.ObjectView({
-					path: docId,
-					model: new DatatypeViews.FieldModel({
-						type: 'object',
-						value: doc.toJSON()
-					}),
-					mode: 'edit'
-				}),
-				docView = $(me.docTpl({
-					name: docId,
-					cols: row.find('td').length
-				}))
-			;
-
-			view.render();
-
-			docView.find('td').prepend(view.$el);
-
-			row.after(docView);
-
-			me.editViews[docId] = view;
-		}
-	});
 });

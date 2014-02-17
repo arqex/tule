@@ -12,13 +12,13 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 			var collections = Dispenser.getMCollectionList(),
 				view
 			;
-			
+
 			collections.fetch().then(function(){
 				view = new Collection.CollectionView({
 					collection: collections,
 					fields: [
 						'name',
-						{action: 'browse', href:'#', icon:'eye'}						
+						{action: 'browse', href:'#', icon:'eye'}
 					]
 				});
 				view.render();
@@ -31,7 +31,7 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 					Backbone.history.navigate('/collections/list/' + docView.model.get('name'), {trigger: true});
 				});
 				mainView.loadView(view);
-				mainView.setTitle('Settings');				
+				mainView.setTitle('Settings');
 			});
 
 		}

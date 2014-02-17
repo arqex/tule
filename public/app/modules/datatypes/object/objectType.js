@@ -2,10 +2,11 @@
 
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'text!tpls/datatypes.html'
+	'text!./objectTypeTpl.html',
+	'modules/datatypes/dispatcher'
 ];
 
-define(deps, function($,_,Backbone, tplSource){
+define(deps, function($,_,Backbone, tplSource, dispatcher){
 	var ObjectPropertyView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#objectPropertyTpl').html()),
 		events: {
@@ -50,13 +51,13 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 
 		destroy: function(){
-			this.model.destroy();			
+			this.model.destroy();
 		},
 
-		onClickDelete: function(e){			
+		onClickDelete: function(e){
 			//e.stopPropagation();
 			e.preventDefault();
-			
+
 			var key = $(e.target).closest('.object-property').data('key');
 			if(this.key == key) {
 				this.destroy();
@@ -118,12 +119,12 @@ define(deps, function($,_,Backbone, tplSource){
 					inline: fieldInline,
 					mode: 'display'
 				});
-				
+
 				me.listenTo(me.subViews[fieldKey].model, 'destroy', function(subViewModel){
 					me.subViews[fieldKey].remove();
 					delete me.subViews[fieldKey];
-					// Update parent model:					
-					this.model.get('value').unset(fieldKey);					
+					// Update parent model:
+					this.model.get('value').unset(fieldKey);
 				});
 			});
 
@@ -131,7 +132,7 @@ define(deps, function($,_,Backbone, tplSource){
 			this.listenTo(this.model.get('value'), 'change', this.render);
 		},
 
-		render: function(){			
+		render: function(){
 			var tpl = this.editTpl;
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
@@ -155,7 +156,7 @@ define(deps, function($,_,Backbone, tplSource){
 			}
 
 			return this;
-		},	
+		},
 
 		onAddField: function(){
 			var me = this;
@@ -163,7 +164,7 @@ define(deps, function($,_,Backbone, tplSource){
 				.replaceWith(this.fieldFormTpl({
 					types: dispatcher.typeNames,
 					property:{key: '', type: ''},
-					path:this.path					
+					path:this.path
 				}));
 			setTimeout(function(){
 				me.$('input').focus();
@@ -203,7 +204,7 @@ define(deps, function($,_,Backbone, tplSource){
 				me.model.get('value').set(key, value);
 				console.log(me.model.get('value').toJSON());
 			});
-			*/			
+			*/
 			this.model.get('value').set(key, this.subViews[key].model.get('value'));
 		},
 
@@ -220,4 +221,15 @@ define(deps, function($,_,Backbone, tplSource){
 			return value;
 		}
 	});
+
+
+	dispatcher.registerType({
+		id: 'object',
+		name: 'Hash',
+		View: ObjectTypeView,
+		inline: false,
+		defaultValue: {}
+	});
+
+	return ObjectTypeView;
 });

@@ -3,7 +3,7 @@ process.env.NODE_CONFIG_DIR = __dirname + '/server/config';
 var config = require('config');
 if(!config.mon.settingsCollection){
 	console.error('\r\n*** There is not a collection name for the settings. ***');
-	process.exit(1);	
+	process.exit(1);
 }
 
 //Start express
@@ -24,7 +24,7 @@ app.db.runCommand({ping:1}, function(err, res){
 		if(err){
 			var collectionName = config.mon.settingsCollection,
 				settings = app.db.collection(collectionName);
-			settings.insert({name: 'global', value: {settingsCollection: collectionName}});
+			settings.insert({name: 'globals', value: {settingsCollection: collectionName}});
 			settings.createIndex({name: 1}, {unique:true});
 			console.log("Settings created: " + collectionName);
 		}
