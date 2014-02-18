@@ -26,7 +26,7 @@ var MCollection = MDoc.extend({
 		this.settingsFetched = false;
 	},
 	query: function(opts){
-		var query = new MQuery([], {type: this.get('name')}),
+		var query = new MQuery([], {type: this.type}),
 			deferred = $.Deferred()
 		;
 		query.fetch({

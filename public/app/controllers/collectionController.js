@@ -21,7 +21,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 						{action: 'edit', href: "#", icon: 'pencil'},
 						{action: 'remove', href: "#", icon: 'times'}
 					],
-					customFields: 0
+					customFields: 1
 				});
 				view.on('click:edit', function(docView){
 					docView.open();
