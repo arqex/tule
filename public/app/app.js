@@ -1,14 +1,16 @@
-define(['jquery', 'underscore', 'router', 'views/navigationView', 'models/navCollection', 'config'],
-	function($, _, Router, NavigationView, NavCollection, config){
+define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'config', 'models/mdispenser'],
+	function($, _, Router, Navigation, config, Dispenser){
 	var init = function() {
 		registerDataTypes(function(){
-			Router.init();
-			var nav = new NavigationView({collection: new NavCollection(navData), el: 'nav.navigation'});
-			nav.render();
+			fetchNavigation(function(navData){
+				Router.init();
+				var nav = new Navigation.NavCollectionView({collection: new Navigation.NavCollection(navData), el: 'nav.navigation'});
+				nav.render();
+			});
 		});
 	};
 
-	var registerDataTypes = function(clbk){
+	var registerDataTypes = function(clbk) {
 		var deps = [],
 			path = config.globals.datatypesPath
 		;
@@ -20,6 +22,12 @@ define(['jquery', 'underscore', 'router', 'views/navigationView', 'models/navCol
 		require(deps, function(){
 			clbk();
 		});
+	};
+
+	var fetchNavigation = function(clbk) {
+
+		if(config.navData)
+			clbk(config.navData);
 	};
 
 	return {

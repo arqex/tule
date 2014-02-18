@@ -23,13 +23,20 @@ app.db.runCommand({ping:1}, function(err, res){
 	app.db.collection(config.mon.settingsCollection).findOne(function(err, result){
 		if(!result){
 			var collectionName = config.mon.settingsCollection,
-				settings = app.db.collection(collectionName);
-			settings.insert({
+				settings = app.db.collection(collectionName)
+			;
+			settings.insert([
+			{
 				name: 'globals',
 				value: {settingsCollection: collectionName},
 				datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string'],
 				datatypesPath: 'modules/datatypes/'
-			});
+			},
+			{
+				name: 'navData',
+				collection: {text: 'Collection', url: '/collections/list/test'},
+				config: {text: 'Config', url: '/config'}
+			}]);
 			settings.createIndex({name: 1}, {unique:true});
 			console.log("Settings created: " + collectionName);
 		}

@@ -10,6 +10,13 @@ var MDoc = Backbone.Model.extend({
 	idAttribute: '_id'
 });
 
+var SettingsDoc = MDoc.extend({
+	idAttribute: 'name',
+	url: function() {
+		return 'api/settings/'+ this.get('name');
+	}
+});
+
 var MQuery = Backbone.Collection.extend({
 	model: MDoc,
 	initialize: function(models, options){
@@ -18,8 +25,7 @@ var MQuery = Backbone.Collection.extend({
 	}
 });
 
-var MCollection = MDoc.extend({
-	idAttribute: 'name',
+var MCollection = SettingsDoc.extend({
 	initialize: function(attrs, opts){
 		this.type = opts.type;
 		this.set('name', 'collection_' + opts.type);
@@ -50,9 +56,6 @@ var MCollection = MDoc.extend({
 			}});
 
 		return deferred.promise();
-	},
-	url: function() {
-		return '/api/settings/collection_' + this.type;
 	}
 });
 
@@ -100,7 +103,7 @@ var dispenser = function(){
 	;
 
 	return {getMDoc: doc, getMCollection: collection, getMCollectionList: list};
-}
+};
 
 
 	return dispenser();
