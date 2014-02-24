@@ -16,26 +16,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			'keyup form': 'onKeyup',
 			'click .integer-cancel': 'onClickCancel'
 		},
-		render: function(){
-			var me = this,
-				tpl = this.tpl
-			;
-			if(this.mode == 'edit')
-				tpl = this.editTpl;
-
-			this.$el.html(tpl({value: this.model.get('value')}));
-
-			if(this.mode == 'edit')
-				setTimeout(function(){
-					me.$('input').focus();
-				}, 50);
-		},
-
-		changeMode: function(mode){
-			if(!mode)
-				mode = this.mode == 'edit' ? 'display' : 'edit';
-			this.mode = mode;
-		},
 
 		onClickOk: function(e){
 			e.preventDefault();
@@ -65,10 +45,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 		cancel: function() {
 			this.trigger('changeMode', 'display');
-		},
-
-		getValue: function(){
-			return this.model.get('value');
 		}
 	});
 

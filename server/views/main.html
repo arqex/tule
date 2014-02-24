@@ -3,7 +3,6 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Tule</title>
-	<script data-main="/app/bootstrap" src="/bower_components/requirejs/require.js"></script>
 	<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="/css/font-awesome.min.css">
 	<link rel="stylesheet" href="/css/back.css">
@@ -25,5 +24,7 @@
 		var navData = <%= JSON.stringify(navigation) %>;
 		var globals = <%= JSON.stringify(globals) %>;
 	</script>
+
+	<script data-main="/app/bootstrap" src="/bower_components/requirejs/require.js"></script>
 </body>
 </html>

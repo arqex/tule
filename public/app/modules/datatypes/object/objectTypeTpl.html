@@ -1,7 +1,7 @@
 <div>
 
 <script type="text/template" id="objectTpl">
-	<div class="property-data" data-path="<%= path %>">
+	<div class="property-data">
 		<%= _.keys(value).length  %> <%= _.keys(value).length == 1 ? 'property' : 'properties' %>
 	</div>
 </script>
@@ -9,33 +9,8 @@
 <script type="text/template" id="objectEditTpl">
 	<div class="object-properties"></div>
 	<% if(customProperties) { %>
-	<a class="object-add-property" data-path="<%= path %>"><i class="fa fa-plus-circle"></i> Add a property</a>
+	<a class="object-add-property add-element" data-cid="<%= cid %>" href="#" data-bypass="1"><i class="fa fa-plus"></i> Add a property</a>
 	<% } %>
-</script>
-
-<script type="text/template" id="objectPropertyTpl">
-	<div class="<%= (inline) ? 'object-property inline' : 'object-property' %>" data-path="<%= path %>" data-key="<%= key %>">
-		<div class="property-key">
-			<% if(allowDelete) { %>
-			<a href="#" data-bypass="true" class="property-delete" title="Delete <%= key %>"><i class="fa fa-minus-circle"></i></a>
-			<% } %>
-			<%= key %>:
-		</div>
-		<div class="property-value property-mode-<%= mode %>"></div>
-	</div>
-</script>
-
-<script type="text/template" id="fieldFormTpl">
-	<form class="property-form" data-path="<%= path %>" data-key='<%= property.key %>'>
-		<input type="text" value="<%= property.key %>" placeholder="Property name">:
-		<select>
-			<option value="0">Select a type...</option>
-			<% _.each(types, function(type){ %>
-			<option value="<%= type.id %>" <%= type.id == property.type ? 'checked="checked"' : '' %>><%= type.name %></option>
-			<% }) %>
-		</select>
-		<button class="property-edit-ok"><%= property.name ? 'Ok' : 'Add' %></button>
-	</form>
 </script>
 
 </div>

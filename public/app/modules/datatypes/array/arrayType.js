@@ -7,85 +7,14 @@ var deps = [
 ];
 
 define(deps, function($,_,Backbone, tplSource, dispatcher){
-	var ArrayElementView = Backbone.View.extend({
-		tpl: _.template($(tplSource).find('#arrayElementTpl').html()),
-		events: {
-			'click .element-value': 'onClickFieldValue',
-			'click .element-idx': 'onClickFieldIdx',
-			'click .element-delete': 'onClickDelete'
-		},
-
-		initialize: function(opts){
-			this.mode 	= opts.mode || 'display';
-			this.idx 	= opts.idx;
-			this.path 	= opts.path;
-			this.elementView = opts.view;
-			this.elementView.mode = opts.mode;
-			this.model 	= this.elementView.model;
-			this.inline = opts.inline;
-
-			this.listenTo(this.elementView, 'changeMode', function(mode){
-				this.changeMode(mode);
-			});
-
-			this.listenTo(this.model, 'change', this.emitChange);
-		},
-
-		changeMode: function(mode){
-			if(!mode)
-				mode = this.mode == 'edit' ? 'display' : 'edit';
-			this.mode = mode;
-			this.elementView.changeMode(mode);
-			this.render();
-		},
-
-		render: function(){
-			this.$el
-				.html(this.tpl({path: this.path, idx: this.idx, mode: this.mode, inline:this.inline}))
-				.find('.element-value')
-					.html(this.elementView.el)
-			;
-
-			this.elementView.render();
-			this.elementView.delegateEvents();
-			return this;
-		},
-
-		onClickFieldValue: function(e){
-			if(this.mode == 'edit')
-				return;
-
-			var element = $(e.target).closest('.array-element');
-			if(element.data('path') == this.path)
-				this.changeMode();
-		},
-
-		onClickDelete: function(e){
-			e.preventDefault();
-
-			var idx = $(e.target).closest('.array-element').data('key');
-			if(this.idx == idx) {
-				this.model.destroy();
-			}
-		},
-
-		onClickFieldIdx: function(e){
-			var element = $(e.target).closest('.array-element');
-			if(element.data('path') == this.path)
-				this.changeMode();
-		},
-	});
-
 
 	var ArrayTypeView = dispatcher.BaseView.extend({
 		displayTpl: _.template($(tplSource).find('#arrayTpl').html()),
 		editTpl: _.template($(tplSource).find('#arrayEditTpl').html()),
-		elementFormTpl: _.template($(tplSource).find('#elementFormTpl').html()),
 		className: 'field field-object',
 
 		events: {
-			'click .array-add-element': 'onAddField',
-			'click .element-edit-ok': 'onClickFieldOk'
+			'click .array-add-element': 'onAddField'
 		},
 
 		defaultOptions: {
@@ -94,40 +23,34 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 
 		initialize: function(opts){
-			var me = this;
-			this.path = this.options.path;
-			this.subViews = [];
-			this.mode = this.options.mode;
+			var me = this,
+				collection = new Backbone.Collection([])
+			;
 
-			//Ensure backbone model for listening to changes
-			//if(!(this.model.get('value') instanceof Backbone.Collection))
-			//	this.model.set('value', new Backbone.Collection(this.model.get('value')));
+			this.subViews = [];
+			this.mode = 'display';
 
 			_.each(this.model.get('value'), function(element, idx){
-				var	elementPath = me.path + '.' + idx,
-					elementType = dispatcher.getDataType(element),
-					elementView = dispatcher.getView(elementType, {path: elementPath}, element),
-					elementInline = elementView.model.get('inline'),
-					elementActualView = new ArrayElementView({
-						view: elementView,
-						path: elementPath,
-						idx: idx,
-						inline: elementInline,
-						mode: 'display'
-					})
-				;
-				me.subViews[idx] = elementActualView;
-
-				me.listenTo(me.subViews[idx].model, 'destroy', function(subViewModel){
-					var idx = elementActualView.idx;
-					me.deleteElements(idx);
+				var elementView = new dispatcher.DataElementView({
+					key: idx,
+					datatype: me.typeOptions.propertyType,
+					value: element
 				});
 
+				me.subViews[idx] = elementView;
+
+				me.listenTo(elementView, 'destroy', function(idx){
+					me.deleteElements(idx);
+				});
+				collection.add(elementView.model);
 			});
 
-			this.model.set('value', new Backbone.Collection(this.model.get('value')));
+			//Store a collection to track the changes
+			this.collection = collection;
+
 			this.listenTo(this.model, 'change', this.render);
-			this.listenTo(this.model.get('value'), 'change add remove', this.render);
+			this.listenTo(this.collection, 'change add remove', this.render);
+			this.listenTo(this.collection, 'destroy', this.deleteElements);
 		},
 
 		render: function(){
@@ -138,9 +61,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 			this.$el
 				.html(tpl({
-					idx:this.model.get('value').length,
+					idx: this.collection.length,
 					path: this.path,
-					value: this.model.get('value')
+					value: this.collection,
+					cid: this.cid
 				}))
 				.attr('class', this.className + ' field-mode-' + this.mode)
 			;
@@ -154,106 +78,111 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 					subView.delegateEvents();
 				});
 
-				if(_.isEmpty(this.subViews))
+				if(!this.subViews.length){
 					console.log("empty");
 					this.onAddField();
+				}
 			}
 
 			var oldidx, newidx;
 			this.$('.array-elements').sortable({
 				start: function(event, ui) {
-					this.oldidx = $(ui.item).index();
+					oldidx = $(ui.item).index();
 				},
 				update: function(event, ui) {
-					this.newidx = $(ui.item).index();
-					me.remake(this.newidx, this.oldidx);
+					newidx = $(ui.item).index();
+					me.remake(newidx, oldidx);
 				}
 			});
 			return this;
 		},
 
 		remake: function(newidx, oldidx){
+			/* //Better to not modify prototypes
 			Array.prototype.move = function (from, to) {
 			  this.splice(to, 0, this.splice(from, 1)[0]);
 			};
 			this.subViews.move(oldidx,newidx);
+			*/
+
+			this.subViews.splice(newidx, 0, this.subViews.splice(oldidx, 1)[0]);
+
 			_.each(this.subViews, function(subView, idx){
-				subView.idx = idx;
+				subView.key = idx;
+				subView.label = idx;
 			});
 
-			var model = this.model.get('value').at(oldidx);
-			this.model.get('value').remove(model, {silent: true});
-			this.model.get('value').add(model, {at: newidx});
+			var model = this.collection.at(oldidx);
+			this.collection.remove(model, {silent: true});
+			this.collection.add(model, {at: newidx});
 		},
 
-		onAddField: function(){
-			var me = this;
-			this.$('a.array-add-element')
-				.replaceWith(this.elementFormTpl({
-					types: dispatcher.typeNames,
-					element: {type:''},
-					idx: this.model.get('value').length
-					//path: this.path
-				}));
+		onAddField: function(e){
+			if(e){
+				e.preventDefault();
+				var cid = $(e.target).data('cid');
+				if(this.cid != cid)
+					return;
+			}
+
+			var me = this,
+				idx = this.collection.length,
+				newElement = new dispatcher.DataElementView({
+					type: this.typeOptions.propertyType,
+					key: idx,
+					label: idx
+				})
+			;
+
+			newElement.render();
+			this.$('a.array-add-element[data-cid=' + this.cid + ']')
+				.replaceWith(newElement.el);
+
 			setTimeout(function(){
 				me.$('input').focus();
 			},50);
-		},
 
-		onClickFieldOk: function(e){
-			e.preventDefault();
-			var $form = $(e.target).closest('form');
-			this.saveField($form);
-		},
-
-		saveField: function($form) {
-			var me = this,
-				idx = this.model.get('value').length,
-				type = $form.find('select').val()
-			;
-
-			if(!type)
-				return console.log('You need to set a type for the element');
-
-			var elementActualView = new ArrayElementView({
-				view: dispatcher.getView(type, {path: this.path + '.' + idx}),
-				idx: idx,
-				path: this.path + '.' + idx,
-				mode: 'edit'
+			this.listenTo(newElement, 'elementEdited', function(elementData){
+				this.saveField(elementData, newElement);
 			});
+		},
 
-			this.subViews[idx] = elementActualView;
+		saveField: function(data, newElement) {
+			newElement.datatype = data.datatype;
+			newElement.mode = 'edit';
+			newElement.typeOptions = data.typeOptions;
+			newElement.createModel();
 
-			this.model.get('value').add(this.subViews[idx].model);
+			this.subViews[parseInt(data.key, 10)] = newElement;
 
-			this.listenTo(this.subViews[idx].model, 'destroy', function(){
-				var idx = elementActualView.idx;
-				me.deleteElements(idx);
+			this.collection.add(newElement.model);
+
+			this.listenTo(newElement.model, 'destroy', function(){
+				var idx = newElement.key;
+				this.deleteElements(idx);
 			});
 		},
 
 		deleteElements: function(idx){
-			this.subViews[idx].remove();
 			this.subViews.splice(idx,1);
-			var looper = idx + 1;
+
 			while (this.subViews.length > idx) {
-				this.subViews[idx].idx = ((this.subViews[idx].idx) - 1);
+				var subView = this.subViews[idx];
+				subView.key = idx;
+				subView.label = idx;
 				idx ++;
 			}
-			var modelToDie = this.model.get('value').at(idx);
-			this.model.get('value').remove(modelToDie);
+
+
+			// Remove the model from the collection
+			this.collection.remove(this.collection.at(idx));
 		},
 
-		changeMode: function(mode){
-			if(!mode)
-				mode = this.mode == 'edit' ? 'display' : 'edit';
-			this.mode = mode;
-		},
 		getValue: function(){
 			var value = [];
 
-			_.each(this.subViews, function(subView, index){
-				value.push(subView.elementView.getValue());
+			_.each(this.subViews, function(subView){
+				value.push(subView.typeView.getValue());
 			});
 			return value;
 		}
@@ -267,5 +196,5 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		defaultValue: []
 	});
 
-	return ArrayElementView;
+	return ArrayTypeView;
 });

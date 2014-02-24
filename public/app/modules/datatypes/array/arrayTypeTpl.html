@@ -1,5 +1,4 @@
 <div>
-
 <script type="text/template" id="arrayTpl">
 	<div class="element-data" data-path="<%= path %>">
 		<%= idx  %> <%= idx == 1 ? 'element' : 'elements' %>
@@ -8,27 +7,6 @@
 
 <script type="text/template" id="arrayEditTpl">
 	<div class="array-elements"></div>
-	<a class="array-add-element"><i class="fa fa-plus-circle"></i> Add an element</a>
+	<a class="array-add-element add-element" data-cid="<%= cid %>" href="#" data-bypass="1"><i class="fa fa-plus"></i> Add an element</a>
 </script>
-
-<script type="text/template" id="arrayElementTpl">
-	<div  class="<%= (inline) ? 'array-element inline' : 'array-element' %>" data-path="<%= path %>" data-key="<%= idx %>">
-		<div class="element-idx"><a href="#" data-bypass="true" class="element-delete fa fa-minus-circle" title="Delete <%= idx %>"></a> <%= idx %>:</div>
-		<div class="element-value element-mode-<%= mode %>"></div>
-	</div>
-</script>
-
-<script type="text/template" id="elementFormTpl">
-	<form class="element-form" data-key='<%= idx %>'>
-		<span class="element-index"><%= idx %></span>
-		<select>
-			<option value="0">Select a type...</option>
-			<% _.each(types, function(type){ %>
-			<option value="<%= type.id %>" <%= type.id == element.type ? 'checked="checked"' : '' %>><%= type.name %></option>
-			<% }) %>
-		</select>
-		<button class="element-edit-ok"><%= element.name ? 'Ok' : 'Add' %></button>
-	</form>
-</script>
-
 </div>
