@@ -1,7 +1,7 @@
 var path = require('path'),
 	basepath = path.join(__dirname, '../..'),
 	monBaseUrl = '/',
-	dbName = 'mongo_on_node'
+	dbName = 'tule'
 ;
 
 module.exports = {

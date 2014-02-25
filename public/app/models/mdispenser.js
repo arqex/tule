@@ -102,7 +102,7 @@ var dispenser = function(){
 		}
 	;
 
-	return {getMDoc: doc, getMCollection: collection, getMCollectionList: list};
+	return {getMDoc: doc, getMCollection: collection, getMCollectionList: list, SettingsDoc: SettingsDoc};
 };
 
 

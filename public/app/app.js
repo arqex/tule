@@ -1,33 +1,49 @@
-define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'config', 'models/mdispenser'],
-	function($, _, Router, Navigation, config, Dispenser){
+define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 'models/mdispenser'],
+	function($, _, Router, Navigation, Backbone, Dispenser){
 	var init = function() {
 		registerDataTypes(function(){
 			fetchNavigation(function(navData){
 				Router.init();
-				var nav = new Navigation.NavCollectionView({collection: new Navigation.NavCollection(navData), el: 'nav.navigation'});
+				var nav = new Navigation.NavCollectionView({
+					collection: new Navigation.NavCollection(navData),
+					el: 'nav.navigation'
+				});
+
 				nav.render();
 			});
 		});
 	};
 
 	var registerDataTypes = function(clbk) {
-		var deps = [],
-			path = config.globals.datatypesPath
-		;
+		var globals = new Dispenser.SettingsDoc({ name: 'globals' });
+		var promise = globals.fetch();
 
-		_.each(config.globals.datatypes, function(type){
-			deps.push(path + type + '/' + type + 'Type');
-		});
+		$.promise.then(function(){
+			var deps = [],
+				path = globals.attributes.datatypesPath
+			;
 
-		require(deps, function(){
-			clbk();
+			_.each(globals.attributes.datatypes, function(type){
+				deps.push(path + type + '/' + type + 'Type');
+			});
+
+			require(deps, function(){
+				clbk();
+			});
 		});
 	};
 
 	var fetchNavigation = function(clbk) {
+		var navigation = new Dispenser.SettingsDoc({ name: 'navData'});
+		var promise = navigation.fetch();
 
-		if(config.navData)
-			clbk(config.navData);
+		$.promise.then(function(){
+			var array = $.map(navigation.attributes.routes, function(value, index) {
+				return [value];
+			});
+
+			clbk(array);
+		});
 	};
 
 	return {

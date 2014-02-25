@@ -34,8 +34,11 @@ app.db.runCommand({ping:1}, function(err, res){
 			},
 			{
 				name: 'navData',
-				collection: {text: 'Collection', url: '/collections/list/test'},
-				config: {text: 'Config', url: '/config'}
+				routes:[
+					{text: 'Collection', url: '/collections/list/test'},
+					{text: 'Config', url: '/config'}
+			]
+
 			}]);
 			settings.createIndex({name: 1}, {unique:true});
 			console.log("Settings created: " + collectionName);

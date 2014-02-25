@@ -4,6 +4,7 @@ define(['jquery', 'underscore', 'backbone', 'text!modules/nav/navItem.html'],
     // Models
     var NavItem = Backbone.Model.extend({
         defaults: {
+            text: false,
             url: false,
             subItems: []
         }
