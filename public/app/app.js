@@ -1,5 +1,6 @@
 define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 'models/mdispenser'],
 	function($, _, Router, Navigation, Backbone, Dispenser){
+
 	var init = function() {
 		registerDataTypes(function(){
 			fetchNavigation(function(navData){
@@ -8,8 +9,12 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 					collection: new Navigation.NavCollection(navData),
 					el: 'nav.navigation'
 				});
-
 				nav.render();
+
+				// On hash change set current navigation
+				Backbone.history.on('route', function(name, args) {
+					onHashChange(args);
+				});
 			});
 		});
 	};
@@ -18,7 +23,7 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 		var globals = new Dispenser.SettingsDoc({ name: 'globals' });
 		var promise = globals.fetch();
 
-		$.promise.then(function(){
+		$.when(promise).then(function(){
 			var deps = [],
 				path = globals.attributes.datatypesPath
 			;
@@ -37,13 +42,14 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 		var navigation = new Dispenser.SettingsDoc({ name: 'navData'});
 		var promise = navigation.fetch();
 
-		$.promise.then(function(){
-			var array = $.map(navigation.attributes.routes, function(value, index) {
-				return [value];
-			});
-
-			clbk(array);
+		$.when(promise).then(function(){
+			clbk(navigation.attributes.routes);
 		});
+	};
+
+	var onHashChange = function(args) {
+		var navigation = $('.navitem').removeClass('navcurrent');
+		var current = $( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('selectItem');
 	};
 
 	return {

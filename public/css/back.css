@@ -115,6 +115,21 @@ button:hover {
 	background-color: rgba(0,0,0,.1);
 }
 
+.navsubitem {
+	margin-left: 15px;
+	max-height: 0;
+	overflow: hidden;
+	-webkit-transition: max-height 0.5s;
+	-moz-transition: max-height 0.5s;
+	-o-transition: max-height 0.5s;
+	-ms-transition: max-height 0.5s;
+	transition: max-height 0.5s;
+}
+
+.navcurrent {
+	background-color: #4c7f7f;
+	color:red;
+}
 
 #page {
 	margin-left: 160px;
