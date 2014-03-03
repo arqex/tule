@@ -19,8 +19,9 @@ define(['jquery', 'underscore', 'backbone', 'text!modules/nav/navItem.html'],
         className: 'navitem',
         tpl: _.template(tplSource),
         events: {
-            'click .nested': 'slideToggle',
-            'selectItem': 'currentNavigation'
+            'click .nested': 'openNavigation',
+            'currentNavigation': 'openNavigation',
+            'firstNavigation': 'firstNavigation'
         },
         render: function(){
             this.$el.html(this.tpl(this.model.toJSON()));
@@ -39,7 +40,7 @@ define(['jquery', 'underscore', 'backbone', 'text!modules/nav/navItem.html'],
                 nav.render();
             }
         },
-        slideToggle: function(e){
+        openNavigation: function(e){
             e.preventDefault();
             if (this.$el.children('a').is(e.target)){
                 var target = $(e.target).closest('.navitem').children('div');
@@ -47,10 +48,19 @@ define(['jquery', 'underscore', 'backbone', 'text!modules/nav/navItem.html'],
                 mH = $( target ).find('.navitem').length * (this.$( '.navitem' ).height()+10);
                 target.css('max-height') === '0px' ? target.css('max-height', mH+'px') : target.css('max-height', '0px');
             }
+            if (location.pathname == this.$el.children('a').attr('href'))
+                this.$el.addClass('navcurrent');
         },
-        currentNavigation: function(e) {
-            this.slideToggle(e);
-            this.$el.addClass('navcurrent');
+        firstNavigation: function(e){
+            e.preventDefault();
+            var target = this.$el.parent();
+            if (target[0].className != 'navigation') {
+                // The addition in the end equals the padding property
+                mH = $( target ).find('.navitem').length * ($( '.navitem' ).height()+10);
+                target.css('max-height') === '0px' ? target.css('max-height', mH+'px') : target.css('max-height', '0px');
+            }
+            if (location.pathname == this.$el.children('a').attr('href'))
+               this.$el.addClass('navcurrent');
         }
     });
 

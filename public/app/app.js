@@ -12,8 +12,9 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 				nav.render();
 
 				// On hash change set current navigation
+				selectFirstNavElement(); // When load at first from url (no clicking menu)
 				Backbone.history.on('route', function(name, args) {
-					onHashChange(args);
+					selectCurrentNavElement();
 				});
 			});
 		});
@@ -47,9 +48,13 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 		});
 	};
 
-	var onHashChange = function(args) {
-		var navigation = $('.navitem').removeClass('navcurrent');
-		var current = $( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('selectItem');
+	var selectCurrentNavElement = function() {
+		$('.navitem').removeClass('navcurrent');
+		$( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('currentNavigation');
+	};
+
+	var selectFirstNavElement = function() {
+		$( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('firstNavigation');
 	};
 
 	return {

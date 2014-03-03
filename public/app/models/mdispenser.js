@@ -13,7 +13,7 @@ var MDoc = Backbone.Model.extend({
 var SettingsDoc = MDoc.extend({
 	idAttribute: 'name',
 	url: function() {
-		return 'api/settings/'+ this.get('name');
+		return '/api/settings/'+ this.get('name');
 	}
 });
 

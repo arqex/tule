@@ -39,7 +39,7 @@ app.db.runCommand({ping:1}, function(err, res){
 					{text: 'Config', url: '/config'},
 					{text: 'Test', url: '', subItems:[
 						{text: 'Sub Test A', url: '/test/subA'},
-						{text: 'Sub Test B', url: '/test/subA'},
+						{text: 'Sub Test B', url: '/test/subB'},
 						{text: 'Sub Test C', url: '', subItems:[
 							{text: 'Micro Test A', url: '/test/subC/microA'},
 							{text: 'Micro Test B', url: '/test/subC/microB'}
