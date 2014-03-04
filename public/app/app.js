@@ -18,7 +18,7 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 		var globals = new Dispenser.SettingsDoc({ name: 'globals' });
 		var promise = globals.fetch();
 
-		$.promise.then(function(){
+		promise.then(function(){
 			var deps = [],
 				path = globals.attributes.datatypesPath
 			;
@@ -35,9 +35,8 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 
 	var fetchNavigation = function(clbk) {
 		var navigation = new Dispenser.SettingsDoc({ name: 'navData'});
-		var promise = navigation.fetch();
 
-		$.promise.then(function(){
+		navigation.fetch().then(function(){
 			var array = $.map(navigation.attributes.routes, function(value, index) {
 				return [value];
 			});

@@ -22,43 +22,61 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			path: 'nopath',
 			customProperties: true,
 			propertyDefinitions: [],
-			propertyType: false
+			propertyType: false,
+			hiddenProperties: [],
+			mandatoryProperties: []
 		},
 
 		initialize: function(opts){
-			var me = this;
+			var me = this,
+				options = this.typeOptions
+			;
 
 			this.mode = 'display';
 
+			// Store the value in a model to track its changes
+			this.modelValue = new Backbone.Model(this.model.get('value'));
+
 			//Let's make the property definitions quicky accesible
 			this.propertyDefinitions = {};
-			_.each(this.typeOptions.propertyDefinitions, function(definition){
+			_.each(options.propertyDefinitions, function(definition){
 				me.propertyDefinitions[definition.key] = definition;
 			});
 
 			//Let's initialize a view for every property
 			this.subViews = {};
+			_.each(options.mandatoryProperties, function(key){
+				var definition = me.propertyDefinitions[key];
+				if(definition)
+					me.createSubView(key, definition, me.modelValue.get(key));
+			});
 			_.each(this.model.get('value'), function(value, key){
 
 				var definition = me.propertyDefinitions[key] || {};
 
-				me.subViews[key] = new dispatcher.DataElementView({
-					key: key,
-					label: definition.label,
-					datatype: me.typeOptions.propertyType || definition.datatype,
-					typeOptions: definition.typeOptions,
-					allowDelete: me.typeOptions.customProperties,
-					value: value
-				});
-
-				me.listenTo(me.subViews[key].model, 'destroy', me.deleteProperty);
+				if(options.hiddenProperties.indexOf(key) == -1 && !me.subViews[key]){
+					me.createSubView(key, definition, value);
+				}
 			});
-
-			// Store the value in a model to track its changes
-			this.modelValue = new Backbone.Model(this.model.get('value'));
 
 			this.listenTo(this.model, 'change', this.render);
 			this.listenTo(this.modelValue, 'change', this.render);
+		},
+
+		createSubView: function(key, definition, value){
+			this.subViews[key] = new dispatcher.DataElementView({
+				key: key,
+				label: definition.label,
+				datatype: this.typeOptions.propertyType || definition.datatype,
+				typeOptions: definition.typeOptions,
+				allowDelete: this.typeOptions.customProperties,
+				value: value
+			});
+
+			if(typeof value == 'undefined')
+				this.subViews[key].createModel();
+
+			this.listenTo(this.subViews[key].model, 'destroy', this.deleteProperty);
 		},
 
 		render: function(){
@@ -157,9 +175,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 		inline: false,
 		defaultValue: {},
 		typeOptionsDefinition: [
-			{key: 'customProperties', label: 'Allow custom properties?', type: 'boolean'},
-			{key: 'propertyDefinitions', label: 'Property definitions', type: 'array'},
-			{key: 'propertiesType', label: 'Properties type', }
+			{key: 'customProperties', label: 'Allow custom properties?', datatype: 'boolean'},
+			{key: 'propertyDefinitions', label: 'Property definitions', datatype: 'array'},
+			{key: 'propertiesType', label: 'Properties type'},
+			{key: 'mandatoryProperties', label: 'Mandatory properties', datatype: 'array', typeOptions: {elementsType: 'string'}},
+			{key: 'hiddenProperties', label: 'Hidden properties', datatype: 'array', typeOptions: {elementsType: 'string'}}
 		]
 	});
 

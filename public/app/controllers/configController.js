@@ -14,13 +14,26 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 			;
 
 			collections.fetch().then(function(){
+				collections.remove('collection_system.indexes');
+				collections.remove('collection_monSettings');
+
 				view = new Collection.CollectionView({
 					collection: collections,
 					fields: [
 						'name',
 						{action: 'browse', href:'#', icon:'eye'}
-					]
+					],
+					docOptions: {
+						customProperties: false,
+						propertyDefinitions: [
+							{key: 'propertyDefinitions', label: 'Field definitions', datatype: 'array'},
+							{key: 'tableFields', label: 'Table header fields', datatype: 'array', typeOptions: {elementsType: 'string'}}
+						],
+						mandatoryProperties: ['propertyDefinitions', 'tableFields'],
+						hiddenProperties: ['name']
+					}
 				});
+
 				view.render();
 				view.on('click:name', function(docView){
 					docView.model.getSettings().then(function(){

@@ -6,6 +6,21 @@ var collections = {
 			{message: 'Message 3'},
 			{message: 'Message 4'},
 			{message: 'Message 5'}
+		],
+		monSettings: [
+			{
+				name: 'globals',
+				settingsCollection: 'monSettings',
+				datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string'],
+				datatypesPath: 'modules/datatypes/'
+			},
+			{
+				name: 'navData',
+				routes:[
+					{text: 'Collection', url: '/collections/list/test'},
+					{text: 'Config', url: '/config'}
+				]
+			}
 		]
 	},
 	mongojs = require('mongojs'),
