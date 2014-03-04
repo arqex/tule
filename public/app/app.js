@@ -16,14 +16,6 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 				Backbone.history.on('route', function(name, args) {
 					selectCurrentNavElement();
 				});
-
-
-				// TESTING
-				var prom = new Dispenser.getSettings("viva er betis siempreijhinom");
-				prom.done(function(modelaco){
-					console.log(modelaco);
-					modelaco.save();
-				});
 			});
 		});
 	};
