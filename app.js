@@ -36,9 +36,16 @@ app.db.runCommand({ping:1}, function(err, res){
 				name: 'navData',
 				routes:[
 					{text: 'Collection', url: '/collections/list/test'},
-					{text: 'Config', url: '/config'}
-			]
-
+					{text: 'Config', url: '/config'},
+					{text: 'Test', url: '', subItems:[
+						{text: 'Sub Test A', url: '/test/subA'},
+						{text: 'Sub Test B', url: '/test/subB'},
+						{text: 'Sub Test C', url: '', subItems:[
+							{text: 'Micro Test A', url: '/test/subC/microA'},
+							{text: 'Micro Test B', url: '/test/subC/microB'}
+						]}
+					]}
+				]
 			}]);
 			settings.createIndex({name: 1}, {unique:true});
 			console.log("Settings created: " + collectionName);
@@ -77,5 +84,3 @@ _u.each(config.routes, function(controllerData, routeData){
 
 server.listen(3000);
 console.log('Listening on port 3000');
-
-

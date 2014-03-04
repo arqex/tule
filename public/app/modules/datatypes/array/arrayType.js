@@ -17,9 +17,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			'click .array-add-element': 'onAddField'
 		},
 
-		defaultOptions: {
-			path: 'nopath',
-			model: 'display'
+		defaultTypeOptions: {
+			elementsType: false
 		},
 
 		initialize: function(opts){
@@ -33,7 +32,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			_.each(this.model.get('value'), function(element, idx){
 				var elementView = new dispatcher.DataElementView({
 					key: idx,
-					datatype: me.typeOptions.propertyType,
+					datatype: me.typeOptions.elementsType,
 					value: element
 				});
 
@@ -128,9 +127,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			var me = this,
 				idx = this.collection.length,
 				newElement = new dispatcher.DataElementView({
-					type: this.typeOptions.propertyType,
+					datatype: this.typeOptions.elementsType,
 					key: idx,
-					label: idx
+					label: idx,
+					mode: this.typeOptions.elementsType && !this.collection.length ? 'edit' : 'display'
 				})
 			;
 

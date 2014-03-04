@@ -41,12 +41,13 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 					});
 				});
 				view.on('click:browse', function(docView){
-					Backbone.history.navigate('/collections/list/' + docView.model.get('name'), {trigger: true});
+					var name = docView.model.get('name').split('_')[1];
+					Backbone.history.navigate('/collections/list/' + name, {trigger: true});
 				});
 				mainView.loadView(view);
 				mainView.setTitle('Settings');
 			});
 
 		}
-	}
+	};
 });

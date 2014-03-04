@@ -194,9 +194,6 @@ define(deps, function($,_,Backbone, tplSource){
 				return this;
 			}
 
-			if(!this.typeView)
-				this.createTypeView();
-
 			var tplOptions = {
 				key: this.label || this.key,
 				mode: this.mode,
@@ -205,6 +202,10 @@ define(deps, function($,_,Backbone, tplSource){
 				cid: this.cid
 			};
 
+			if(!this.typeView){
+				this.createTypeView();
+			}
+
 			this.$el.html(this.tpl(tplOptions));
 
 			this.typeView.render();
@@ -212,7 +213,7 @@ define(deps, function($,_,Backbone, tplSource){
 			this.typeView.delegateEvents();
 		},
 		createTypeView: function(){
-			this.typeView = dispatcher.getView(this.model.get('type'), this.typeOptions, this.model);
+			this.typeView = dispatcher.getView(this.datatype, this.typeOptions, this.model);
 			this.typeView.mode = this.mode;
 			this.listenTo(this.typeView, 'changeMode', function(mode){
 				this.mode = mode;

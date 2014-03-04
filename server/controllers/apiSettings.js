@@ -2,11 +2,7 @@
 
 var mongojs = require('mongojs'),
     _       = require('underscore'),
-    config  = require('config'),
-    defaults = {
-        fields: {},
-        tableFields: []
-    }
+    config  = require('config')
 ;
 
 module.exports = {
@@ -22,9 +18,9 @@ module.exports = {
             }
 
             if(!_.isObject(settings))
-                return res.json(defaults);
+                return res.send(404);
 
-            return res.json(_.extend({}, defaults, settings));
+            return res.json(settings);
         });
     },
 

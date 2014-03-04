@@ -40,7 +40,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			if(this.editing)
 				return false;
 
-
 			this.editing = true;
 			this.render();
 		},

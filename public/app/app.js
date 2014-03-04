@@ -1,5 +1,6 @@
 define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 'models/mdispenser'],
 	function($, _, Router, Navigation, Backbone, Dispenser){
+
 	var init = function() {
 		registerDataTypes(function(){
 			fetchNavigation(function(navData){
@@ -8,8 +9,13 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 					collection: new Navigation.NavCollection(navData),
 					el: 'nav.navigation'
 				});
-
 				nav.render();
+
+				// On hash change set current navigation
+				selectFirstNavElement(); // When load at first from url (no clicking menu)
+				Backbone.history.on('route', function(name, args) {
+					selectCurrentNavElement();
+				});
 			});
 		});
 	};
@@ -43,6 +49,15 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 
 			clbk(array);
 		});
+	};
+
+	var selectCurrentNavElement = function() {
+		$('.navitem').removeClass('navcurrent');
+		$( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('currentNavigation');
+	};
+
+	var selectFirstNavElement = function() {
+		$( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('firstNavigation');
 	};
 
 	return {

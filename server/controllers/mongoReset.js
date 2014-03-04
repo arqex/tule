@@ -11,7 +11,7 @@ var collections = {
 			{
 				name: 'globals',
 				settingsCollection: 'monSettings',
-				datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string'],
+				datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field'],
 				datatypesPath: 'modules/datatypes/'
 			},
 			{

@@ -16,9 +16,11 @@ var nofunction = function(){},
 					var args = arguments;
 					require(['controllers/' + file], function(controller){
 						controller[method].apply(me, args);
-					});					
+					});
 				});
-			})
+			});
+
+			//this.listenTo(location.hash, 'change', this.nofunction);
 		},
 		nofunction: function(){},
 		defaultAction: function(){
