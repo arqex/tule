@@ -36,5 +36,5 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 			});
 
 		}
-	}
+	};
 });

@@ -12,8 +12,26 @@ var MDoc = Backbone.Model.extend({
 
 var SettingsDoc = MDoc.extend({
 	idAttribute: 'name',
+	initialize: function(){
+		this.isFetched = false;
+	},
+	fetch: function(opts){
+		var me = this;
+		return MDoc.prototype.fetch.call(this, opts).then(function(){
+			me.isFetched = true;
+		});
+	},
 	url: function() {
 		return '/api/settings/'+ this.get('name');
+	},
+	isNew: function(){
+		return !this.isFetched;
+	},
+	save: function(attrs, opts){
+		var me = this;
+		return MDoc.prototype.save.call(this, attrs, opts).then(function(){
+			me.isFetched = true;
+		});
 	}
 });
 
@@ -80,6 +98,18 @@ var MCollectionList = Backbone.Collection.extend({
 	}
 });
 
+var getSettings = function(newName) {
+	var deferred = $.Deferred(),
+		newSettings = new SettingsDoc({name: newName})
+	;
+
+	newSettings.fetch({}).always(function(){
+		deferred.resolve(newSettings);
+	});
+
+	return deferred.promise();
+};
+
 var dispenser = function(){
 	var collections = {},
 		doc = function(type){
@@ -102,9 +132,14 @@ var dispenser = function(){
 		}
 	;
 
-	return {getMDoc: doc, getMCollection: collection, getMCollectionList: list, SettingsDoc: SettingsDoc};
+	return {
+		getMDoc: doc,
+		getMCollection: collection,
+		getMCollectionList: list,
+		SettingsDoc: SettingsDoc,
+		getSettings: getSettings
+	};
 };
-
 
 	return dispenser();
 });
