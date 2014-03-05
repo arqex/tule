@@ -69,10 +69,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				label: definition.label,
 				datatype: this.typeOptions.propertyType || definition.datatype,
 				typeOptions: definition.typeOptions,
-				allowDelete: this.typeOptions.customProperties,
+				allowDelete: this.typeOptions.customProperties && this.typeOptions.mandatoryProperties.indexOf(key) == -1,
 				value: value
 			});
-
 			if(typeof value == 'undefined')
 				this.subViews[key].createModel();
 

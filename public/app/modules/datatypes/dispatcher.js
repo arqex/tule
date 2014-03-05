@@ -159,13 +159,17 @@ define(deps, function($,_,Backbone, tplSource){
 			this.datatype = options.datatype;
 			this.typeOptions = options.typeOptions || {};
 			this.mode = options.mode || 'display';
-			this.allowDelete = options.allowDelete || true;
+			this.allowDelete = typeof options.allowDelete == 'undefined' ? true : options.allowDelete ;
 
 			if(!options.model && options.value){
 				this.createModel(options.value);
 				if(!this.datatype)
 					this.datatype = this.model.get('type');
 			}
+
+			if(!options.model && options.datatype)
+				this.createModel();
+
 			if(this.model)
 				this.createTypeView();
 

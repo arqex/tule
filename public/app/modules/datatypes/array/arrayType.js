@@ -134,6 +134,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				})
 			;
 
+			if(this.typeOptions.elementsType)
+				this.saveElement(newElement);
+
 			newElement.render();
 			this.$('a.array-add-element[data-cid=' + this.cid + ']')
 				.replaceWith(newElement.el);
@@ -143,17 +146,21 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			},50);
 
 			this.listenTo(newElement, 'elementEdited', function(elementData){
-				this.saveField(elementData, newElement);
+				this.createElement(elementData, newElement);
 			});
 		},
 
-		saveField: function(data, newElement) {
+		createElement: function(data, newElement){
 			newElement.datatype = data.datatype;
 			newElement.mode = 'edit';
 			newElement.typeOptions = data.typeOptions;
 			newElement.createModel();
 
-			this.subViews[parseInt(data.key, 10)] = newElement;
+			this.saveElement(newElement);
+		},
+
+		saveElement: function(newElement) {
+			this.subViews[parseInt(newElement.key, 10)] = newElement;
 
 			this.collection.add(newElement.model);
 
