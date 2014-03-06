@@ -174,11 +174,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 		inline: false,
 		defaultValue: {},
 		typeOptionsDefinition: [
-			{key: 'customProperties', label: 'Allow custom properties?', datatype: 'boolean'},
-			{key: 'propertyDefinitions', label: 'Property definitions', datatype: 'array'},
-			{key: 'propertiesType', label: 'Properties type'},
-			{key: 'mandatoryProperties', label: 'Mandatory properties', datatype: 'array', typeOptions: {elementsType: 'string'}},
-			{key: 'hiddenProperties', label: 'Hidden properties', datatype: 'array', typeOptions: {elementsType: 'string'}}
+			{key: 'customProperties', label: 'Allow custom properties?', datatype: {id: 'bool'}},
+			{key: 'propertyDefinitions', label: 'Property definitions', datatype: {id: 'array'}},
+			{key: 'propertiesType', label: 'Properties datatype', datatype: {id: 'field'}},
+			{key: 'mandatoryProperties', label: 'Mandatory properties', datatype: {id: 'array', options: {elementsType: 'string'}}},
+			{key: 'hiddenProperties', label: 'Hidden properties', datatype: {id: 'array', options: {elementsType: 'string'}}}
 		]
 	});
 

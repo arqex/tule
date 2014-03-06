@@ -15,13 +15,20 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 		events: {
 			'click .field-ok': 'onFieldOk',
-			'click .field-cancel': 'onFieldCancel'
+			'click .field-cancel': 'onFieldCancel',
+			'change .element-form-type': 'onChangeFieldType',
+			'click .element-form-advanced-toggle': 'onAdvancedToggle'
 		},
 		getTemplateData: function(){
 			return {
 				types: dispatcher.typeNames,
 				value: this.model.get('value')
 			};
+		},
+		render: function(){
+			dispatcher.BaseView.prototype.render.call(this);
+			this.prepareAdvancedOptions(this.$('.element-form-type').val());
+			return this;
 		},
 		onFieldOk: function(e) {
 			e.preventDefault();
@@ -31,6 +38,38 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		onFieldCancel: function(e) {
 			e.preventDefault();
 			this.trigger('changeMode', 'display');
+		},
+		onChangeFieldType: function(e){
+			e.preventDefault();
+			var type = this.$('.element-form-type').val();
+			this.prepareAdvancedOptions(type);
+		},
+		onAdvancedToggle: function(e){
+			e.preventDefault();
+			this.$('.element-form-advanced-options').toggle();
+		},
+		prepareAdvancedOptions: function(datatype){
+			var options = dispatcher.typeOptionsDefinitions[datatype],
+				$advanced = this.$('.element-form-advanced-options')
+			;
+			if(!options)
+				return $advanced.html('Unknown datatype: ' + datatype);
+			if(!options.length)
+				return $advanced.html('No advanced options available for ' + datatype);
+
+			if(this.advanced)
+				this.advanced.remove();
+
+			var objectOptions = {
+				propertyDefinitions: options,
+				mandatoryProperties: _.map(options, function(prop){return prop.key;}),
+				customProperties: false
+			};
+
+			this.advanced = dispatcher.getView('object',  objectOptions);
+			this.advanced.changeMode('edit');
+
+			$advanced.html(this.advanced.render().el);
 		}
 	});
 

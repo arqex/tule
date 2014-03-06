@@ -6,7 +6,7 @@
 <script type="text/template" id="fieldEditTpl">
 	<form class="field-form">
 		<div class="element-form-options">
-			Field type:
+			Datatype:
 			<select class="element-form-type field-datatype-select">
 				<% _.each(types, function(type){ %>
 				<option value="<%= type.id %>" <%= type.id == value ? 'selected' : '' %>><%= type.name %></option>
