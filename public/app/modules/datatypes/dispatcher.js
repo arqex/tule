@@ -185,11 +185,19 @@ define(deps, function($,_,Backbone, tplSource){
 			this.setInline();
 		},
 		renderEditForm: function(){
-			var fieldView = dispatcher.getView('field');
+			var me = this,
+				fieldView = dispatcher.getView('field', {okButton: 'Add', cancelButton: false})
+			;
 			fieldView.changeMode('edit');
 
 			this.$el.html(this.formTpl({ name: this.label || this.key }));
 			this.$('.element-form').html(fieldView.render().el);
+
+			fieldView.on('saved', function(datatype){
+				me.datatype = datatype;
+				me.createTypeView();
+				me.trigger('elementEdited', {key: me.key, datatype: me.datatype});
+			});
 
 			return this;
 		},
@@ -221,7 +229,7 @@ define(deps, function($,_,Backbone, tplSource){
 			return this;
 		},
 		createTypeView: function(){
-			this.typeView = dispatcher.getView(this.datatype.id, this.typeOptions, this.model);
+			this.typeView = dispatcher.getView(this.datatype.id, this.datatype.options, this.model);
 			this.typeView.mode = this.mode;
 			this.listenTo(this.typeView, 'changeMode', function(mode){
 				this.mode = mode;

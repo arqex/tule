@@ -1,19 +1,23 @@
 <div>
 <script type="text/template" id="fieldTpl">
-	<div class="field-display"><%= value %></div>
+	<div class="field-display"><%= value.id %></div>
 </script>
 
 <script type="text/template" id="fieldEditTpl">
 	<form class="field-form">
 		<div class="element-form-options">
-			Datatype:
+			<% if(label) { %>
+			<%= label %>:
+			<% } %>
 			<select class="element-form-type field-datatype-select">
 				<% _.each(types, function(type){ %>
-				<option value="<%= type.id %>" <%= type.id == value ? 'selected' : '' %>><%= type.name %></option>
+				<option value="<%= type.id %>" <%= type.id == value.id ? 'selected' : '' %>><%= type.name %></option>
 				<% }) %>
 			</select>
-			<button class="field-ok">Ok</button>
-			<a href="#" class="field-cancel" data-bypass="true">Cancel</a>
+			<button class="field-ok"><%= okButton %></button>
+			<% if(cancelButton) { %>
+			<a href="#" class="field-cancel" data-bypass="true"><%=cancelButton%></a>
+			<% } %>
 		</div>
 
 		<div class="element-form-advanced">

@@ -24,13 +24,15 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 									{key: 'key', datatype: {id: 'string'}},
 									{key: 'label', datatype: {id: 'string'}},
 									{key: 'datatype', datatype: {id: 'field'}} // inception, yay!
-								]
+								],
+								mandatoryProperties: ['key', 'label', 'datatype'],
+								customProperties: false
 							}
 						}
 					}
 				}
 			},
-			{key: 'tableFields', label: 'Table header fields', datatype: {id: 'array', options: {elementsType: 'string'}}},
+			{key: 'tableFields', label: 'Table header fields', datatype: {id: 'array', options: {elementsType: {id:'string'}}}},
 		],
 		mandatoryProperties: ['propertyDefinitions', 'tableFields'],
 		hiddenProperties: ['name']
