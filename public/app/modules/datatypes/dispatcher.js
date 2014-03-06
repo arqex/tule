@@ -119,6 +119,7 @@ define(deps, function($,_,Backbone, tplSource){
 			this.$el.html(tpl(this.getTemplateData()));
 
 			if(this.mode == 'edit')
+
 				setTimeout(function(){
 					me.$('input').first().focus();
 				}, 50);
