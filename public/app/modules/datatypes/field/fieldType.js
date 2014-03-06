@@ -32,8 +32,14 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 		onFieldOk: function(e) {
 			e.preventDefault();
-			this.model.set('value', this.$('.field-datatype-select').val());
+			var value = {
+				id: this.$('.field-datatype-select').val(),
+				options: this.advanced ? this.advanced.getValue() : {}
+			}
+
+			this.model.set('value', value);
 			this.trigger('changeMode', 'display');
+			this.trigger('saved', value);
 		},
 		onFieldCancel: function(e) {
 			e.preventDefault();

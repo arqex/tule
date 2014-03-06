@@ -184,11 +184,19 @@ define(deps, function($,_,Backbone, tplSource){
 			this.setInline();
 		},
 		renderEditForm: function(){
-			var fieldView = dispatcher.getView('field');
+			var me = this,
+				fieldView = dispatcher.getView('field')
+			;
 			fieldView.changeMode('edit');
 
 			this.$el.html(this.formTpl({ name: this.label || this.key }));
 			this.$('.element-form').html(fieldView.render().el);
+
+			fieldView.on('saved', function(datatype){
+				me.datatype = datatype;
+				me.createTypeView();
+				me.trigger('elementEdited', {key: me.key, datatype: me.datatype});
+			});
 
 			return this;
 		},
