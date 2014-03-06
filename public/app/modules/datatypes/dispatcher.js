@@ -185,7 +185,7 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 		renderEditForm: function(){
 			var me = this,
-				fieldView = dispatcher.getView('field')
+				fieldView = dispatcher.getView('field', {okButton: 'Add', cancelButton: false})
 			;
 			fieldView.changeMode('edit');
 
@@ -228,7 +228,7 @@ define(deps, function($,_,Backbone, tplSource){
 			return this;
 		},
 		createTypeView: function(){
-			this.typeView = dispatcher.getView(this.datatype.id, this.typeOptions, this.model);
+			this.typeView = dispatcher.getView(this.datatype.id, this.datatype.options, this.model);
 			this.typeView.mode = this.mode;
 			this.listenTo(this.typeView, 'changeMode', function(mode){
 				this.mode = mode;

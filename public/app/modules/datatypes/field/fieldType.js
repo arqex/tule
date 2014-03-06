@@ -11,7 +11,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		tpl: _.template($(tplSource).find('#fieldTpl').html()),
 		editTpl: _.template($(tplSource).find('#fieldEditTpl').html()),
 		defaultOptions: {
-			selectOptions: [{novalue: 'No select options'}]
+			label: '',
+			okButton: 'Ok',
+			cancelButton: 'Cancel'
 		},
 		events: {
 			'click .field-ok': 'onFieldOk',
@@ -22,7 +24,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		getTemplateData: function(){
 			return {
 				types: dispatcher.typeNames,
-				value: this.model.get('value')
+				value: this.model.get('value'),
+				label: this.typeOptions.label,
+				okButton: this.typeOptions.okButton,
+				cancelButton: this.typeOptions.cancelButton
 			};
 		},
 		render: function(){
@@ -35,7 +40,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			var value = {
 				id: this.$('.field-datatype-select').val(),
 				options: this.advanced ? this.advanced.getValue() : {}
-			}
+			};
 
 			this.model.set('value', value);
 			this.trigger('changeMode', 'display');
@@ -83,7 +88,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		id: 'field',
 		name: 'Field',
 		View: FieldTypeView,
-		defaultValue: 'string',
-		typeOptions:[]
+		defaultValue: {id: 'string', options: {}},
+		typeOptionsDefinition: [
+			{key: 'label', label: 'Label', datatype:{id: 'string'}},
+			{key: 'okButton', label: 'Ok button text', datatype:{id: 'string'}},
+			{key: 'cancelButton', label: 'Cancel button text', datatype: {id: 'string'}}
+		]
 	});
 });
