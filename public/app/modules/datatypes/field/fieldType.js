@@ -10,7 +10,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 	var FieldTypeView = dispatcher.BaseView.extend({
 		tpl: _.template($(tplSource).find('#fieldTpl').html()),
 		editTpl: _.template($(tplSource).find('#fieldEditTpl').html()),
-		defaultOptions: {
+		defaultTypeOptions: {
 			label: '',
 			okButton: 'Ok',
 			cancelButton: 'Cancel'
