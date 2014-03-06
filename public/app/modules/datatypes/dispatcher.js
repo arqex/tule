@@ -107,6 +107,7 @@ define(deps, function($,_,Backbone, tplSource){
 
 			this.typeOptions = _.extend({}, this.defaultTypeOptions, (options.typeOptions || {})),
 			Backbone.View.prototype.constructor.call(this, options);
+
 		},
 
 		render: function(){
@@ -235,6 +236,9 @@ define(deps, function($,_,Backbone, tplSource){
 				this.mode = mode;
 				this.typeView.changeMode(mode);
 				this.render();
+			});
+			this.listenTo(this.typeView, 'cancel', function(mode){
+				this.trigger('onClickCancel');
 			});
 		},
 

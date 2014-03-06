@@ -51,6 +51,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 		cancel: function() {
 			this.trigger('changeMode', 'display');
+			this.trigger('cancel');
 		},
 
 		getValue: function(){

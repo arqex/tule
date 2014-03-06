@@ -148,6 +148,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			this.listenTo(newElement, 'elementEdited', function(elementData){
 				this.createElement(elementData, newElement);
 			});
+
+			this.listenTo(newElement, 'onClickCancel', function(){ 
+				this.trigger('changeMode', 'display');				
+			});
 		},
 
 		createElement: function(data, newElement){
