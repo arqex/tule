@@ -4,23 +4,7 @@
 	<div class="element-form-key-wrap">
 		<%= typeof name !== 'undefined' ? name : '<input type="text" class="element-form-key" placeholder="Property name">' %>
 	</div>:
-	<div class="element-form">
-		<div class="element-form-options">
-			<select class="element-form-type">
-				<% _.each(types, function(type){ %>
-				<option value="<%= type.id %>" <%= type.id == datatype ? 'checked' : '' %>><%= type.name %></option>
-				<% }) %>
-			</select>
-			<button class="element-edit-ok">Add</button>
-		</div>
-
-		<div class="element-form-advanced">
-			<a class="element-form-advanced-toggle" href="#" data-bypass="1">Advanced options</a>
-			<div class="element-form-advanced-options">
-			</div>
-		</div>
-
-	</div>
+	<div class="element-form"></div>
 </script>
 
 <script type="text/template" id="DataElementTpl">

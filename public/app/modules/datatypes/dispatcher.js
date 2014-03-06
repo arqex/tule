@@ -122,6 +122,8 @@ define(deps, function($,_,Backbone, tplSource){
 				setTimeout(function(){
 					me.$('input').first().focus();
 				}, 50);
+
+			return this;
 		},
 
 		getTemplateData: function(){
@@ -146,8 +148,6 @@ define(deps, function($,_,Backbone, tplSource){
 		formTpl: _.template($(tplSource).find('#DataElementFormTpl').html()),
 		tpl: _.template($(tplSource).find('#DataElementTpl').html()),
 		events:{
-			'change .element-form-type': 'onChangeFieldType',
-			'click .element-form-advanced-toggle': 'onAdvancedToggle',
 			'click .element-value': 'onClickElementValue',
 			'click .element-key': 'onClickElementKey',
 			'click .element-delete': 'onClickDelete',
@@ -179,19 +179,20 @@ define(deps, function($,_,Backbone, tplSource){
 			if(typeof value != 'undefined')
 				this.model = dispatcher.createModel(value);
 			else
-				this.model = dispatcher.createEmptyModel(this.datatype);
+				this.model = dispatcher.createEmptyModel(this.datatype.id);
 
 			this.setInline();
 		},
 		renderEditForm: function(){
-			var tplOptions = {
-				name: this.label || this.key,
-				datatype: this.datatype,
-				types: dispatcher.typeNames
-			};
+			var fieldView = dispatcher.getView('field');
+			fieldView.changeMode('edit');
 
-			this.$el.html(this.formTpl(tplOptions));
+			this.$el.html(this.formTpl({ name: this.label || this.key }));
+			this.$('.element-form').html(fieldView.render().el);
+
+			return this;
 		},
+
 		render: function(){
 			if(!this.datatype){
 				this.renderEditForm();
@@ -215,9 +216,11 @@ define(deps, function($,_,Backbone, tplSource){
 			this.typeView.render();
 			this.$('.element-value').html(this.typeView.el);
 			this.typeView.delegateEvents();
+
+			return this;
 		},
 		createTypeView: function(){
-			this.typeView = dispatcher.getView(this.datatype, this.typeOptions, this.model);
+			this.typeView = dispatcher.getView(this.datatype.id, this.typeOptions, this.model);
 			this.typeView.mode = this.mode;
 			this.listenTo(this.typeView, 'changeMode', function(mode){
 				this.mode = mode;
@@ -225,26 +228,7 @@ define(deps, function($,_,Backbone, tplSource){
 				this.render();
 			});
 		},
-		onChangeFieldType: function(e){
-			var type = this.$('element-form-type').val();
-			if(this.advanced)
-				this.prepareAdvancedOptions(type);
-		},
-		onAdvancedToggle: function(e){
-			if(this.advanced){
-				this.$el('.element-form-advanced-options').hide();
-				this.advanced = false;
-			}
-			else {
-				var type = this.$('element-form-type').val();
-				this.prepareAdvancedOptions(type);
-				this.$el('.element-form-advanced-options').show();
-				this.advanced = true;
-			}
-		},
-		prepareAdvancedOptions: function(){
 
-		},
 		changeMode: function(mode){
 			if(!mode)
 				mode = this.mode == 'edit' ? 'display' : 'edit';
