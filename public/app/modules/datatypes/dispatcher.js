@@ -271,13 +271,16 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 
 		onClickElementKey: function(e){
-			var uglyModel = this.typeView.collection.at(0);
-			if (uglyModel != undefined) {
-				if (uglyModel.get('key') == "" && uglyModel.get('value') == "") {
-					this.typeView.collection.remove(uglyModel);
-					this.typeView.subViews = [];
+			if (this.typeView.collection != undefined) {
+				var uglyModel = this.typeView.collection.at(0);
+				if (uglyModel != undefined) {
+					if (uglyModel.get('key') == "" && uglyModel.get('value') == "") {
+						this.typeView.collection.remove(uglyModel);
+						this.typeView.subViews = [];
+					}
 				}
-			}	
+			}
+				
 			var cid = $(e.target).closest('.element').data('cid');
 			if(this.cid == cid)
 				this.changeMode();
