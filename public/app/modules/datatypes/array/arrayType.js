@@ -149,7 +149,15 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				this.createElement(elementData, newElement);
 			});
 
-			this.listenTo(newElement, 'onClickCancel', function(){ 
+			this.listenTo(newElement, 'clickCancel', function(mo){ 
+				var uglyModel = this.collection.at(0);
+				if (uglyModel != undefined) {
+					if (uglyModel.get('key') == "" && uglyModel.get('value') == "")	{
+						this.collection.remove(uglyModel);
+						this.subViews = [];	
+					}
+				}
+				
 				this.trigger('changeMode', 'display');				
 			});
 		},

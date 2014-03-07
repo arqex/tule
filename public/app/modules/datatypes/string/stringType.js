@@ -17,12 +17,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			'click .string-cancel': 'onClickCancel'
 		},
 
-		changeMode: function(mode){
-			if(!mode)
-				mode = this.mode == 'edit' ? 'display' : 'edit';
-			this.mode = mode;
-		},
-
 		onClickOk: function(e){
 			e.preventDefault();
 			this.saveString();
