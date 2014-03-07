@@ -304,7 +304,7 @@ define(deps, function($,_,Backbone, tplSource){
 			if(!this.datatype)
 				return false;
 
-			var typeData = dispatcher.types[this.datatype];
+			var typeData = dispatcher.types[this.datatype.id];
 			this.inline = !(typeData) || typeof typeData.inline === 'undefined' || typeData.inline;
 		}
 	});
