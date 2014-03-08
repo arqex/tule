@@ -29,13 +29,14 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 		initialize: function(opts){
 			var me = this,
-				options = this.typeOptions
+				options = this.typeOptions,
+				modelvalue = this.model.get('value')
 			;
 
 			this.mode = 'display';
 
 			// Store the value in a model to track its changes
-			this.modelValue = new Backbone.Model(this.model.get('value'));
+			this.modelValue = new Backbone.Model(modelvalue);
 
 			//Let's make the property definitions quicky accesible
 			this.propertyDefinitions = {};
@@ -49,6 +50,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				var definition = me.propertyDefinitions[key];
 				if(definition)
 					me.createSubView(key, definition, me.modelValue.get(key));
+				if(typeof modelvalue[key] == 'undefined')
+					me.modelValue.set(key, dispatcher.types[definition.datatype.id].defaultValue);
 			});
 			_.each(this.model.get('value'), function(value, key){
 
@@ -122,7 +125,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			}
 
 			var me = this,
-				newElement = new dispatcher.DataElementView({type: this.typeOptions.propertyType})
+				newElement = new dispatcher.DataElementView({type: this.typeOptions.propertyType, isNew: true})
 			;
 
 			newElement.render();
@@ -134,13 +137,16 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 			this.listenTo(newElement, 'elementEdited', function(elementData){
 				var key = $.trim(elementData.key);
-				if(!key)
-					return Alerts.add({message: 'The new property needs a key!', level: 'error'});
+
 				if(this.subViews[key])
 					return Alerts.add({message: 'There is already a property called ' + key + '.', level: 'error'});
 
 				elementData.key = key;
 				this.saveField(elementData, newElement);
+			});
+
+			this.listenTo(newElement, 'elementCancel', function(){
+				this.render();
 			});
 		},
 
@@ -150,6 +156,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			newElement.mode = 'edit';
 			newElement.typeOptions = data.typeOptions;
 			newElement.createModel();
+			newElement.isNew = false;
 
 			this.subViews[data.key] = newElement;
 

@@ -14,10 +14,6 @@
 				<option value="<%= type.id %>" <%= type.id == value.id ? 'selected' : '' %>><%= type.name %></option>
 				<% }) %>
 			</select>
-			<button class="field-ok"><%= okButton %></button>
-			<% if(cancelButton) { %>
-			<a href="#" class="field-cancel" data-bypass="true"><%=cancelButton%></a>
-			<% } %>
 		</div>
 
 		<div class="element-form-advanced">

@@ -12,9 +12,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		tpl: _.template($(tplSource).find('#stringTpl').html()),
 		editTpl: _.template($(tplSource).find('#stringEditTpl').html()),
 		events: {
-			'click .string-ok': 'onClickOk',
-			'keyup form': 'onKeyup',
-			'click .string-cancel': 'onClickCancel'
+			'keyup form': 'onKeyup'
 		},
 
 		onClickOk: function(e){
@@ -33,21 +31,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			}
 		},
 
-		saveString: function(){
-			this.model.set('value', this.$('input').val());
-			this.trigger('changeMode', 'display');
-		},
-
-		onClickCancel: function(e){
-			e.preventDefault();
-			this.cancel();
-		},
-
-		cancel: function() {
-			this.trigger('changeMode', 'display');
-			this.trigger('cancel');
-		},
-
 		getValue: function(){
 			return this.model.get('value');
 		}
@@ -58,7 +41,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		name: 'String',
 		defaultValue: '',
 		inline: true,
-		View: StringTypeView
+		View: StringTypeView,
+		controls: true
 	});
 
 	return StringTypeView;

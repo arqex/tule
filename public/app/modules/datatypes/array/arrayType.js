@@ -79,7 +79,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 				if(!this.subViews.length){
 					console.log("empty");
-					this.onAddField();
 				}
 			}
 
@@ -130,7 +129,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 					datatype: this.typeOptions.elementsType,
 					key: idx,
 					label: idx,
-					mode: this.typeOptions.elementsType && !this.collection.length ? 'edit' : 'display'
+					mode: this.typeOptions.elementsType && !this.collection.length ? 'edit' : 'display',
+					isNew: true
 				})
 			;
 
@@ -145,20 +145,16 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				me.$('input').focus();
 			},50);
 
-			this.listenTo(newElement, 'elementEdited', function(elementData){
+			this.listenTo(newElement, 'elementOk', function(elementData){
 				this.createElement(elementData, newElement);
 			});
 
-			this.listenTo(newElement, 'clickCancel', function(mo){ 
-				var uglyModel = this.collection.at(0);
-				if (uglyModel != undefined) {
-					if (uglyModel.get('key') == "" && uglyModel.get('value') == "")	{
-						this.collection.remove(uglyModel);
-						this.subViews = [];	
-					}
-				}
-				
-				this.trigger('changeMode', 'display');				
+			this.listenTo(newElement, 'elementCancel', function(){
+				if(!newElement.isNew)
+					return;
+
+				this.subViews.splice(newElement.key, 1);
+				this.collection.remove(newElement.model);
 			});
 		},
 
@@ -167,8 +163,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			newElement.mode = 'edit';
 			newElement.typeOptions = data.typeOptions;
 			newElement.createModel();
+			newElement.isNew = false;
 
 			this.saveElement(newElement);
+
+			newElement.changeMode('display');
 		},
 
 		saveElement: function(newElement) {

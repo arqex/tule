@@ -35,16 +35,14 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			this.prepareAdvancedOptions(this.$('.element-form-type').val());
 			return this;
 		},
-		onFieldOk: function(e) {
-			e.preventDefault();
+		save: function() {
+
 			var value = {
 				id: this.$('.field-datatype-select').val(),
 				options: this.advanced ? this.advanced.getValue() : {}
 			};
 
 			this.model.set('value', value);
-			this.trigger('changeMode', 'display');
-			this.trigger('saved', value);
 		},
 		onFieldCancel: function(e) {
 			e.preventDefault();
@@ -93,6 +91,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			{key: 'label', label: 'Label', datatype:{id: 'string'}},
 			{key: 'okButton', label: 'Ok button text', datatype:{id: 'string'}},
 			{key: 'cancelButton', label: 'Cancel button text', datatype: {id: 'string'}}
-		]
+		],
+		controls: true
 	});
 });

@@ -11,9 +11,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		tpl: _.template($(tplSource).find('#floatTpl').html()),
 		editTpl: _.template($(tplSource).find('#floatEditTpl').html()),
 		events: {
-			'click .float-ok': 'onClickOk',
 			'onKeyup form': 'onKeyup',
-			'click .float-cancel': 'onClickCancel'
 		},
 
 		render: function() {
@@ -31,39 +29,20 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				}, 50);
 		},
 
-		changeMode: function(mode){
-			if(!mode)
-				mode = this.mode == 'edit' ? 'display' : 'edit';
-			this.mode = mode;
-		},
-
-		onClickOk: function(e){
-			e.preventDefault();
-			this.saveFloat();
-		},
-
 		onKeyup: function(e){
 			if(e.which == 13){
 				e.preventDefault();
-				this.saveFloat();
+				this.save();
+				this.trigger('changeMode', 'display');
 			} else if (e.which == 27) {
 				e.preventDefault();
 				this.cancel();
+				this.trigger('changeMode', 'display');
 			}
 		},
 
-		saveFloat: function(){
+		save: function(){
 			this.model.set('value', parseFloat(this.$('input').val()));
-			this.trigger('changeMode', 'display');
-		},
-
-		onClickCancel: function(e){
-			e.preventDefault();
-			this.cancel();
-		},
-
-		cancel: function() {
-			this.trigger('changeMode', 'display');
 		},
 
 		getValue: function(){
@@ -76,7 +55,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		name: 'Double',
 		defaultValue: 0.0,
 		inline: true,
-		View: FloatTypeView
+		View: FloatTypeView,
+		controls: true
 	});
 
 	return FloatTypeView;

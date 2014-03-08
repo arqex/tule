@@ -272,6 +272,10 @@ a.element-delete {
 	font-size: 14px;
 }
 
+.element-controls {
+	display: inline-block;
+}
+
 .field div {
 	margin-bottom: 0;
 }

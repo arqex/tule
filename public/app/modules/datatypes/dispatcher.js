@@ -2,10 +2,11 @@
 
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'text!./dataElement.html'
+	'text!./dataElement.html',
+	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, tplSource){
+define(deps, function($,_,Backbone, tplSource, Alerts){
 
 	var DataTypeDispatcher = function(){
 		this.types = {};
@@ -140,6 +141,14 @@ define(deps, function($,_,Backbone, tplSource){
 
 		getValue: function(){
 			return this.model.get('value');
+		},
+
+		save: function(){
+			this.model.set('value', this.$('input').val());
+		},
+
+		cancel: function(){
+
 		}
 	});
 
@@ -153,7 +162,9 @@ define(deps, function($,_,Backbone, tplSource){
 			'click .element-value': 'onClickElementValue',
 			'click .element-key': 'onClickElementKey',
 			'click .element-delete': 'onClickDelete',
-			'click .element-edit-ok': 'onElementEditOk'
+			'click .element-edit-ok': 'onElementEditOk',
+			'click .element-ok': 'onElementOk',
+			'click .element-cancel': 'onElementCancel'
 		},
 		initialize: function(options){
 			this.key = options.key;
@@ -162,11 +173,12 @@ define(deps, function($,_,Backbone, tplSource){
 			this.typeOptions = options.typeOptions || {};
 			this.mode = options.mode || 'display';
 			this.allowDelete = typeof options.allowDelete == 'undefined' ? true : options.allowDelete ;
+			this.isNew = options.isNew;
 
-			if(!options.model && options.value){
+			if(!options.model && typeof options.value != 'undefined'){
 				this.createModel(options.value);
 				if(!this.datatype)
-					this.datatype = this.model.get('type');
+					this.datatype = {id:this.model.get('type'), options: {}};
 			}
 
 			if(!options.model && options.datatype)
@@ -200,6 +212,24 @@ define(deps, function($,_,Backbone, tplSource){
 				me.trigger('elementEdited', {key: me.key, datatype: me.datatype});
 			});
 
+			this.$('.element-ok').on('click', function(e){
+				e.preventDefault();
+				var key = me.key;
+				if(!key)
+					key = $.trim(me.$('.element-form-key').val());
+				if(!key)
+					return Alerts.add({message: 'The new element needs a key!', level: 'error'});
+
+				fieldView.save();
+
+				me.trigger('elementEdited', {key: key, datatype: fieldView.getValue()});
+			});
+
+			this.$('.element-cancel').on('click', function(e){
+				e.preventDefault();
+				e.preventDefault('elementCancelled');
+			});
+
 			return this;
 		},
 
@@ -212,9 +242,11 @@ define(deps, function($,_,Backbone, tplSource){
 			var tplOptions = {
 				key: this.label || this.key,
 				mode: this.mode,
-				allowDelete: this.allowDelete,
+				allowDelete: !this.isNew && this.allowDelete,
 				inline: this.inline,
-				cid: this.cid
+				cid: this.cid,
+				buttonText: this.isNew ? 'Add' : 'Ok',
+				controls: this.isNew || this.controls
 			};
 
 			if(!this.typeView){
@@ -271,16 +303,18 @@ define(deps, function($,_,Backbone, tplSource){
 		},
 
 		onClickElementKey: function(e){
-			if (this.typeView.collection != undefined) {
+			if(this.isNew)
+				return;
+			if (typeof this.typeView.collection != 'undefined') {
 				var uglyModel = this.typeView.collection.at(0);
-				if (uglyModel != undefined) {
-					if (uglyModel.get('key') == "" && uglyModel.get('value') == "") {
+				if (typeof uglyModel != 'undefined') {
+					if (!uglyModel.get('key') && !uglyModel.get('value')) {
 						this.typeView.collection.remove(uglyModel);
 						this.typeView.subViews = [];
 					}
 				}
 			}
-				
+
 			var cid = $(e.target).closest('.element').data('cid');
 			if(this.cid == cid)
 				this.changeMode();
@@ -300,12 +334,32 @@ define(deps, function($,_,Backbone, tplSource){
 			this.trigger('elementEdited', elementData);
 		},
 
+		onElementOk: function(e){
+			e.preventDefault();
+			if(this.typeView){
+				this.typeView.save();
+				this.changeMode('display');
+				this.trigger('elementOk', {key: this.key, datatype: this.datatype});
+			}
+
+		},
+
+		onElementCancel: function(e){
+			e.preventDefault();
+			if(this.typeView){
+				this.typeView.cancel();
+				this.changeMode('display');
+			}
+			this.trigger('elementCancel');
+		},
+
 		setInline: function(){
 			if(!this.datatype)
 				return false;
 
 			var typeData = dispatcher.types[this.datatype.id];
 			this.inline = !(typeData) || typeof typeData.inline === 'undefined' || typeData.inline;
+			this.controls = typeData && typeData.controls
 		}
 	});
 

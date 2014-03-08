@@ -5,6 +5,10 @@
 		<%= typeof name !== 'undefined' ? name : '<input type="text" class="element-form-key" placeholder="Property name">' %>
 	</div>:
 	<div class="element-form"></div>
+	<div class="new-element-controls ">
+		<button class="element-ok">Add</button>
+		<a href="#" class="element-cancel" data-bypass="true">Cancel</a>
+	</div>
 </script>
 
 <script type="text/template" id="DataElementTpl">
@@ -16,6 +20,12 @@
 			<%= key %>:
 		</div>
 		<div class="element-value element-mode-<%= mode %>"></div>
+		<% if(mode == 'edit' && controls){ %>
+		<div class="element-controls">
+			<button class="element-ok"><%= buttonText %></button>
+			<a href="#" class="element-cancel" data-bypass="true">Cancel</a>
+		</div>
+		<% } %>
 	</div>
 </script>
 

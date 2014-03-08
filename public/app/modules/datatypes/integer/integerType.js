@@ -12,40 +12,24 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		tpl: _.template($(tplSource).find('#integerTpl').html()),
 		editTpl: _.template($(tplSource).find('#integerEditTpl').html()),
 		events: {
-			'click .integer-ok': 'onClickOk',
-			'keyup form': 'onKeyup',
-			'click .integer-cancel': 'onClickCancel'
-		},
-
-		onClickOk: function(e){
-			e.preventDefault();
-			this.saveInteger();
+			'keyup form': 'onKeyup'
 		},
 
 		onKeyup: function(e){
 			if(e.which == 13){
-				console.log("integer");
 				e.preventDefault();
-				this.saveInteger();
+				this.save();
+				this.trigger('changeMode', 'display');
 			} else if (e.which == 27) {
 				e.preventDefault();
 				this.cancel();
+				this.trigger('changeMode', 'display');
 			}
 		},
 
-		saveInteger: function(){
+		save: function(){
 			this.model.set('value', parseInt(this.$('input').val()), 10);
-			this.trigger('changeMode', 'display');
 		},
-
-		onClickCancel: function(e){
-			e.preventDefault();
-			this.cancel();
-		},
-
-		cancel: function() {
-			this.trigger('changeMode', 'display');
-		}
 	});
 
 	dispatcher.registerType({
@@ -53,7 +37,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		name: 'Integer',
 		defaultValue: 0,
 		inline: true,
-		View: IntegerTypeView
+		View: IntegerTypeView,
+		controls: true
 	});
 
 	return IntegerTypeView;
