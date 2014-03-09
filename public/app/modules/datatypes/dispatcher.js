@@ -197,47 +197,22 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 
 			this.setInline();
 		},
+
 		renderEditForm: function(){
-			var me = this,
-				fieldView = dispatcher.getView('field', {okButton: 'Add', cancelButton: false})
-			;
+			var fieldView = dispatcher.getView('field');
+
 			fieldView.changeMode('edit');
 
 			this.$el.html(this.formTpl({ name: this.label || this.key }));
 			this.$('.element-form').html(fieldView.render().el);
 
-			fieldView.on('saved', function(datatype){
-				me.datatype = datatype;
-				me.createTypeView();
-				me.trigger('elementEdited', {key: me.key, datatype: me.datatype});
-			});
-
-			this.$('.element-ok').on('click', function(e){
-				e.preventDefault();
-				var key = me.key;
-				if(!key)
-					key = $.trim(me.$('.element-form-key').val());
-				if(!key)
-					return Alerts.add({message: 'The new element needs a key!', level: 'error'});
-
-				fieldView.save();
-
-				me.trigger('elementEdited', {key: key, datatype: fieldView.getValue()});
-			});
-
-			this.$('.element-cancel').on('click', function(e){
-				e.preventDefault();
-				e.preventDefault('elementCancelled');
-			});
-
+			this.typeView = fieldView;
 			return this;
 		},
 
 		render: function(){
-			if(!this.datatype){
-				this.renderEditForm();
-				return this;
-			}
+			if(!this.datatype)
+				return this.renderEditForm();
 
 			var tplOptions = {
 				key: this.label || this.key,
@@ -246,7 +221,9 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				inline: this.inline,
 				cid: this.cid,
 				buttonText: this.isNew ? 'Add' : 'Ok',
-				controls: this.isNew || this.controls
+				controls: this.isNew || this.controls,
+				isNew: this.isNew,
+				datatype: this.datatype.id
 			};
 
 			if(!this.typeView){
@@ -256,7 +233,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			this.$el.html(this.tpl(tplOptions));
 
 			this.typeView.render();
-			this.$('.element-value').html(this.typeView.el);
+			this.$('.element-value').prepend(this.typeView.el);
 			this.typeView.delegateEvents();
 
 			return this;
@@ -305,15 +282,6 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		onClickElementKey: function(e){
 			if(this.isNew)
 				return;
-			if (typeof this.typeView.collection != 'undefined') {
-				var uglyModel = this.typeView.collection.at(0);
-				if (typeof uglyModel != 'undefined') {
-					if (!uglyModel.get('key') && !uglyModel.get('value')) {
-						this.typeView.collection.remove(uglyModel);
-						this.typeView.subViews = [];
-					}
-				}
-			}
 
 			var cid = $(e.target).closest('.element').data('cid');
 			if(this.cid == cid)
@@ -336,12 +304,26 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 
 		onElementOk: function(e){
 			e.preventDefault();
-			if(this.typeView){
+			var elementData = {};
+
+			//We are asking for the datatype
+			if(this.isNew && !this.datatype){
+				var key = this.key;
+				if(typeof key == 'undefined')
+					key = $.trim(this.$('.element-form-key').val());
+				if(typeof key == 'undefined' || key === '')
+					return Alerts.add({message: 'The new element needs a key!', level: 'error'});
+
+				this.typeView.save();
+				elementData = {key: key, datatype: this.typeView.getValue()};
+			}
+			else {
 				this.typeView.save();
 				this.changeMode('display');
-				this.trigger('elementOk', {key: this.key, datatype: this.datatype});
+				elementData = {key: this.key, datatype: this.datatype};
 			}
 
+			return this.trigger('elementOk', elementData);
 		},
 
 		onElementCancel: function(e){

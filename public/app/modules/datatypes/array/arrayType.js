@@ -14,7 +14,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		className: 'field field-object',
 
 		events: {
-			'click .array-add-element': 'onAddField'
+			'click .array-add-element': 'onAddElement'
 		},
 
 		defaultTypeOptions: {
@@ -77,9 +77,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 					subView.delegateEvents();
 				});
 
-				if(!this.subViews.length){
-					console.log("empty");
-				}
+				if(!this.subViews.length)
+					this.onAddElement();
 			}
 
 			var oldidx, newidx;
@@ -115,7 +114,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			this.collection.add(model, {at: newidx});
 		},
 
-		onAddField: function(e){
+		onAddElement: function(e){
 			if(e){
 				e.preventDefault();
 				var cid = $(e.target).data('cid');
@@ -129,13 +128,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 					datatype: this.typeOptions.elementsType,
 					key: idx,
 					label: idx,
-					mode: this.typeOptions.elementsType && !this.collection.length ? 'edit' : 'display',
+					mode: this.typeOptions.elementsType ? 'edit' : 'display',
 					isNew: true
 				})
 			;
 
-			if(this.typeOptions.elementsType)
-				this.saveElement(newElement);
 
 			newElement.render();
 			this.$('a.array-add-element[data-cid=' + this.cid + ']')
@@ -146,15 +143,23 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			},50);
 
 			this.listenTo(newElement, 'elementOk', function(elementData){
-				this.createElement(elementData, newElement);
+				if(newElement.datatype){
+					newElement.isNew = false;
+					this.saveElement(newElement);
+				}
+				else
+					this.createElement(elementData, newElement);
+				this.stopListening(newElement, 'elementOk');
+				this.stopListening(newElement, 'elementCancel');
 			});
 
 			this.listenTo(newElement, 'elementCancel', function(){
-				if(!newElement.isNew)
-					return;
-
-				this.subViews.splice(newElement.key, 1);
-				this.collection.remove(newElement.model);
+				if(!this.collection.length)
+					this.trigger('changeMode', 'display');
+				this.render();
+				this.stopListening(newElement, 'elementOk');
+				this.stopListening(newElement, 'elementCancel');
+				newElement.remove();
 			});
 		},
 
@@ -163,11 +168,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			newElement.mode = 'edit';
 			newElement.typeOptions = data.typeOptions;
 			newElement.createModel();
+			newElement.createTypeView();
 			newElement.isNew = false;
 
 			this.saveElement(newElement);
-
-			newElement.changeMode('display');
 		},
 
 		saveElement: function(newElement) {
@@ -191,9 +195,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				idx ++;
 			}
 
-
 			// Remove the model from the collection
 			this.collection.remove(this.collection.at(idx));
+
+			if(!this.collection.length)
+				this.trigger('changeMode', 'display');
 		},
 
 		getValue: function(){
@@ -202,6 +208,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			_.each(this.subViews, function(subView){
 				value.push(subView.typeView.getValue());
 			});
+
 			return value;
 		}
 	});

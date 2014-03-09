@@ -15,7 +15,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 		className: 'field field-object',
 
 		events: {
-			'click .object-add-property': 'onAddField'
+			'click .object-add-property': 'onAddProperty'
 		},
 
 		defaultTypeOptions: {
@@ -105,7 +105,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				});
 
 				if(_.isEmpty(this.subViews))
-					this.onAddField();
+					this.onAddProperty();
 			}
 
 			return this;
@@ -116,7 +116,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.modelValue.unset(key);
 		},
 
-		onAddField: function(e){
+		onAddProperty: function(e){
 			if(e){
 				e.preventDefault();
 				var cid = $(e.target).data('cid');
@@ -135,32 +135,48 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				me.$('input').focus();
 			},50);
 
-			this.listenTo(newElement, 'elementEdited', function(elementData){
+			this.listenTo(newElement, 'elementOk', function(elementData){
 				var key = $.trim(elementData.key);
 
 				if(this.subViews[key])
 					return Alerts.add({message: 'There is already a property called ' + key + '.', level: 'error'});
 
-				elementData.key = key;
-				this.saveField(elementData, newElement);
+				if(newElement.datatype){
+					newElement.isNew = false;
+					newElement.key = key;
+					this.saveProperty(newElement);
+				}
+				else{
+					this.createProperty(elementData, newElement);
+				}
+				this.stopListening(newElement, 'elementOk');
+				this.stopListening(newElement, 'elementCancel');
 			});
 
 			this.listenTo(newElement, 'elementCancel', function(){
 				this.render();
+				this.stopListening(newElement, 'elementOk');
+				this.stopListening(newElement, 'elementCancel');
+				newElement.remove();
 			});
 		},
 
-		saveField: function(data, newElement) {
+		createProperty: function(data, newElement){
 			newElement.key = data.key;
 			newElement.datatype = data.datatype;
 			newElement.mode = 'edit';
 			newElement.typeOptions = data.typeOptions;
 			newElement.createModel();
+			newElement.createTypeView();
 			newElement.isNew = false;
 
-			this.subViews[data.key] = newElement;
+			this.saveProperty(newElement);
+		},
 
-			this.modelValue.set(data.key, this.subViews[data.key].model.get('value'));
+		saveProperty: function(newElement) {
+			this.subViews[newElement.key] = newElement;
+
+			this.modelValue.set(newElement.key, newElement.model.get('value'));
 			this.listenTo(newElement.model, 'destroy', this.deleteProperty);
 		},
 

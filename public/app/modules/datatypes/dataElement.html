@@ -5,14 +5,14 @@
 		<%= typeof name !== 'undefined' ? name : '<input type="text" class="element-form-key" placeholder="Property name">' %>
 	</div>:
 	<div class="element-form"></div>
-	<div class="new-element-controls ">
+	<div class="new-element-controls">
 		<button class="element-ok">Add</button>
 		<a href="#" class="element-cancel" data-bypass="true">Cancel</a>
 	</div>
 </script>
 
 <script type="text/template" id="DataElementTpl">
-	<div class="element <%= (inline) ? 'element-inline' : '' %>" data-key="<%= key %>" data-cid="<%= cid %>">
+	<div class="element element-datatype-<%= datatype %><%= inline ? ' element-inline' : '' %><%= isNew ? ' element-new' : '' %>" data-key="<%= key %>" data-cid="<%= cid %>">
 		<div class="element-key">
 			<% if(allowDelete) { %>
 			<a href="#" data-bypass="true" class="element-delete" title="Delete <%= key %>"><i class="fa fa-minus-circle"></i></a>
