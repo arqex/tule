@@ -173,7 +173,10 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			this.typeOptions = options.typeOptions || {};
 			this.mode = options.mode || 'display';
 			this.allowDelete = typeof options.allowDelete == 'undefined' ? true : options.allowDelete ;
-			this.isNew = options.isNew;
+			this.isNew = options.isNew;			
+
+			if(this.editAllProperties)
+				console.log("yeah");
 
 			if(!options.model && typeof options.value != 'undefined'){
 				this.createModel(options.value);
@@ -223,12 +226,16 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				buttonText: this.isNew ? 'Add' : 'Ok',
 				controls: this.isNew || this.controls,
 				isNew: this.isNew,
-				datatype: this.datatype.id
+				datatype: this.datatype.id,
+				editAllProperties: this.editAllProperties
 			};
 
 			if(!this.typeView){
 				this.createTypeView();
 			}
+
+			if(this.datatype.id == 'object')
+				this.typeView.typeOptions.editAllProperties = this.isNew;
 
 			this.$el.html(this.tpl(tplOptions));
 
@@ -318,9 +325,17 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				elementData = {key: key, datatype: this.typeView.getValue()};
 			}
 			else {
-				this.typeView.save();
-				this.changeMode('display');
-				elementData = {key: this.key, datatype: this.datatype};
+				if(this.typeView.typeOptions.editAllProperties == true){
+					_.each(this.typeView.subViews, function(subView){
+						subView.typeView.save();
+						subView.changeMode('display');
+						elementData[subView.key] = {key: subView.key, datatype: subView.datatype};
+					});
+				} else {
+					this.typeView.save();
+					this.changeMode('display');
+					elementData = {key: this.key, datatype: this.datatype};
+				}
 			}
 
 			return this.trigger('elementOk', elementData);
