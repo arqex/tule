@@ -87,9 +87,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				me = this
 			;
 
-			if(this.typeOptions.editAllProperties == true)
-				this.mode == 'edit';
-
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
 
@@ -106,9 +103,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			if(this.mode == 'edit'){
 				var $props = this.$('.object-properties');
 				_.each(this.subViews, function(subView){
-					if(me.typeOptions.editAllProperties == true)
+					if(me.typeOptions.editAllProperties == true) {
 						subView.editAllProperties = true;
 						subView.changeMode('edit');
+					}
 					$props.append(subView.el);
 					subView.render();
 					subView.delegateEvents();

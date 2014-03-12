@@ -173,18 +173,14 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			this.typeOptions = options.typeOptions || {};
 			this.mode = options.mode || 'display';
 			this.allowDelete = typeof options.allowDelete == 'undefined' ? true : options.allowDelete ;
-			this.isNew = options.isNew;			
-
-			if(this.editAllProperties)
-				console.log("yeah");
-
+			this.isNew = options.isNew;	
 			if(!options.model && typeof options.value != 'undefined'){
 				this.createModel(options.value);
 				if(!this.datatype)
 					this.datatype = {id:this.model.get('type'), options: {}};
 			}
-
-			if(!options.model && options.datatype)
+			
+			if(!this.model && options.datatype)
 				this.createModel();
 
 			if(this.model)
@@ -227,7 +223,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				controls: this.isNew || this.controls,
 				isNew: this.isNew,
 				datatype: this.datatype.id,
-				editAllProperties: this.editAllProperties
+				editAllProperties: this.editAllProperties || false
 			};
 
 			if(!this.typeView){
