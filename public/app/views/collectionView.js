@@ -2,9 +2,10 @@ var deps = [
 	'jquery', 'underscore', 'backbone',
 	'text!tpls/docTable.html',
 	'modules/datatypes/dispatcher',
-	'modules/alerts/alerts'
+	'modules/alerts/alerts',
+	'models/mdispenser'
 ];
-define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
+define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 	'use strict';
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
@@ -65,11 +66,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.example = opts.result;
 			this.collectionView = opts.collectionView;
 			this.settings = opts.settings;
+			this.objectView = dispatcher.getView('object', this.settings, undefined);
 		},
 
 		render: function(){
 			var el = this.$el.html(this.tpl({type: this.type}));
-			this.objectView = dispatcher.getView('object', this.settings, undefined);
 			el.find(".object-form").append(this.objectView.$el);
 			this.objectView.mode = 'edit';
 			this.objectView.typeOptions.editAllProperties = true;
@@ -93,7 +94,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 		onClickCreate: function(e){
 			e.preventDefault();
-			
+			var doc = Dispenser.getMDoc(this.objectView.getValue());
+			doc.url = '/api/docs/' + this.type;
+			doc.save();
 			// IMPLEMENTS SAVE NEW DOC //
 		}
 	});
