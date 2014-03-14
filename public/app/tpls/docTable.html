@@ -1,5 +1,19 @@
 <div> <!--	Wrapper to easily access to all the templates -->
 
+<script type="text/template" id="addNewTpl">
+	<div class="new-document-form">
+		<button class="document-new">Add new <%= type %></button>
+	</div>
+	<form class="form">
+		<h4>Create a new one</h4>
+		<div class="object-form"></div>
+		<div class="document-options">
+			<a href="#" class="document-cancel" data-bypass="true">Cancel</a>
+			<button class="document-create" type="submit">DO IT!</button>
+		</div>
+	</form>
+</script>
+
 <script type="text/template" id="tableTpl">
 	<table class="collection-table"></table>
 </script>

@@ -433,3 +433,12 @@ Alerter
 .mon-alert-confirm button {
 	max-width: 150px;
 }
+
+/******
+Add new form
+*******/
+form.form { 
+	margin-left: 15px; 
+	display: none;
+	margin-bottom: 30px;
+}

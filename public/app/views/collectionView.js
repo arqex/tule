@@ -8,6 +8,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 	'use strict';
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
+
 		initialize: function(opts){
 			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
 			this.editing = opts.editing || false;
@@ -15,7 +16,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.docOptions = opts.docOptions || {};
 			this.docOptions.mode = 'edit';
 		},
-		render: function(){
+		render: function(){			
 			this.$el.html(this.tpl({id: this.model.id, editing: this.editing, fields: this.fields, doc: this.model.toJSON()}));
 
 			if(this.editing){
@@ -52,9 +53,53 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 	});
 
-	var CollectionView = Backbone.View.extend({
-		tpl: $(tplSource).find('#tableTpl').html(),
+	var BrowseView = Backbone.View.extend({
+		tpl: _.template($(tplSource).find('#addNewTpl').html()),
+		events: {
+			'click .document-new': 'onClickNew',
+			'click .document-cancel': 'onClickCancel',
+			'click .document-create': 'onClickCreate'
+		},
+		initialize: function(opts){
+			this.type = opts.type;
+			this.example = opts.result;
+			this.collectionView = opts.collectionView;
+			this.settings = opts.settings;
+		},
 
+		render: function(){
+			var el = this.$el.html(this.tpl({type: this.type}));
+			this.objectView = dispatcher.getView('object', this.settings, undefined);
+			el.find(".object-form").append(this.objectView.$el);
+			this.objectView.mode = 'edit';
+			this.objectView.typeOptions.editAllProperties = true;
+			this.objectView.render();
+			el.append(this.collectionView.$el);
+		},
+
+		onClickNew: function(e){
+			e.preventDefault();
+			var section = $(e.target).parentsUntil( '.content' );
+			section.find('.new-document-form').css('display', 'none');
+			section.find('.form').css('display', 'block');
+		},
+
+		onClickCancel: function(e){
+			e.preventDefault();
+			var section = $(e.target).parentsUntil('content');
+			section.find('.form').css('display', 'none');
+			section.find('.new-document-form').css('display', 'block');
+		},
+
+		onClickCreate: function(e){
+			e.preventDefault();
+			
+			// IMPLEMENTS SAVE NEW DOC //
+		}
+	});
+
+	var CollectionView = Backbone.View.extend({
+		tpl: $(tplSource).find('#tableTpl').html(),		
 		events: {
 			'click .document-ok': 'onClickOk',
 			'click .document-cancel': 'onClickCancel',
@@ -86,7 +131,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.docViews = docViews;
 		},
 
-		render: function(){
+		render: function(){			
 			this.$el.html(this.tpl);
 			var table = this.$('table');
 			_.each(this.docViews, function(view){
@@ -152,7 +197,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 	return {
 		DocumentView: DocumentView,
-		CollectionView: CollectionView
+		CollectionView: CollectionView,
+		BrowseView: BrowseView
 	};
 
 });

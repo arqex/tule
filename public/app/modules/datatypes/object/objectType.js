@@ -49,10 +49,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.subViews = {};
 			_.each(options.mandatoryProperties, function(key){
 				var definition = me.propertyDefinitions[key];
-				if(definition)
+				if(definition){
 					me.createSubView(key, definition, me.modelValue.get(key));
-				if(typeof modelvalue[key] == 'undefined')
-					me.modelValue.set(key, dispatcher.types[definition.datatype.id].defaultValue);
+					if(typeof modelvalue[key] == 'undefined')
+						me.modelValue.set(key, dispatcher.types[definition.datatype.id].defaultValue);
+				}
+				
 			});
 			_.each(this.model.get('value'), function(value, key){
 
