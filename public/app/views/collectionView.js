@@ -114,16 +114,17 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});				
 				_.each(me.objectView.subViews, function(subView){
-					subView.typeView.model.set('value', '');
+					subView.typeView.remove();
+					subView.typeView = false;
 				});
-				me.render();
+				//me.render();
 				me.close();
+				// Render collection view
+				me.collection.add(doc);
+				me.collectionView.createDocViews();
+				me.collectionView.render();	
 			}});
-
-			// Render collection view
-			this.collection.add(doc);
-			this.collectionView.createDocViews();
-			this.collectionView.render();			
+		
 		}
 	});
 

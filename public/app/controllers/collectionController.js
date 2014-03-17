@@ -44,6 +44,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 							});
 						return false;
 					});
+					
 					view.on('click:message', function(docView){
 						docView.open();
 					});
