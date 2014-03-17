@@ -52,7 +52,12 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 					var browseView = new CollectionViews.BrowseView({
 							type: type,
-							result: results.models[0].attributes,
+							collection: results,
+							fields: [
+								'message',
+								{action: 'edit', href: "#", icon: 'pencil'},
+								{action: 'remove', href: "#", icon: 'times'},
+							],							
 							collectionView: view,
 							settings: settings
 					});

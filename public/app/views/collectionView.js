@@ -63,9 +63,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 		},
 		initialize: function(opts){
 			this.type = opts.type;
-			this.example = opts.result;
 			this.collectionView = opts.collectionView;
 			this.settings = opts.settings;
+			this.fields = opts.fields;
 			this.objectView = dispatcher.getView('object', this.settings, undefined);
 		},
 
@@ -87,17 +87,43 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 		onClickCancel: function(e){
 			e.preventDefault();
-			var section = $(e.target).parentsUntil('content');
+			this.close();	
+		},
+
+		close: function(){
+			var section = this.$el;
 			section.find('.form').css('display', 'none');
 			section.find('.new-document-form').css('display', 'block');
 		},
 
 		onClickCreate: function(e){
 			e.preventDefault();
-			var doc = Dispenser.getMDoc(this.objectView.getValue());
+
+			var doc = Dispenser.getMDoc(this.objectView.getValue()),
+				me = this
+			;
+
 			doc.url = '/api/docs/' + this.type;
-			doc.save();
-			// IMPLEMENTS SAVE NEW DOC //
+
+			_.each(this.objectView.subViews, function(subView){
+				subView.typeView.save();
+				subView.changeMode('display');
+				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
+			});
+
+			doc.save(null, {success: function(){
+				Alerts.add({message:'Document saved correctly', autoclose:6000});				
+				_.each(me.objectView.subViews, function(subView){
+					subView.typeView.model.set('value', '');
+				});
+				me.render();
+				me.close();
+			}});
+
+			// Render collection view
+			this.collection.add(doc);
+			this.collectionView.createDocViews();
+			this.collectionView.render();			
 		}
 	});
 
