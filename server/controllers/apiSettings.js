@@ -48,20 +48,21 @@ module.exports = {
     },
 
     createConfig: function(req, res){
-        var name = req.params.name,
-            doc = req.body
+        var db   = req.app.db,
+            name = req.params.name,
+            doc  = req.body
         ;
         if(!name)
             res.send(400, {error: 'No document name given.'});
 
         doc.name = name;
 
-        req.app.db.collection(config.mon.settingsCollection).insert(doc, function(err, newDoc){
+        db.collection(config.mon.settingsCollection).insert(doc, function(err, newDoc){
             if(err){
                 console.log(err);
-                return res.send(400, {error: 'Internal error'});
+                return res.send(400, {error: 'Internal error while inserting document'});
             }
-            res.json(newDoc);
+            return res.json(newDoc[0]);
         });
     },
 

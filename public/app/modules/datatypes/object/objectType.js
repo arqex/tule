@@ -24,7 +24,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			propertyDefinitions: [],
 			propertyType: false,
 			hiddenProperties: [],
-			mandatoryProperties: []
+			mandatoryProperties: [],
+			editAllProperties: false
 		},
 
 		initialize: function(opts){
@@ -48,10 +49,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.subViews = {};
 			_.each(options.mandatoryProperties, function(key){
 				var definition = me.propertyDefinitions[key];
-				if(definition)
+				if(definition){
 					me.createSubView(key, definition, me.modelValue.get(key));
-				if(typeof modelvalue[key] == 'undefined')
-					me.modelValue.set(key, dispatcher.types[definition.datatype.id].defaultValue);
+					if(typeof modelvalue[key] == 'undefined')
+						me.modelValue.set(key, dispatcher.types[definition.datatype.id].defaultValue);
+				}
+				
 			});
 			_.each(this.model.get('value'), function(value, key){
 
@@ -82,7 +85,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 		},
 
 		render: function(){
-			var tpl = this.editTpl;
+			var tpl = this.editTpl,
+				me = this
+			;
+
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
 
@@ -99,6 +105,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			if(this.mode == 'edit'){
 				var $props = this.$('.object-properties');
 				_.each(this.subViews, function(subView){
+					if(me.typeOptions.editAllProperties == true) {
+						subView.editAllProperties = true;
+						subView.changeMode('edit');
+					}
 					$props.append(subView.el);
 					subView.render();
 					subView.delegateEvents();
@@ -114,6 +124,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 		deleteProperty: function(key){
 			delete this.subViews[key];
 			this.modelValue.unset(key);
+			this.model.set('value', this.modelValue.toJSON());			
 		},
 
 		onAddProperty: function(e){
@@ -165,10 +176,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			newElement.key = data.key;
 			newElement.datatype = data.datatype;
 			newElement.mode = 'edit';
-			newElement.typeOptions = data.typeOptions;
 			newElement.createModel();
 			newElement.createTypeView();
 			newElement.isNew = false;
+			newElement.typeOptions = data.datatype;
 
 			this.saveProperty(newElement);
 		},
@@ -201,7 +212,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			{key: 'propertyDefinitions', label: 'Property definitions', datatype: {id: 'array'}},
 			{key: 'propertiesType', label: 'Properties datatype', datatype: {id: 'field'}},
 			{key: 'mandatoryProperties', label: 'Mandatory properties', datatype: {id: 'array', options: {elementsType: 'string'}}},
-			{key: 'hiddenProperties', label: 'Hidden properties', datatype: {id: 'array', options: {elementsType: 'string'}}}
+			{key: 'hiddenProperties', label: 'Hidden properties', datatype: {id: 'array', options: {elementsType: 'string'}}},
+			{key: 'editAllProperties', label: 'Edit all properties at once', datatype: {id: 'bool'}}
 		]
 	});
 

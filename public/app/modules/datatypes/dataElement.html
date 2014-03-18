@@ -20,7 +20,7 @@
 			<%= key %>:
 		</div>
 		<div class="element-value element-mode-<%= mode %>"></div>
-		<% if(mode == 'edit' && controls){ %>
+		<% if(mode == 'edit' && controls && editAllProperties != true){ %>
 		<div class="element-controls">
 			<button class="element-ok"><%= buttonText %></button>
 			<a href="#" class="element-cancel" data-bypass="true">Cancel</a>

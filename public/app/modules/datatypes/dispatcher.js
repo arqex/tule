@@ -164,8 +164,10 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			'click .element-delete': 'onClickDelete',
 			'click .element-edit-ok': 'onElementEditOk',
 			'click .element-ok': 'onElementOk',
-			'click .element-cancel': 'onElementCancel'
+			'click .element-cancel': 'onElementCancel',
+			'keydown': 'onKeydown'
 		},
+
 		initialize: function(options){
 			this.key = options.key;
 			this.label = options.label;
@@ -173,15 +175,14 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			this.typeOptions = options.typeOptions || {};
 			this.mode = options.mode || 'display';
 			this.allowDelete = typeof options.allowDelete == 'undefined' ? true : options.allowDelete ;
-			this.isNew = options.isNew;
-
+			this.isNew = options.isNew;	
 			if(!options.model && typeof options.value != 'undefined'){
 				this.createModel(options.value);
 				if(!this.datatype)
 					this.datatype = {id:this.model.get('type'), options: {}};
 			}
-
-			if(!options.model && options.datatype)
+			
+			if(!this.model && options.datatype)
 				this.createModel();
 
 			if(this.model)
@@ -223,12 +224,16 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				buttonText: this.isNew ? 'Add' : 'Ok',
 				controls: this.isNew || this.controls,
 				isNew: this.isNew,
-				datatype: this.datatype.id
+				datatype: this.datatype.id,
+				editAllProperties: this.editAllProperties || false
 			};
 
 			if(!this.typeView){
 				this.createTypeView();
 			}
+
+			if(this.datatype.id == 'object')
+				this.typeView.typeOptions.editAllProperties = this.isNew;
 
 			this.$el.html(this.tpl(tplOptions));
 
@@ -266,7 +271,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			var cid = $(e.target).closest('.element').data('cid');
 			if(this.cid == cid) {
 				this.remove();
-				this.model.trigger('destroy', this.key);
+				this.model.trigger('destroy', this.key);				
 			}
 		},
 
@@ -318,9 +323,17 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				elementData = {key: key, datatype: this.typeView.getValue()};
 			}
 			else {
-				this.typeView.save();
-				this.changeMode('display');
-				elementData = {key: this.key, datatype: this.datatype};
+				if(this.typeView.typeOptions.editAllProperties == true){
+					_.each(this.typeView.subViews, function(subView){
+						subView.typeView.save();
+						subView.changeMode('display');
+						elementData[subView.key] = {key: subView.key, datatype: subView.datatype};
+					});
+				} else {
+					this.typeView.save();
+					this.changeMode('display');
+					elementData = {key: this.key, datatype: this.datatype};
+				}
 			}
 
 			return this.trigger('elementOk', elementData);
@@ -342,6 +355,14 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			var typeData = dispatcher.types[this.datatype.id];
 			this.inline = !(typeData) || typeof typeData.inline === 'undefined' || typeData.inline;
 			this.controls = typeData && typeData.controls
+		},
+
+		onKeydown: function(e){
+			if(e.which == 13){				
+				this.onElementOk(e);
+			} else if (e.which == 27){
+				this.onElementCancel(e);
+			}
 		}
 	});
 

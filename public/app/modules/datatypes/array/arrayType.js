@@ -192,7 +192,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				var subView = this.subViews[idx];
 				subView.key = idx;
 				subView.label = idx;
-				idx ++;
+				idx++;
 			}
 
 			// Remove the model from the collection

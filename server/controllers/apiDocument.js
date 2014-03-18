@@ -33,7 +33,9 @@ module.exports = {
 			res.send(400, {error: 'No document type given.'});
 
 		req.app.db.collection(type).insert(doc, function(err, newDoc){
-			res.json(newDoc);
+			if(err)
+				res.send(400, {error: "Couldn't save doc properly."});
+			res.json(newDoc[0]);
 		});
 	},
 	update: function(req, res){

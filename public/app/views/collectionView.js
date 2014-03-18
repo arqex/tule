@@ -2,12 +2,14 @@ var deps = [
 	'jquery', 'underscore', 'backbone',
 	'text!tpls/docTable.html',
 	'modules/datatypes/dispatcher',
-	'modules/alerts/alerts'
+	'modules/alerts/alerts',
+	'models/mdispenser'
 ];
-define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
+define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 	'use strict';
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
+
 		initialize: function(opts){
 			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
 			this.editing = opts.editing || false;
@@ -15,7 +17,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.docOptions = opts.docOptions || {};
 			this.docOptions.mode = 'edit';
 		},
-		render: function(){
+		render: function(){			
 			this.$el.html(this.tpl({id: this.model.id, editing: this.editing, fields: this.fields, doc: this.model.toJSON()}));
 
 			if(this.editing){
@@ -23,8 +25,13 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				this.$('.document-content').find('td').prepend(this.objectView.$el);
 				this.objectView.mode = 'edit';
 				this.objectView.render();
+				this.listenTo(this.objectView.model, 'change:value', function(){
+					this.model.clear({silent: true});
+					this.model.set(this.objectView.model.get('value'));
+				});
 			}
 			this.trigger('rendered');
+
 		},
 
 		close: function(){
@@ -52,9 +59,86 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 	});
 
-	var CollectionView = Backbone.View.extend({
-		tpl: $(tplSource).find('#tableTpl').html(),
+	var BrowseView = Backbone.View.extend({
+		tpl: _.template($(tplSource).find('#addNewTpl').html()),
+		tplForm: $(tplSource).find('#newFormTpl').html(),
+		events: {
+			'click .document-new': 'onClickNew',
+			'click .document-cancel': 'onClickCancel',
+			'click .document-create': 'onClickCreate'
+		},
+		initialize: function(opts){			
+			this.type = opts.type;
+			this.collectionView = opts.collectionView;
+			this.settings = opts.settings;
+			this.fields = opts.fields;			
+		},
 
+		render: function(){
+			this.el = this.$el.html(this.tpl({type: this.type}));			
+			this.el.append(this.collectionView.$el);
+		},
+
+		onClickNew: function(e){
+			e.preventDefault();
+
+			this.objectView = dispatcher.getView('object', this.settings, undefined);
+
+			this.el.find(".form-placeholder").append(this.tplForm);
+			this.el.find(".object-form").append(this.objectView.$el);
+			this.objectView.mode = 'edit';
+			this.objectView.typeOptions.editAllProperties = true;
+			this.objectView.render();
+
+			var section = $(e.target).parentsUntil( '.content' );
+			section.find('.new-document-form').css('display', 'none');
+			section.find('.form').css('display', 'block');
+		},
+
+		onClickCancel: function(e){
+			e.preventDefault();
+			this.objectView = false;
+			this.$el.find('.form').remove();
+			this.close();
+		},
+
+		close: function(){
+			var section = this.$el;
+			section.find('.form').css('display', 'none');
+			section.find('.new-document-form').css('display', 'block');
+		},
+
+		onClickCreate: function(e){
+			e.preventDefault();
+
+			var doc = Dispenser.getMDoc(this.objectView.getValue()),
+				me = this
+			;
+
+			doc.url = '/api/docs/' + this.type;
+
+			_.each(this.objectView.subViews, function(subView){
+				subView.typeView.save();
+				subView.changeMode('display');
+				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
+			});
+
+			doc.save(null, {success: function(){
+				Alerts.add({message:'Document saved correctly', autoclose:6000});				
+				me.objectView = false;
+				me.$el.find('.form').remove();
+				me.close();
+				// Render collection view
+				me.collection.add(doc);
+				me.collectionView.createDocViews();
+				me.collectionView.render();	
+			}});
+		
+		}
+	});
+
+	var CollectionView = Backbone.View.extend({
+		tpl: $(tplSource).find('#tableTpl').html(),		
 		events: {
 			'click .document-ok': 'onClickOk',
 			'click .document-cancel': 'onClickCancel',
@@ -86,7 +170,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.docViews = docViews;
 		},
 
-		render: function(){
+		render: function(){			
 			this.$el.html(this.tpl);
 			var table = this.$('table');
 			_.each(this.docViews, function(view){
@@ -94,6 +178,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				table.append(view.el.children);
 				view.delegateEvents();
 			});
+
 		},
 
 		renderSubview: function(subView){
@@ -104,6 +189,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			form.remove();
 			header.replaceWith(subView.el.children);
 			subView.delegateEvents();
+
 		},
 
 		removeSubView: function(model){
@@ -152,7 +238,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 	return {
 		DocumentView: DocumentView,
-		CollectionView: CollectionView
+		CollectionView: CollectionView,
+		BrowseView: BrowseView
 	};
 
 });

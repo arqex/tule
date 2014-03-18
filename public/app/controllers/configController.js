@@ -33,9 +33,10 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 				}
 			},
 			{key: 'tableFields', label: 'Table header fields', datatype: {id: 'array', options: {elementsType: {id:'string'}}}},
+			{key: 'mandatoryProperties', label: 'Mandatory Fields', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}}
 		],
-		mandatoryProperties: ['propertyDefinitions', 'tableFields'],
-		hiddenProperties: ['name']
+		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'tableFields'],
+		hiddenProperties: ['name', '_id']
 	};
 
 	return {

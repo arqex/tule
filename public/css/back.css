@@ -236,6 +236,9 @@ a.element-delete {
 
 .element-key{
 	color: #454;
+	/* To allow hover the remove [fa-minus] icon */
+	margin-left: -18px;
+	padding-left: 18px;	
 }
 .element-key:hover .element-delete {
 	visibility: visible;
@@ -265,8 +268,12 @@ a.element-delete {
 	vertical-align: top;
 }
 
+.new-element-controls {
+	display: inline;
+}
+
 .element-form-key-wrap {
-	margin-left: 18px;
+	/*margin-left: 18px;*/
 	display: inline-block;
 	vertical-align: top;
 }
@@ -432,4 +439,13 @@ Alerter
 
 .mon-alert-confirm button {
 	max-width: 150px;
+}
+
+/******
+Add new form
+*******/
+form.form { 
+	margin-left: 15px; 
+	display: none;
+	margin-bottom: 30px;
 }

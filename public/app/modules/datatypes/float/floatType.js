@@ -9,10 +9,7 @@ var deps = [
 define(deps, function($,_,Backbone, tplSource, dispatcher){
 	var FloatTypeView = dispatcher.BaseView.extend({
 		tpl: _.template($(tplSource).find('#floatTpl').html()),
-		editTpl: _.template($(tplSource).find('#floatEditTpl').html()),
-		events: {
-			'onKeyup form': 'onKeyup',
-		},
+		editTpl: _.template($(tplSource).find('#floatEditTpl').html()),	
 
 		render: function() {
 			var me 	= this,
@@ -27,18 +24,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				setTimeout(function(){
 					me.$('input').focus();
 				}, 50);
-		},
-
-		onKeyup: function(e){
-			if(e.which == 13){
-				e.preventDefault();
-				this.save();
-				this.trigger('changeMode', 'display');
-			} else if (e.which == 27) {
-				e.preventDefault();
-				this.cancel();
-				this.trigger('changeMode', 'display');
-			}
 		},
 
 		save: function(){
