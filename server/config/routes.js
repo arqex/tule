@@ -24,6 +24,10 @@ module.exports = function(baseUrl){
 		'put::/api/docs/:type/:id': 'apiDocument::update',
 		'delete::/api/docs/:type/:id': 'apiDocument::remove',
 
+		'get::/api/plugins': 'pluginController::list',
+		'get::/api/plugins/activate/:id': 'pluginController::activate',
+		'get::/api/plugins/deactivate/:id': 'pluginController::deactivate',
+
 		'get::/mongoreset': 'mongoReset::main',
 
 		'*': 'main'
