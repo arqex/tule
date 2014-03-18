@@ -271,7 +271,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			var cid = $(e.target).closest('.element').data('cid');
 			if(this.cid == cid) {
 				this.remove();
-				this.model.trigger('destroy', this.key);
+				this.model.trigger('destroy', this.key);				
 			}
 		},
 
@@ -358,8 +358,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		onKeydown: function(e){
-			if(e.which == 13){
-				//e.preventDefault();	
+			if(e.which == 13){				
 				this.onElementOk(e);
 			} else if (e.which == 27){
 				this.onElementCancel(e);

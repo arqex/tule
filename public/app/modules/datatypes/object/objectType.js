@@ -124,6 +124,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 		deleteProperty: function(key){
 			delete this.subViews[key];
 			this.modelValue.unset(key);
+			this.model.set('value', this.modelValue.toJSON());			
 		},
 
 		onAddProperty: function(e){

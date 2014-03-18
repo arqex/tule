@@ -25,8 +25,13 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				this.$('.document-content').find('td').prepend(this.objectView.$el);
 				this.objectView.mode = 'edit';
 				this.objectView.render();
+				this.listenTo(this.objectView.model, 'change:value', function(){
+					this.model.clear({silent: true});
+					this.model.set(this.objectView.model.get('value'));
+				});
 			}
 			this.trigger('rendered');
+
 		},
 
 		close: function(){
@@ -173,6 +178,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				table.append(view.el.children);
 				view.delegateEvents();
 			});
+
 		},
 
 		renderSubview: function(subView){
@@ -183,6 +189,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			form.remove();
 			header.replaceWith(subView.el.children);
 			subView.delegateEvents();
+
 		},
 
 		removeSubView: function(model){
