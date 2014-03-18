@@ -56,30 +56,35 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 	var BrowseView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#addNewTpl').html()),
+		tplForm: $(tplSource).find('#newFormTpl').html(),
 		events: {
 			'click .document-new': 'onClickNew',
 			'click .document-cancel': 'onClickCancel',
 			'click .document-create': 'onClickCreate'
 		},
-		initialize: function(opts){
+		initialize: function(opts){			
 			this.type = opts.type;
 			this.collectionView = opts.collectionView;
 			this.settings = opts.settings;
-			this.fields = opts.fields;
-			this.objectView = dispatcher.getView('object', this.settings, undefined);
+			this.fields = opts.fields;			
 		},
 
 		render: function(){
-			var el = this.$el.html(this.tpl({type: this.type}));
-			el.find(".object-form").append(this.objectView.$el);
-			this.objectView.mode = 'edit';
-			this.objectView.typeOptions.editAllProperties = true;
-			this.objectView.render();
-			el.append(this.collectionView.$el);
+			this.el = this.$el.html(this.tpl({type: this.type}));			
+			this.el.append(this.collectionView.$el);
 		},
 
 		onClickNew: function(e){
 			e.preventDefault();
+
+			this.objectView = dispatcher.getView('object', this.settings, undefined);
+
+			this.el.find(".form-placeholder").append(this.tplForm);
+			this.el.find(".object-form").append(this.objectView.$el);
+			this.objectView.mode = 'edit';
+			this.objectView.typeOptions.editAllProperties = true;
+			this.objectView.render();
+
 			var section = $(e.target).parentsUntil( '.content' );
 			section.find('.new-document-form').css('display', 'none');
 			section.find('.form').css('display', 'block');
@@ -87,7 +92,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 		onClickCancel: function(e){
 			e.preventDefault();
-			this.close();	
+			this.objectView = false;
+			this.$el.find('.form').remove();
+			this.close();
 		},
 
 		close: function(){
@@ -113,11 +120,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});				
-				_.each(me.objectView.subViews, function(subView){
-					subView.typeView.remove();
-					subView.typeView = false;
-				});
-				//me.render();
+				me.objectView = false;
+				me.$el.find('.form').remove();
 				me.close();
 				// Render collection view
 				me.collection.add(doc);
