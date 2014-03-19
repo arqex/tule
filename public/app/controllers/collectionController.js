@@ -51,22 +51,16 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 					view.render();
 
-					var browseView = new CollectionViews.BrowseView({
+					var newDocView = new CollectionViews.NewDocView({
 							type: type,
-							collection: results,
-							fields: [
-								'message',
-								{action: 'edit', href: "#", icon: 'pencil'},
-								{action: 'remove', href: "#", icon: 'times'},
-							],							
+							collection: results,					
 							collectionView: view,
 							settings: settings
 					});
-					
-					browseView.render();
-					mainView.loadView(browseView);
-					mainView.setTitle(type + ' collection');
-					console.log('controller loaded! ' + type);
+							
+					newDocView.render();
+					mainView.loadView(newDocView);
+					mainView.setTitle(type + ' collection');					
 				});
 			});
 

@@ -58,7 +58,7 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 					docOptions: docOptions
 				});
 
-				view.render();
+				
 				view.on('click:name', function(docView){
 					docView.model.getSettings().then(function(){
 						docView.open();
@@ -68,7 +68,30 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 					var name = docView.model.get('name').split('_')[1];
 					Backbone.history.navigate('/collections/list/' + name, {trigger: true});
 				});
-				mainView.loadView(view);
+
+				view.render();
+
+				var newCollectionView = new Collection.NewCollectionView({
+					type: 'collection',
+					collection: collections,			
+					collectionView: view,
+					settings: {
+						customProperties: false,
+						name: "newCollection",
+						propertyDefinitions: [{
+							datatype: {
+								id: "string",
+								options: {}
+							},
+							key: "name",
+							label: "Name"
+						}],
+						mandatoryProperties: ['name']
+					}
+				});
+				
+				newCollectionView.render();
+				mainView.loadView(newCollectionView);
 				mainView.setTitle('Settings');
 			});
 
