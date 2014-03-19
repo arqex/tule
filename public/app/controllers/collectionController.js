@@ -16,13 +16,13 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 			mcollection.query({}).then(function(results, options){
 				settingsPromise.then(function(settings){
+					var fields = settings.tableFields;
+					fields.push({action: 'edit', href: "#", icon: 'pencil'});
+					fields.push({action: 'remove', href: "#", icon: 'times'});
+
 					var view = new CollectionViews.CollectionView({
 						collection: results,
-						fields: [
-							'message',
-							{action: 'edit', href: "#", icon: 'pencil'},
-							{action: 'remove', href: "#", icon: 'times'},
-						],
+						fields: fields,
 						customFields: 1					
 					});
 
