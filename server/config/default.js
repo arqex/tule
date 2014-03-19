@@ -20,6 +20,7 @@ module.exports = {
 		'controllers': basepath + '/server/controllers',
 		'views': basepath + '/server/views',
 		'util': basepath + '/server/util',
-		'plugins': basepath + '/server/plugins'
+		'plugins': basepath + '/server/plugins',
+		'modules': basepath + '/server/modules'
 	}
 };

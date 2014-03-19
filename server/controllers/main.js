@@ -1,6 +1,7 @@
-module.exports = function(req, res){
-    path = require('path');
+var path = require('path');
 
-    var path = path.resolve('server/views');
-    res.sendfile(path + '/' + 'main.html');
+
+module.exports = function(req, res){
+    var viewsPath = path.resolve('server/views');
+    res.sendfile(viewsPath + '/' + 'main.html');
 };

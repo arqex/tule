@@ -10,9 +10,7 @@ var fs = require('fs'),
 ;
 
 
-var PluginManager = function(){
-
-};
+var PluginManager = function(){};
 
 PluginManager.prototype = {
 	getAllPluginDefinitions: function(){
