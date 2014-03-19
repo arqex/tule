@@ -59,7 +59,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 	});
 
-	var BrowseView = Backbone.View.extend({
+	var NewDocView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#addNewTpl').html()),
 		tplForm: $(tplSource).find('#newFormTpl').html(),
 		events: {
@@ -70,8 +70,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 		initialize: function(opts){			
 			this.type = opts.type;
 			this.collectionView = opts.collectionView;
-			this.settings = opts.settings;
-			this.fields = opts.fields;			
+			this.settings = opts.settings;		
 		},
 
 		render: function(){
@@ -136,6 +135,38 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 		
 		}
 	});
+
+	var NewCollectionView = NewDocView.extend({
+		
+		onClickCreate: function(e){
+			e.preventDefault();
+
+			var doc = Dispenser.getMDoc(this.objectView.getValue()),
+				me = this
+			;
+
+			doc.url = '/api/collection/';
+
+			_.each(this.objectView.subViews, function(subView){
+				subView.typeView.save();
+				subView.changeMode('display');
+				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
+			});
+
+			doc.save(null, {success: function(){
+				Alerts.add({message:'Document saved correctly', autoclose:6000});				
+				me.objectView = false;
+				me.$el.find('.form').remove();
+				me.close();
+				// Render collection view
+				me.collection.add(doc);
+				me.collectionView.createDocViews();
+				me.collectionView.render();	
+			}});
+		
+		}
+	});
+
 
 	var CollectionView = Backbone.View.extend({
 		tpl: $(tplSource).find('#tableTpl').html(),		
@@ -239,7 +270,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 	return {
 		DocumentView: DocumentView,
 		CollectionView: CollectionView,
-		BrowseView: BrowseView
+		NewDocView: NewDocView,
+		NewCollectionView: NewCollectionView
 	};
 
 });

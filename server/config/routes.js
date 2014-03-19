@@ -15,8 +15,10 @@ module.exports = function(baseUrl){
 		'put::/api/settings/:name': 'apiSettings::updateConfig',
 		'post::/api/settings/:name': 'apiSettings::createConfig',
 		'delete::/api/settings/:name': 'apiSettings::removeConfig',
+
 		'get::/api/collections': 'apiCollection::list',
 		'get::/api/collectionstatus/:name': 'apiCollection::getStatus',
+		'post::/api/collection': 'apiCollection::createCollection',
 
 		'get::/api/docs/:type': 'apiDocument::collection',
 		'post::/api/docs/:type': 'apiDocument::create',
