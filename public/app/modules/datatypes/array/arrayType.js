@@ -38,9 +38,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 				me.subViews[idx] = elementView;
 
-				me.listenTo(elementView, 'destroy', function(idx){
-					me.deleteElements(idx);
-				});
 				collection.add(elementView.model);
 			});
 
@@ -178,11 +175,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			this.subViews[parseInt(newElement.key, 10)] = newElement;
 
 			this.collection.add(newElement.model);
-
-			this.listenTo(newElement.model, 'destroy', function(){
-				var idx = newElement.key;
-				this.deleteElements(idx);
-			});
 		},
 
 		deleteElements: function(idx){
