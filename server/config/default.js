@@ -18,6 +18,9 @@ module.exports = {
 		'public': basepath + '/public',
 		'server': basepath + '/server',
 		'controllers': basepath + '/server/controllers',
-		'views': basepath + '/server/views'
+		'views': basepath + '/server/views',
+		'util': basepath + '/server/util',
+		'plugins': basepath + '/server/plugins',
+		'modules': basepath + '/server/modules'
 	}
 };

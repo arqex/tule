@@ -6,8 +6,6 @@ define(['jquery', 'underscore', 'backbone', 'modules/alerts/alerts'], function($
 			this.$('.pagetitle').after(Alerts.alerter.el);
 		},
 		loadView: function(view){
-			if(view.close)
-				view.close();
 			this.contentView = view;
 			this.$('.content').html(view.$el);
 		},

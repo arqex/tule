@@ -5,6 +5,7 @@ require.config({
         'underscore':   '../bower_components/underscore/underscore',
         'backbone':     '../bower_components/backbone/backbone',
         'text':         '../bower_components/requirejs-text/text',
+        'marionette':   '../bower_components/marionette/lib/backbone.marionette',
 
         /* jQuery UI */
         'jquery.ui.core':       '../bower_components/jqueryui/ui/jquery.ui.core',
@@ -13,15 +14,15 @@ require.config({
         'jquery.ui.widget':     '../bower_components/jqueryui/ui/jquery.ui.widget',
 
         'jquery.ui.draggable':  '../bower_components/jqueryui/ui/jquery.ui.draggable',
-        'jquery.ui.droppable':  '../bower_components/jqueryui/ui/jquery.ui.droppable',        
+        'jquery.ui.droppable':  '../bower_components/jqueryui/ui/jquery.ui.droppable',
         'jquery.ui.resizable':  '../bower_components/jqueryui/ui/jquery.ui.resizable',
         'jquery.ui.selectable': '../bower_components/jqueryui/ui/jquery.ui.selectable',
         'jquery.ui.sortable':   '../bower_components/jqueryui/ui/jquery.ui.sortable',
-        
+
         'jquery.ui.datepicker': '../bower_components/jqueryui/ui/jquery.ui.datepicker',
-        'jquery.ui.slider':     '../bower_components/jqueryui/ui/jquery.ui.slider',        
+        'jquery.ui.slider':     '../bower_components/jqueryui/ui/jquery.ui.slider',
         'jquery.ui.tooltip':    '../bower_components/jqueryui/ui/jquery.ui.tooltip',
-        
+
         /* jQuery UI i18n */
         'jquery.ui.datepicker-en': '../bower_components/jqueryui/ui/i18n/jquery.ui.datepicker-en'
     },
@@ -34,8 +35,12 @@ require.config({
             deps: ['underscore', 'jquery'],
             exports: 'Backbone'
         },
+        'marionette': {
+            deps : ['jquery', 'underscore', 'backbone'],
+            exports : 'Marionette'
+        },
 
-        /* jQuery UI */        
+        /* jQuery UI */
         'jquery.ui.core': {
             deps: ['jquery']
         },
@@ -78,7 +83,7 @@ require.config({
                 'jquery.ui.mouse',
                 'jquery.ui.widget'
             ]
-        },        
+        },
         'jquery.ui.sortable': {
             deps: [
                 'jquery.ui.core',
@@ -105,7 +110,7 @@ require.config({
                 'jquery.ui.position'
             ]
         },
-        
+
         /* jQuery UI i18n */
         'jquery.ui.datepicker-en': {
             deps: ['jquery.ui.datepicker']

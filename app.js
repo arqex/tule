@@ -10,6 +10,10 @@ if(!config.mon.settingsCollection){
 var express = require('express');
 var app = express();
 
+//Start plugins
+var pluginManager = require(config.path.modules + '/plugins/pluginManager.js');
+pluginManager.init(app);
+
 //Start Mongo
 app.db = require('mongojs')(config.mongo);
 app.db.runCommand({ping:1}, function(err, res){
@@ -68,19 +72,10 @@ var UTA = require('underscore-template-additions'),
 app.set('views', config.path.views);
 app.engine('html', templates.forExpress());
 
-//Add routes
-_u.each(config.routes, function(controllerData, routeData){
-	var opts = controllerData.split('::'),
-		routeOpts = routeData.split('::'),
-		route = routeOpts.length == 2 ? routeOpts[1] : routeOpts[0],
-		method = routeOpts.length == 2 ? routeOpts[0] : 'get',
-		file = require(config.path.controllers + '/' + opts[0]),
-		func = opts[1],
-		controller = func ? file[func] : file
-	;
-	console.log(method + ' ' + opts[0] + ' ' + opts[1]);
-	app[method](route, controller);
-});
+
+//Init routes
+var routeManager = require(config.path.modules + '/routes/routeManager.js');
+routeManager.init(app);
 
 server.listen(3000);
 console.log('Listening on port 3000');
