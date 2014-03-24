@@ -1,16 +1,17 @@
+<div>
 
 <script type="text/template" id="selectTpl">
 	<div class="select-display"><%= value %></div>
 </script>
 
 <script type="text/template" id="selectEditTpl">
-	<form class="select-form">
+	<form class="select-form">				
 		<select>
-			<% _.each(options, function(label, key){ %>
-				<option<%= key === value ? ' selected' : '' %>><%= label %></option>
+			<% _.each(options, function(option, key){ %>
+				<option value='<%= option.value %>'<%= option.label === value ? ' selected' : '' %>><%= option.label %></option>
 			<%	}) %>
 		</select>
-		<button class="select-ok">Ok</button>
-		<a href="#" class="select-cancel" data-bypass="true">Cancel</a>
 	</form>
 </script>
+
+</div>

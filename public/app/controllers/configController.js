@@ -33,9 +33,16 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 				}
 			},
 			{key: 'tableFields', label: 'Table header fields', datatype: {id: 'array', options: {elementsType: {id:'string'}}}},
-			{key: 'mandatoryProperties', label: 'Mandatory Fields', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}}
+			{key: 'mandatoryProperties', label: 'Mandatory Fields', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}},
+			{key: 'selectBox', label: 'Select Box', datatype: {id: 'select', options: [
+				{value:'1', label: 'Cruzcampo Gran Reserva'}, 
+				{value:'2', label: 'Mahou Selecta XV'}, 
+				{value:'3', label: 'San Miguel 1516'}, 
+				{value:'4', label: 'Moritz Epidor'}, // This one is the f*cking best
+				{value:'5', label: 'A. K. Damm'}
+			]}}
 		],
-		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'tableFields'],
+		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'tableFields', 'selectBox'],
 		hiddenProperties: ['name', '_id']
 	};
 
