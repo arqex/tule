@@ -10,6 +10,10 @@ if(!config.mon.settingsCollection){
 var express = require('express');
 var app = express();
 
+//Start plugins
+var pluginManager = require(config.path.modules + '/plugins/pluginManager.js');
+pluginManager.init(app);
+
 //Start Mongo
 app.db = require('mongojs')(config.mongo);
 app.db.runCommand({ping:1}, function(err, res){

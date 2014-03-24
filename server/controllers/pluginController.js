@@ -3,12 +3,12 @@
 var when = require('when'),
 	config = require('config'),
 	path = require('path'),
-	plugins = require(path.join(config.path.util, 'plugin'))
+	pluginManager = require(path.join(config.path.modules, 'plugins/pluginManager.js'))
 ;
 
 module.exports = {
 	list: function(req, res){
-		plugins.manager.getAllPluginDefinitions().then(function(definitions){
+		pluginManager.getAllPluginDefinitions().then(function(definitions){
 			res.json(definitions);
 		});
 	},
