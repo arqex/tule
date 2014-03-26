@@ -19,13 +19,14 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 		initialize: function(opts){
 			this.value = _.isObject(this.model.get('value')) ? opts.typeOptions[0].value : this.model.get('value');
+			this.model.set('value', this.value);
 			this.options = opts.typeOptions || this.defaultOptions.selectOptions;
 			this.mode = opts.mode || 'display';			
 		},
 
 		getTemplateData: function(){			
 			_.each(this.options, function(option){ 
-				if(option.value == this.value) 
+				if(option.value == this.model.get('value')) 
 					this.label=option.label
 			}, this);
 
@@ -35,7 +36,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			};
 		},
 
-		onChangeValue: function(e){			
+		onChangeValue: function(e){
 			this.model.set('value', $(e.target).val());
 		}
 	});
