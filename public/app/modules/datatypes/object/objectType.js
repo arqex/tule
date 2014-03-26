@@ -104,11 +104,13 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 			if(this.mode == 'edit'){
 				var $props = this.$('.object-properties');
-				_.each(this.subViews, function(subView){
+				_.each(this.subViews, function(subView, k){
 					if(me.typeOptions.editAllProperties == true) {
 						subView.editAllProperties = true;
 						subView.changeMode('edit');
 					}
+					if(k == 'key')
+						$(subView.el).focus();
 					$props.append(subView.el);
 					subView.render();
 					subView.delegateEvents();
@@ -143,7 +145,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.$('a.object-add-property[data-cid=' + this.cid + ']').replaceWith(newElement.el);
 
 			setTimeout(function(){
-				me.$('input').focus();
+				me.$('input').first().focus();
 			},50);
 
 			this.listenTo(newElement, 'elementOk', function(elementData){
