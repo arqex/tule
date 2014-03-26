@@ -23,7 +23,6 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 								propertyDefinitions: [
 									{key: 'key', datatype: {id: 'string'}},
 									{key: 'label', datatype: {id: 'string'}},
-									{key: 'labelssss', datatype: {id: 'string'}},
 									{key: 'datatype', datatype: {id: 'field'}} // inception, yay!
 								],
 								mandatoryProperties: ['key', 'label', 'datatype'],

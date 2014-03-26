@@ -104,13 +104,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 			if(this.mode == 'edit'){
 				var $props = this.$('.object-properties');
-				_.each(this.subViews, function(subView, k){
+				_.each(this.subViews, function(subView){
 					if(me.typeOptions.editAllProperties == true) {
 						subView.editAllProperties = true;
 						subView.changeMode('edit');
 					}
-					if(k == 'key')
-						$(subView.el).focus();
 					$props.append(subView.el);
 					subView.render();
 					subView.delegateEvents();
