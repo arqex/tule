@@ -43,7 +43,7 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 				{value:'5', label: 'A. K. Damm'}
 			]}}
 		],
-		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'tableFields', 'selectBox'],
+		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'hiddenProperties', 'tableFields', 'selectBox'],
 		hiddenProperties: ['name', '_id']
 	};
 

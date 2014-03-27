@@ -20,14 +20,11 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 					fields.push({action: 'edit', href: "#", icon: 'pencil'});
 					fields.push({action: 'remove', href: "#", icon: 'times'});
 
-					var docOptions = settings;
-					docOptions['hiddenProperties'] = ['_id'];
-
 					var view = new CollectionViews.CollectionView({
 						collection: results,
 						fields: fields,
 						customFields: 1,
-						docOptions: docOptions
+						docOptions: settings
 					});
 
 					view.on('click:edit', function(docView){
