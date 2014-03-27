@@ -115,7 +115,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				me = this
 			;
 
-			doc.url = '/api/docs/' + this.type;
+			
 
 			_.each(this.objectView.subViews, function(subView){
 				subView.typeView.save();
@@ -124,7 +124,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			});
 
 			doc.save(null, {success: function(){
-				Alerts.add({message:'Document saved correctly', autoclose:6000});				
+				Alerts.add({message:'Document saved correctly', autoclose:6000});	
+				doc.url = '/api/docs/' + this.type + '/' + this.id;			
 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
@@ -146,23 +147,23 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				me = this
 			;
 
-			doc.url = '/api/collection/';
-
 			_.each(this.objectView.subViews, function(subView){
 				subView.typeView.save();
 				subView.changeMode('display');
 				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
 			});
 
+			doc.url = '/api/collection';
+
 			doc.save(null, {success: function(){
-				Alerts.add({message:'Document saved correctly', autoclose:6000});				
+				Alerts.add({message:'Document saved correctly', autoclose:6000});
 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
 				// Render collection view
 				me.collection.add(doc);
 				me.collectionView.createDocViews();
-				me.collectionView.render();	
+				me.collectionView.render();
 			}});
 		
 		}
@@ -170,7 +171,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 
 	var CollectionView = Backbone.View.extend({
-		tpl: $(tplSource).find('#tableTpl').html(),		
+		tpl: $(tplSource).find('#tableTpl').html(),
 		events: {
 			'click .document-ok': 'onClickOk',
 			'click .document-cancel': 'onClickCancel',
