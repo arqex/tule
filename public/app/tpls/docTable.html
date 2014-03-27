@@ -25,7 +25,7 @@
 <script type="text/template" id="docTpl">
 <tr data-id="<%= id %>" title="<%= id %>" class="document-header" id="document-<%= id %>">
 <% _.each(fields, function(field){ %>
-	<% if(_.isObject(field)){ // icon control %>		
+	<% if(_.isObject(field)){ // icon control %>
 		<td class="document-control document-control-<%= field.action %>" data-action="<%= field.action %>">
 			<a href="<%= field.href %>" data-bypass="true">
 				<span class="fa fa-<%= field.icon %>"></span>

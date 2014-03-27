@@ -16,8 +16,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			this.objectView = false;
 			this.docOptions = opts.docOptions || {};
 			this.docOptions.mode = 'edit';
+			this.hidden = opts.hidden || [];
 		},
-		render: function(){			
+		render: function(){
 			this.$el.html(this.tpl({id: this.model.id, editing: this.editing, fields: this.fields, doc: this.model.toJSON()}));
 
 			if(this.editing){
@@ -192,7 +193,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 					model: doc,
 					fields: me.fields,
 					editing: (me.docViews[docId] ? me.docViews[docId].editing : false),
-					docOptions: me.docOptions
+					docOptions: me.docOptions,
+					hidden: [doc.get('_id')]
 				});
 				docViews[docId].on('rendered', function(){
 					me.renderSubview(docViews[docId]);
