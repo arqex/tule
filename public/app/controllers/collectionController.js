@@ -16,7 +16,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 			mcollection.query({}).then(function(results, options){
 				settingsPromise.then(function(settings){
-					var fields = settings.tableFields;
+					var fields = settings.tableFields || [];
 					fields.push({action: 'edit', href: "#", icon: 'pencil'});
 					fields.push({action: 'remove', href: "#", icon: 'times'});
 
@@ -46,7 +46,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 						return false;
 					});
 					
-					view.on('click:message', function(docView){
+					view.on('click:' + fields[0], function(docView){
 						docView.open();
 					});
 
