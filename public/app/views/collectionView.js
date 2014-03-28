@@ -115,8 +115,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				me = this
 			;
 
-			
-
 			_.each(this.objectView.subViews, function(subView){
 				subView.typeView.save();
 				subView.changeMode('display');
@@ -143,9 +141,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 		onClickCreate: function(e){
 			e.preventDefault();
 
-			var doc = Dispenser.getMDoc(this.objectView.getValue()),
+			var doc = Dispenser.getMCollection(this.objectView.getValue()),
 				me = this
-			;
+			;			
 
 			_.each(this.objectView.subViews, function(subView){
 				subView.typeView.save();
@@ -157,6 +155,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});
+				//doc.id = 'collection_' + me.objectView.getValue()['name'];
+				//doc.type = me.objectView.getValue()['name'];
 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
