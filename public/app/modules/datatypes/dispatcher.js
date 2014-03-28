@@ -284,7 +284,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		onClickElementKey: function(e){
-			if(this.isNew)
+			if(this.isNew || this.editAllProperties)
 				return;
 
 			var cid = $(e.target).closest('.element').data('cid');
@@ -323,7 +323,9 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			}
 			else {
 				if(this.typeView.typeOptions.editAllProperties == true){
+					//this.typeView.typeOptions.editAllProperties = false;
 					_.each(this.typeView.subViews, function(subView){
+						subView.editAllProperties = false;
 						subView.typeView.save();
 						subView.changeMode('display');
 						elementData[subView.key] = {key: subView.key, datatype: subView.datatype};
