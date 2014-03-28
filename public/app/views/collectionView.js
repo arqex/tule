@@ -121,9 +121,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
 			});
 
+			// Force right url
+			doc.urlRoot = 'api/docs/' + this.type;
+
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});	
-				doc.url = '/api/docs/' + this.type + '/' + this.id;			
+				doc.url = '/api/docs/' + me.type + '/' + doc.id;
 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
@@ -155,9 +158,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});
-				//doc.id = 'collection_' + me.objectView.getValue()['name'];
-				//doc.type = me.objectView.getValue()['name'];
-				me.objectView = false;
+				doc.id = 'collection_' + me.objectView.getValue()['name'];
+				doc.type = me.objectView.getValue()['name'];
+				doc.url = '/api/settings/collection_' + doc.type;
+ 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
 				// Render collection view

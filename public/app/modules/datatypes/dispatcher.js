@@ -323,7 +323,6 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			}
 			else {
 				if(this.typeView.typeOptions.editAllProperties == true){
-					//this.typeView.typeOptions.editAllProperties = false;
 					_.each(this.typeView.subViews, function(subView){
 						subView.editAllProperties = false;
 						subView.typeView.save();
