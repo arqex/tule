@@ -136,7 +136,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				.replaceWith(newElement.el);
 
 			setTimeout(function(){
-				me.$('input').focus();
+				me.$('input').first().focus();
 			},50);
 
 			this.listenTo(newElement, 'elementOk', function(elementData){

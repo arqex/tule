@@ -16,8 +16,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			this.objectView = false;
 			this.docOptions = opts.docOptions || {};
 			this.docOptions.mode = 'edit';
+			this.hidden = opts.hidden || [];
 		},
-		render: function(){			
+		render: function(){
 			this.$el.html(this.tpl({id: this.model.id, editing: this.editing, fields: this.fields, doc: this.model.toJSON()}));
 
 			if(this.editing){
@@ -114,8 +115,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				me = this
 			;
 
-			doc.url = '/api/docs/' + this.type;
-
 			_.each(this.objectView.subViews, function(subView){
 				subView.typeView.save();
 				subView.changeMode('display');
@@ -123,7 +122,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			});
 
 			doc.save(null, {success: function(){
-				Alerts.add({message:'Document saved correctly', autoclose:6000});				
+				Alerts.add({message:'Document saved correctly', autoclose:6000});	
+				doc.url = '/api/docs/' + this.type + '/' + this.id;			
 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
@@ -141,11 +141,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 		onClickCreate: function(e){
 			e.preventDefault();
 
-			var doc = Dispenser.getMDoc(this.objectView.getValue()),
+			var doc = Dispenser.getMCollection(this.objectView.getValue()),
 				me = this
-			;
-
-			doc.url = '/api/collection/';
+			;			
 
 			_.each(this.objectView.subViews, function(subView){
 				subView.typeView.save();
@@ -153,15 +151,19 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
 			});
 
+			doc.url = '/api/collection';
+
 			doc.save(null, {success: function(){
-				Alerts.add({message:'Document saved correctly', autoclose:6000});				
+				Alerts.add({message:'Document saved correctly', autoclose:6000});
+				//doc.id = 'collection_' + me.objectView.getValue()['name'];
+				//doc.type = me.objectView.getValue()['name'];
 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
 				// Render collection view
 				me.collection.add(doc);
 				me.collectionView.createDocViews();
-				me.collectionView.render();	
+				me.collectionView.render();
 			}});
 		
 		}
@@ -169,7 +171,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 
 	var CollectionView = Backbone.View.extend({
-		tpl: $(tplSource).find('#tableTpl').html(),		
+		tpl: $(tplSource).find('#tableTpl').html(),
 		events: {
 			'click .document-ok': 'onClickOk',
 			'click .document-cancel': 'onClickCancel',
@@ -192,7 +194,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 					model: doc,
 					fields: me.fields,
 					editing: (me.docViews[docId] ? me.docViews[docId].editing : false),
-					docOptions: me.docOptions
+					docOptions: me.docOptions,
+					hidden: [doc.get('_id')]
 				});
 				docViews[docId].on('rendered', function(){
 					me.renderSubview(docViews[docId]);

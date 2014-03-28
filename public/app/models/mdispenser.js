@@ -92,7 +92,7 @@ var MCollectionList = Backbone.Collection.extend({
 		return deferred.promise();
 	},
 	findByType: function(type){
-		return this.find(function(doc){ return doc.type == type; });
+		return this.find(function(){ return doc.type == type; });
 	}
 });
 

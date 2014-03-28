@@ -34,6 +34,7 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 			},
 			{key: 'tableFields', label: 'Table header fields', datatype: {id: 'array', options: {elementsType: {id:'string'}}}},
 			{key: 'mandatoryProperties', label: 'Mandatory Fields', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}},
+			{key: 'hiddenProperties', label: 'Hidden Properties', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}},
 			{key: 'selectBox', label: 'Select Box', datatype: {id: 'select', options: [
 				{value:'1', label: 'Cruzcampo Gran Reserva'}, 
 				{value:'2', label: 'Mahou Selecta XV'}, 
@@ -42,7 +43,7 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 				{value:'5', label: 'A. K. Damm'}
 			]}}
 		],
-		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'tableFields', 'selectBox'],
+		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'hiddenProperties', 'tableFields', 'selectBox'],
 		hiddenProperties: ['name', '_id']
 	};
 

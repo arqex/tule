@@ -11,21 +11,22 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		tpl: _.template($(tplSource).find('#selectTpl').html()),
 		editTpl: _.template($(tplSource).find('#selectEditTpl').html()),
 		defaultOptions: {
-			selectOptions: [{value: 'No value', label: 'No select options', selected: true}]
+			selectOptions: [{value: 'no-value', label: 'No select options'}]
 		},
 		events: {
 			'change select': 'onChangeValue'
 		},
 
 		initialize: function(opts){
-			this.value = _.isObject(this.model.get('value')) ? opts.typeOptions[0].value : this.model.get('value');
+			this.value = opts.model.get('value') || opts.typeOptions[0].value;
+			this.model.set('value', this.value);
 			this.options = opts.typeOptions || this.defaultOptions.selectOptions;
 			this.mode = opts.mode || 'display';			
 		},
 
 		getTemplateData: function(){			
 			_.each(this.options, function(option){ 
-				if(option.value == this.value) 
+				if(option.value == this.model.get('value')) 
 					this.label=option.label
 			}, this);
 
@@ -35,7 +36,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			};
 		},
 
-		onChangeValue: function(e){			
+		onChangeValue: function(e){
 			this.model.set('value', $(e.target).val());
 		}
 	});
@@ -47,6 +48,26 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		defaultValue: null,
 		typeOptions:[
 			{key: 'selectOptions', label: 'Selectbox Options', type: 'object', typeOptions:{propertyType: 'string'}}
+		],
+		typeOptionsDefinition:[
+			{key: 'selectOptions', 
+			 datatype: { 
+			 	id: 'array', 
+			 	options: { 
+			 		elementsType: {
+			 			id:'object',
+			 			options: {
+								propertyDefinitions: [
+									{key: 'value', datatype: {id: 'string'}},
+									{key: 'label', datatype: {id: 'string'}},
+								],
+								mandatoryProperties: ['value', 'label'],
+								customProperties: false
+							}
+			 			}
+			 		}
+			 	}
+			 }
 		]
 	});
 });
