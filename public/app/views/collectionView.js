@@ -164,6 +164,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
  				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
+				doc.newborn = true;
 				// Render collection view
 				me.collection.add(doc);
 				me.collectionView.createDocViews();
@@ -194,10 +195,17 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			;
 			this.collection.each(function(doc){
 				var docId = doc.id;
+				if(doc.newborn){
+					var editing = doc.newborn ? true : false;
+					doc.newborn = false;	
+				} else {
+					var editing = me.docViews[docId] ? me.docViews[docId].editing : false;
+				}
+				
 				docViews[docId] = new DocumentView({
 					model: doc,
 					fields: me.fields,
-					editing: (me.docViews[docId] ? me.docViews[docId].editing : false),
+					editing: editing,
 					docOptions: me.docOptions,
 					hidden: [doc.get('_id')]
 				});
@@ -212,8 +220,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			this.$el.html(this.tpl);
 			var table = this.$('table');
 			_.each(this.docViews, function(view){
-				view.render();
-				table.append(view.el.children);
+				view.render();				
+				table.prepend(view.el.children);
 				view.delegateEvents();
 			});
 
