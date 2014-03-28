@@ -122,7 +122,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			});
 
 			// Force right url
-			doc.urlRoot = 'api/docs/' + this.type;
+			doc.urlRoot = '/api/docs/' + this.type;
 
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});	
