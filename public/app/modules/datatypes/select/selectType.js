@@ -18,7 +18,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 
 		initialize: function(opts){
-			this.value = opts.model.get('value') || opts.typeOptions[0].value;
+			this.value = $.isNumeric(opts.model.get('value')) ? opts.model.get('value') : opts.typeOptions[0].value;
 			this.model.set('value', this.value);
 			this.options = opts.typeOptions || this.defaultOptions.selectOptions;
 			this.mode = opts.mode || 'display';			
