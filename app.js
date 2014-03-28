@@ -13,6 +13,7 @@ var app = express();
 //Start plugins
 var pluginManager = require(config.path.modules + '/plugins/pluginManager.js');
 pluginManager.init(app);
+app.managers = {plugins: pluginManager};
 
 //Start Mongo
 app.db = require('mongojs')(config.mongo);

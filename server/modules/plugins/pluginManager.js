@@ -18,13 +18,35 @@ var PluginManager = function(){
 
 PluginManager.prototype = {
 	init: function(appObject){
+		console.log('Starting Plugins!');
 		var me = this;
 		app = appObject;
-		this.getActivePlugins().then(function(definitions){
-			_.each(definitions, function(def){
+		this.getActivePlugins().then(
+			function(definitions){
+				console.log(definitions);
+				_.each(definitions, function(def){
+					try {
+						if(!def.main)
+							throw ('Unknown entry point for plugin ' + def.id);
 
-			});
-		});
+						var entryPoint = path.join(config.path.plugins, def.id, def.main),
+							plugin = require(entryPoint)
+						;
+
+						if(!_.isFunction(plugin.init))
+							throw ('No init function for plugin ' + def.id);
+
+						plugin.init();
+						me.plugins[def.id] = plugin;
+					} catch (e) {
+						console.error(e);
+					}
+				});
+			},
+			function(){
+				console.log('Error retrieving plugin definitions');
+			}
+		);
 	},
 	getAllPluginDefinitions: function(){
 		var me = this,
@@ -135,19 +157,24 @@ PluginManager.prototype = {
 			return deferred.promise;
 		}
 
-		fs.readFile('./activePlugins.json', function(err, contents){
+		fs.readFile(__dirname + '/activePlugins.json', function(err, contents){
 			var pluginList = [];
 
-			if(err)
+			if(err){
+				console.log(err);
 				contents = '[]';
+			}
 			try {
 				pluginList = JSON.parse(contents);
 			} catch(e) {
+				console.log('Cant parse ' + contents);
 				pluginList = [];
 			}
 
-			if(!pluginList.length)
-				return [];
+			if(!pluginList.length){
+
+				deferred.resolve([]);
+			}
 
 			me.getPluginDefinitions(pluginList).then(function(definitions){
 				me.active = definitions;
