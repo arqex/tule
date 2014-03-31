@@ -5,9 +5,8 @@ var when = require('when'),
 
 var app, driverInstance;
 
-
 module.exports = {
-	defaultDriver: __dirname + 'mongoDriver.js',
+	defaultDriver: __dirname + '/mongoDriver.js',
 	init: function(appObject){
 		var me = this,
 			deferred = when.defer()
@@ -32,13 +31,17 @@ module.exports = {
 		;
 
 		if(!_.isObject(promise) || _.isFunction(promise.then)){
-			deferred.reject('Driver is not compatible with Tule');
+			deferred.reject('DB driver is not compatible with Tule');
 			return deferred.promise;
 		}
+		promise.then(function(driver){
+			driverInstance = driver;
+		});
 
+		driverInstance = promise;
 		return promise;
-	}
+	},
 	getInstance: function(){
-
+		return driverInstance;
 	}
 }

@@ -15,48 +15,9 @@ var pluginManager = require(config.path.modules + '/plugins/pluginManager.js');
 pluginManager.init(app);
 app.managers = {plugins: pluginManager};
 
-//Start Mongo
-app.db = require('mongojs')(config.mongo);
-app.db.runCommand({ping:1}, function(err, res){
-	//Die if mongo is not available
-	if(err){
-		console.error('\r\n*** Mongodb connection error ***');
-		process.exit(1);
-	}
-
-	//Create the settings collection if it doesn't exist
-	app.db.collection(config.mon.settingsCollection).findOne(function(err, result){
-		if(!result){
-			var collectionName = config.mon.settingsCollection,
-				settings = app.db.collection(collectionName)
-			;
-			settings.insert([
-			{
-				name: 'globals',
-				value: {settingsCollection: collectionName},
-				datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string'],
-				datatypesPath: 'modules/datatypes/'
-			},
-			{
-				name: 'navData',
-				routes:[
-					{text: 'Collection', url: '/collections/list/test'},
-					{text: 'Config', url: '/config'},
-					{text: 'Test', url: '', subItems:[
-						{text: 'Sub Test A', url: '/test/subA'},
-						{text: 'Sub Test B', url: '/test/subB'},
-						{text: 'Sub Test C', url: '', subItems:[
-							{text: 'Micro Test A', url: '/test/subC/microA'},
-							{text: 'Micro Test B', url: '/test/subC/microB'}
-						]}
-					]}
-				]
-			}]);
-			settings.createIndex({name: 1}, {unique:true});
-			console.log("Settings created: " + collectionName);
-		}
-	});
-});
+//Start database
+var dbManager = require(config.path.modules + '/db/dbManager.js');
+dbManager.init(app);
 
 var http = require('http');
 var server = http.createServer(app);
