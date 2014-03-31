@@ -284,7 +284,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		onClickElementKey: function(e){
-			if(this.isNew)
+			if(this.isNew || this.editAllProperties)
 				return;
 
 			var cid = $(e.target).closest('.element').data('cid');
@@ -324,6 +324,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			else {
 				if(this.typeView.typeOptions.editAllProperties == true){
 					_.each(this.typeView.subViews, function(subView){
+						subView.editAllProperties = false;
 						subView.typeView.save();
 						subView.changeMode('display');
 						elementData[subView.key] = {key: subView.key, datatype: subView.datatype};
@@ -357,10 +358,13 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		onKeydown: function(e){
-			if(e.which == 13){				
-				this.onElementOk(e);
-			} else if (e.which == 27){
-				this.onElementCancel(e);
+			var elementCid = $(e.target).closest('.element').data('cid');
+			if(elementCid == this.cid){
+				if(e.which == 13){
+					this.onElementOk(e);
+				} else if (e.which == 27){
+					this.onElementCancel(e);
+				}	
 			}
 		}
 	});

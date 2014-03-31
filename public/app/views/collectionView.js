@@ -121,9 +121,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
 			});
 
+			// Force right url
+			doc.urlRoot = '/api/docs/' + this.type;
+
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});	
-				doc.url = '/api/docs/' + this.type + '/' + this.id;			
+				doc.url = '/api/docs/' + me.type + '/' + doc.id;
 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
@@ -155,11 +158,13 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});
-				//doc.id = 'collection_' + me.objectView.getValue()['name'];
-				//doc.type = me.objectView.getValue()['name'];
-				me.objectView = false;
+				doc.id = 'collection_' + me.objectView.getValue()['name'];
+				doc.type = me.objectView.getValue()['name'];
+				doc.url = '/api/settings/collection_' + doc.type;
+ 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
+				doc.newborn = true;
 				// Render collection view
 				me.collection.add(doc);
 				me.collectionView.createDocViews();
@@ -190,10 +195,17 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			;
 			this.collection.each(function(doc){
 				var docId = doc.id;
+				if(doc.newborn){
+					var editing = doc.newborn ? true : false;
+					doc.newborn = false;	
+				} else {
+					var editing = me.docViews[docId] ? me.docViews[docId].editing : false;
+				}
+				
 				docViews[docId] = new DocumentView({
 					model: doc,
 					fields: me.fields,
-					editing: (me.docViews[docId] ? me.docViews[docId].editing : false),
+					editing: editing,
 					docOptions: me.docOptions,
 					hidden: [doc.get('_id')]
 				});
@@ -208,8 +220,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			this.$el.html(this.tpl);
 			var table = this.$('table');
 			_.each(this.docViews, function(view){
-				view.render();
-				table.append(view.el.children);
+				view.render();				
+				table.prepend(view.el.children);
 				view.delegateEvents();
 			});
 
