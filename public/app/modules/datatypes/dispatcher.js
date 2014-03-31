@@ -358,10 +358,13 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		onKeydown: function(e){
-			if(e.which == 13){				
-				this.onElementOk(e);
-			} else if (e.which == 27){
-				this.onElementCancel(e);
+			var elementCid = $(e.target).closest('.element').data('cid');
+			if(elementCid = this.cid){
+				if(e.which == 13){
+					this.onElementOk(e);
+				} else if (e.which == 27){
+					this.onElementCancel(e);
+				}	
 			}
 		}
 	});
