@@ -60,14 +60,13 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 				view = new Collection.CollectionView({
 					collection: collections,
 					fields: [
-						'name',
+						function(doc){ return doc.name.split('_')[1]; },
 						{action: 'browse', href:'#', icon:'eye'}
 					],
 					docOptions: docOptions
 				});
 
-				
-				view.on('click:name', function(docView){
+				view.on('click:function1', function(docView){
 					docView.model.getSettings().then(function(){
 						docView.open();
 					});

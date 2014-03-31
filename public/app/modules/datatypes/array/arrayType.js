@@ -27,7 +27,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			;
 
 			this.subViews = [];
-			this.mode = 'display';
+			this.mode = 'display';			
 
 			_.each(this.model.get('value'), function(element, idx){
 				var elementView = new dispatcher.DataElementView({

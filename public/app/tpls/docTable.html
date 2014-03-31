@@ -24,15 +24,17 @@
 
 <script type="text/template" id="docTpl">
 <tr data-id="<%= id %>" title="<%= id %>" class="document-header" id="document-<%= id %>">
-<% _.each(fields, function(field){ %>
-	<% if(_.isObject(field)){ // icon control %>
+<% var fcount = 0; _.each(fields, function(field){  %>
+	<% if (_.isFunction(field)){ %>// Doc field %>
+		<td class="document-field-function<%= ++fcount %>" data-action="function<%= fcount %>"><%= field(doc) %></td>
+	<% } else if(_.isObject(field)){ %>// icon control %>
 		<td class="document-control document-control-<%= field.action %>" data-action="<%= field.action %>">
 			<a href="<%= field.href %>" data-bypass="true">
 				<span class="fa fa-<%= field.icon %>"></span>
 			</a>
 		</td>
-	<% } else { // Doc field %>
-		<td class="document-field-<%= field %>" data-action="<%= field %>"><%= doc[field] %></td>
+	<% } else { %>
+		<td class="document-field-<%= field %>" data-action="<%= field %>"><%= field %></td>
 	<% } %>
 <%	}) %>
 </tr>

@@ -227,9 +227,10 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				editAllProperties: this.editAllProperties || false
 			};
 
-			if(!this.typeView){
+			if(!this.typeView)
 				this.createTypeView();
-			}
+
+			//(this.key == "propertyDefinitions") ? this.typeView.addNews = false : this.typeView.addNews = true;
 
 			if(this.datatype.id == 'object')
 				this.typeView.typeOptions.editAllProperties = this.isNew;
