@@ -92,7 +92,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
 
-			if(this.model.isNew())
+			if(this.model.isNew() && this.isPropsDefinition == undefined || this.isPropsDefinition == true)
 				this.typeOptions.customProperties = true;
 
 			this.$el

@@ -230,7 +230,8 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			if(!this.typeView)
 				this.createTypeView();
 
-			//(this.key == "propertyDefinitions") ? this.typeView.addNews = false : this.typeView.addNews = true;
+			// Persistent propertyDefinitions
+			(this.key == "propertyDefinitions") ? this.typeView.isPropsDefinition = true : this.typeView.isPropsDefinition = false;
 
 			if(this.datatype.id == 'object')
 				this.typeView.typeOptions.editAllProperties = this.isNew;
