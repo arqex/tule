@@ -116,17 +116,21 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 			;
 
 			_.each(this.objectView.subViews, function(subView){
+				if(subView.key === '_id'){
+					Alerts.add({message:'Cannot use reserved name _id as property', level: 'error', autoclose:10000});	
+					return false;
+				}
 				subView.typeView.save();
 				subView.changeMode('display');
 				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
 			});
 
 			// Force right url
-			doc.urlRoot = '/api/docs/' + this.type;
+			doc.urlRoot = encodeURI('/api/docs/' + this.type);
 
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});	
-				doc.url = '/api/docs/' + me.type + '/' + doc.id;
+				doc.url = encodeURI('/api/docs/' + me.type + '/' + doc.id);
 				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();
@@ -160,7 +164,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});
 				doc.id = 'collection_' + me.objectView.getValue()['name'];
 				doc.type = me.objectView.getValue()['name'];
-				doc.url = '/api/settings/collection_' + doc.type;
+				doc.url = encodeURI('/api/settings/collection_' + doc.type);
  				me.objectView = false;
 				me.$el.find('.form').remove();
 				me.close();

@@ -369,7 +369,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 						this.onElementCancel(e);
 					}	
 				} else {
-					// In the forms
+					// At the forms
 					if(e.which == 13){
 						e.preventDefault();
 						var inputs = $('.form :input');

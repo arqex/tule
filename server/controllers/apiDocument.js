@@ -4,7 +4,16 @@ var mongojs = require('mongojs'),
 	url = require('url')
 ;
 
-module.exports = {
+function checkPropertiesKeys (res, doc){
+	for(var index in doc) { 
+        if(index[0] === '$')
+        	return res.send(400, {error: 'Type cannot start with $'});
+        if(index.indexOf('.') != -1)
+        	return res.send(400, {error: 'Type cannot contain . (dots)'});
+   	}
+};
+
+module.exports = {	
 	get: function(req, res){
 		var id = req.params.id,
 			type = req.params.type,
@@ -29,12 +38,18 @@ module.exports = {
 		var type = req.params.type,
 			doc = req.body
 		;
+
 		if(!type)
-			res.send(400, {error: 'No document type given.'});
+            res.send(400, {error: 'No type specified'});
+
+        if(doc['_id'])
+            return res.send(400, {error: 'Type _id is MongoDB reserved'});
+        
+        checkPropertiesKeys(res, doc);
 
 		req.app.db.collection(type).insert(doc, function(err, newDoc){
 			if(err)
-				res.send(400, {error: "Couldn't save doc properly."});
+				return res.send(400, {error: "Couldn't save doc properly."});
 			res.json(newDoc[0]);
 		});
 	},
@@ -47,6 +62,8 @@ module.exports = {
 			res.send(400, {error: 'No document id given.'});
 		if(!type)
 			res.send(400, {error: 'No document type given.'});
+
+		checkPropertiesKeys(res, doc);
 
 		if(id != doc._id)
 			res.send(400, {error: 'Wrong id for the document.'});
