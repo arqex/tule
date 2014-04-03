@@ -50,8 +50,19 @@ module.exports = {
 				"tableFields" : [ ]
 			}
         ;
-        if(!name)
-            res.send(400, {error: 'No document name given.'});
+
+        if(!name) {
+            res.send(400, {error: 'No name specified'});
+        } else {
+            if(!name[0].match(/[a-z0-9_]/i))
+                res.send(400, {error: 'Name has invalid characters or empty'});
+            if(name.indexOf('$') != -1)
+                res.send(400, {error: 'Name contains $ symbol'});
+            if(name.indexOf(/\x00/) != -1)
+                res.send(400, {error: 'Name contains some null character'});
+            if(name.indexOf('system.') === 0)
+                res.send(400, {error: 'Name starts with system. which is MongoDB reserved'});
+        }
 
         db.createCollection(name, function(err, newDoc){
             if(err){

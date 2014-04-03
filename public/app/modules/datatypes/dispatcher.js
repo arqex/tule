@@ -143,7 +143,12 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		save: function(){
-			this.model.set('value', this.$('input').val());
+			var that = this.$el;
+
+			if(that.find('select').val() != undefined)
+				return this.model.set('value', that.find('select').val());
+
+			this.model.set('value', that.find('input').val());
 		},
 
 		cancel: function(){
@@ -190,10 +195,13 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			this.setInline();
 		},
 		createModel: function(value) {
-			if(typeof value != 'undefined')
+			if(typeof value != 'undefined'){
 				this.model = dispatcher.createModel(value);
-			else
+			}else{
+				if(!_.isObject(this.datatype))
+					this.datatype = {id: this.datatype};
 				this.model = dispatcher.createEmptyModel(this.datatype.id);
+			}
 
 			this.setInline();
 		},
@@ -227,9 +235,11 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				editAllProperties: this.editAllProperties || false
 			};
 
-			if(!this.typeView){
+			if(!this.typeView)
 				this.createTypeView();
-			}
+
+			// Persistent propertyDefinitions
+			(this.key == "propertyDefinitions") ? this.typeView.isCustom = true : this.typeView.isCustom = false;
 
 			if(this.datatype.id == 'object')
 				this.typeView.typeOptions.editAllProperties = this.isNew;
@@ -360,11 +370,22 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		onKeydown: function(e){
 			var elementCid = $(e.target).closest('.element').data('cid');
 			if(elementCid == this.cid){
-				if(e.which == 13){
-					this.onElementOk(e);
-				} else if (e.which == 27){
-					this.onElementCancel(e);
-				}	
+				if(this.editAllProperties != true) {
+					if(e.which == 13){
+						this.onElementOk(e);
+					} else if (e.which == 27){
+						this.onElementCancel(e);
+					}	
+				} else {
+					// At the forms
+					if(e.which == 13){
+						e.preventDefault();
+						var inputs = $('form :input');
+						inputs[inputs.index(e.target)+1].focus();
+					} else if (e.which == 27){
+						this.onElementCancel(e);
+					}	
+				}
 			}
 		}
 	});

@@ -27,7 +27,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				value: this.model.get('value'),
 				label: this.typeOptions.label,
 				okButton: this.typeOptions.okButton,
-				cancelButton: this.typeOptions.cancelButton
+				cancelButton: this.typeOptions.cancelButton,
+				cid: this.cid
 			};
 		},
 		render: function(){
@@ -36,7 +37,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			return this;
 		},
 		save: function() {
-
 			var value = {
 				id: this.$('.field-datatype-select').val(),
 				options: this.advanced ? this.advanced.getValue() : {}
@@ -46,16 +46,26 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 		onFieldCancel: function(e) {
 			e.preventDefault();
-			this.trigger('changeMode', 'display');
+
+			var cid = $(e.target).closest('form').data('cid');
+			if(cid == this.cid)			
+				this.trigger('changeMode', 'display');
 		},
 		onChangeFieldType: function(e){
 			e.preventDefault();
-			var type = this.$('.element-form-type').val();
-			this.prepareAdvancedOptions(type);
+
+			var cid = $(e.target).closest('form').data('cid');
+			if(cid == this.cid){
+				var type = this.$('.element-form-type').val();
+				this.prepareAdvancedOptions(type);
+			}
 		},
 		onAdvancedToggle: function(e){
 			e.preventDefault();
-			this.$('.element-form-advanced-options').toggle();
+
+			var cid = $(e.target).closest('form').data('cid');
+			if(cid == this.cid)
+				this.$('.element-form-advanced-options').toggle();			
 		},
 		prepareAdvancedOptions: function(datatype){
 			var options = dispatcher.typeOptionsDefinitions[datatype],
@@ -66,7 +76,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			if(!options.length)
 				return $advanced.html('No advanced options available for ' + datatype);
 
-			if(this.advanced)
+			if(this.advanced)			
 				this.advanced.remove();
 
 			var objectOptions = {
@@ -75,8 +85,9 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				customProperties: false
 			};
 
-			this.advanced = dispatcher.getView('object',  objectOptions);
+			this.advanced = dispatcher.getView('object',  objectOptions, this.model.get('value').options);
 			this.advanced.changeMode('edit');
+			this.advanced.isCustom = false;
 
 			$advanced.html(this.advanced.render().el);
 		}

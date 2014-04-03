@@ -49,8 +49,9 @@ module.exports = {
         var name = req.params.name,
             doc  = req.body
         ;
+
         if(!name)
-            res.send(400, {error: 'No document name given.'});
+            res.send(400, {error: 'No name specified'});
 
         doc.name = name;
 
