@@ -190,10 +190,13 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			this.setInline();
 		},
 		createModel: function(value) {
-			if(typeof value != 'undefined')
+			if(typeof value != 'undefined'){
 				this.model = dispatcher.createModel(value);
-			else
+			}else{
+				if(!_.isObject(this.datatype))
+					this.datatype = {id: this.datatype};
 				this.model = dispatcher.createEmptyModel(this.datatype.id);
+			}
 
 			this.setInline();
 		},
@@ -231,7 +234,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				this.createTypeView();
 
 			// Persistent propertyDefinitions
-			(this.key == "propertyDefinitions") ? this.typeView.isPropsDefinition = true : this.typeView.isPropsDefinition = false;
+			(this.key == "propertyDefinitions") ? this.typeView.isCustom = true : this.typeView.isCustom = false;
 
 			if(this.datatype.id == 'object')
 				this.typeView.typeOptions.editAllProperties = this.isNew;
