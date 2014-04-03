@@ -143,7 +143,12 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		save: function(){
-			this.model.set('value', this.$('input').val());
+			var that = this.$el;
+
+			if(that.find('select').val() != undefined)
+				return this.model.set('value', that.find('select').val());
+
+			this.model.set('value', that.find('input').val());
 		},
 
 		cancel: function(){
@@ -375,7 +380,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 					// At the forms
 					if(e.which == 13){
 						e.preventDefault();
-						var inputs = $('.form :input');
+						var inputs = $('form :input');
 						inputs[inputs.index(e.target)+1].focus();
 					} else if (e.which == 27){
 						this.onElementCancel(e);
