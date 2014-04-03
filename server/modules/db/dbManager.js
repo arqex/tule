@@ -1,5 +1,7 @@
 var when = require('when'),
-	_ = require('underscore')
+	_ = require('underscore'),
+	config = require('config'),
+	hooks = require(config.path.modules + '/hooks/hooksManager')
 ;
 
 
@@ -12,9 +14,10 @@ module.exports = {
 			deferred = when.defer()
 		;
 		app = appObject;
-		app.managers.plugins.triggerFilter('db:driverpath', this.defaultDriver).then(function(driverPath){
+		hooks.filter('db:driverpath', this.defaultDriver).then(function(driverPath){
 			me.initDriver(driverPath).then(
 				function(driver){
+					console.log("Driver resolved");
 					deferred.resolve(driver);
 				},
 				function(error){
@@ -30,18 +33,25 @@ module.exports = {
 			promise = driver.init()
 		;
 
-		if(!_.isObject(promise) || _.isFunction(promise.then)){
+		if(!_.isObject(promise) || !_.isFunction(promise.then)){
+			console.log('Driver error');
 			deferred.reject('DB driver is not compatible with Tule');
 			return deferred.promise;
 		}
-		promise.then(function(driver){
-			driverInstance = driver;
+
+		console.log('Waiting by the driver');
+
+		promise.then(function(db){
+			driverInstance = db;
+			console.log('Driver received');
+		}, function(err){
+			throw err;
 		});
 
-		driverInstance = promise;
 		return promise;
 	},
 	getInstance: function(){
+		console.log('Requesting instance');
 		return driverInstance;
 	}
 }

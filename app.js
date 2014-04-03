@@ -17,27 +17,28 @@ app.managers = {plugins: pluginManager};
 
 //Start database
 var dbManager = require(config.path.modules + '/db/dbManager.js');
-dbManager.init(app);
+dbManager.init(app).then(function(){
+	console.log('DATABASE OK!');
+	var http = require('http');
+	var server = http.createServer(app);
+	var _u = require('underscore');
 
-var http = require('http');
-var server = http.createServer(app);
-var _u = require('underscore');
+	app.use(express.static('public'), {maxAge: 0});
+	app.use(express.bodyParser());
+	app.use(express.methodOverride());
 
-app.use(express.static('public'), {maxAge: 0});
-app.use(express.bodyParser());
-app.use(express.methodOverride());
+	//Templates
+	var UTA = require('underscore-template-additions'),
+		templates = new UTA()
+	;
+	app.set('views', config.path.views);
+	app.engine('html', templates.forExpress());
 
-//Templates
-var UTA = require('underscore-template-additions'),
-	templates = new UTA()
-;
-app.set('views', config.path.views);
-app.engine('html', templates.forExpress());
+	//Init routes
+	var routeManager = require(config.path.modules + '/routes/routeManager.js');
+	routeManager.init(app);
+	console.log('ROUTES OK!');
 
-
-//Init routes
-var routeManager = require(config.path.modules + '/routes/routeManager.js');
-routeManager.init(app);
-
-server.listen(3000);
-console.log('Listening on port 3000');
+	server.listen(3000);
+	console.log('Listening on port 3000');
+});

@@ -1,7 +1,9 @@
 'use strict';
 
 var mongojs = require('mongojs'),
-	url = require('url')
+	url = require('url'),
+	config = require('config'),
+    db = require(config.path.modules + '/db/dbManager').getInstance()
 ;
 
 module.exports = {
@@ -15,7 +17,7 @@ module.exports = {
 		if(!type)
 			res.send(400, {error: 'No document type given.'});
 
-		req.app.db.collection(type).findOne(
+		db.collection(type).findOne(
 			{_id: mongojs.ObjectId(id)},
 			function(err, doc){
 				if(!doc)
@@ -32,7 +34,7 @@ module.exports = {
 		if(!type)
 			res.send(400, {error: 'No document type given.'});
 
-		req.app.db.collection(type).insert(doc, function(err, newDoc){
+		db.collection(type).insert(doc, function(err, newDoc){
 			if(err)
 				res.send(400, {error: "Couldn't save doc properly."});
 			res.json(newDoc[0]);
@@ -53,7 +55,7 @@ module.exports = {
 
 		doc._id = new mongojs.ObjectId(doc._id);
 
-		req.app.db.collection(type).save(doc, function(err, newDoc){
+		db.collection(type).save(doc, function(err, newDoc){
 				if(err){
 					console.log(err);
 					res.send(400, {error: 'Internal Error'});
@@ -73,7 +75,7 @@ module.exports = {
 		if(!type)
 			res.send(400, {error: 'No document type given.'});
 
-		req.app.db.collection(type).remove(
+		db.collection(type).remove(
 			{_id: mongojs.ObjectId(id)},
 			function(err){
 				if(err){
@@ -94,23 +96,23 @@ module.exports = {
 		if(!type)
 			return res.send(400, {error: 'No collection type given.'});
 
-		req.app.db.getCollectionNames(function(err, names){
+		db.getCollectionNames(function(err, names){
 			if(err){
 				console.log(err);
 				return res.send(400, {error: 'Internal error.'});
 			}
-			
+
 			if(names.indexOf(type) == -1)
 				return res.send(400, {error: 'Unknown collection type.'});
 
 			var page = params.page || 1,
 				pageSize = 20,
-				collection = req.app.db.collection(type)
+				skip = page - 1 * pageSize,
+				collection = db.collection(type)
 			;
-			collection.runCommand('count', function(err, count){
-				collection.find({}).limit(20, function(err, docs){
-					res.json(docs);
-				});
+
+			collection.find({}, {limit: pageSize, skip: skip}, function(err, docs){
+				res.json(docs);
 			});
 		});
 	}

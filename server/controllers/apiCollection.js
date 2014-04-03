@@ -6,12 +6,14 @@ var mongojs = require('mongojs'),
 	defaults = {
 		fields: {},
 		tableFields: []
-	}
+	},
+    db = require(config.path.modules + '/db/dbManager').getInstance()
 ;
 
 module.exports = {
 	list: function(req, res){
-		req.app.db.getCollectionNames(function(err, names){
+		console.log(db);
+		db.getCollectionNames(function(err, names){
 			if(err){
 				console.log(err);
 				return res.send(400, {error: 'Internal error.'});
@@ -33,24 +35,23 @@ module.exports = {
 		if(!type)
 			res.send(400, {error: 'No document type given.'});
 
-		req.app.db.collection(type).insert(doc, function(err, newDoc){
+		db.collection(type).insert(doc, function(err, newDoc){
 			res.json(newDoc);
 		});
 	},
 
 	createCollection: function(req, res){
-        var db   = req.app.db,
-            name = req.body.name,
+        var name = req.body.name,
             doc  = req.body,
             properties = {
 				"name" : "collection_" + name,
 				"propertyDefinitions" : [ ],
 				"mandatoryProperties" : [ ],
-				"tableFields" : [ ]				
+				"tableFields" : [ ]
 			}
         ;
         if(!name)
-            res.send(400, {error: 'No document name given.'});        
+            res.send(400, {error: 'No document name given.'});
 
         db.createCollection(name, function(err, newDoc){
             if(err){
@@ -58,7 +59,7 @@ module.exports = {
                 return res.send(400, {error: 'Internal error while creating new collection'});
             }
             res.json(newDoc[0]);
-        });       
+        });
 
         db.collection(config.mon.settingsCollection).insert(properties, function(err, props){
             if(err){
