@@ -49,10 +49,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			this.subViews = {};
 			_.each(options.mandatoryProperties, function(key){
 				var definition = me.propertyDefinitions[key];
-				if(definition){
-					me.createSubView(key, definition, me.modelValue.get(key));
+				if(definition){					
 					if(typeof modelvalue[key] == 'undefined')
-						me.modelValue.set(key, dispatcher.types[definition.datatype.id].defaultValue);
+						me.modelValue.set(key, me.defaultTypeOptions[key]);
+					me.createSubView(key, definition, me.modelValue.get(key));
 				}
 				
 			});
@@ -81,8 +81,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			if(typeof value == 'undefined')
 				this.subViews[key].createModel();
 
-			this.listenTo(this.subViews[key], 'elementOk', function(){
-				this.switchFocus();
+			this.listenTo(this.subViews[key], 'autoAddNew', function(){
+				this.autoAddNewProperty();
 			});
 
 
@@ -171,8 +171,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				this.stopListening(newElement, 'elementOk');
 				this.stopListening(newElement, 'elementCancel');
 
-				this.listenTo(newElement, 'elementOk', function(){
-					this.switchFocus();
+				this.listenTo(newElement, 'autoAddNew', function(){
+					this.autoAddNewProperty();
 				});
 
 			});
@@ -212,10 +212,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			return value;
 		},
 
-		switchFocus: function(){
+		autoAddNewProperty: function(){
 			var addElement = this.$el.find('.add-element');
-			if(addElement.data('cid') == this.cid)
-				addElement.focus();
+			if(addElement.data('cid') == this.cid){
+				this.onAddProperty();
+			}
 		}
 	});
 

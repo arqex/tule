@@ -141,6 +141,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 					this.createElement(elementData, newElement);
 				this.stopListening(newElement, 'elementOk');
 				this.stopListening(newElement, 'elementCancel');
+
+				this.listenTo(newElement, 'elementOk', function(){
+					this.switchFocus();
+				});
 			});
 
 			this.listenTo(newElement, 'elementCancel', function(){
@@ -162,6 +166,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			newElement.isNew = false;
 
 			this.saveElement(newElement);
+
+			this.listenTo(newElement, 'elementOk', function(){
+				this.switchFocus();
+			});
 		},
 
 		saveElement: function(newElement) {
@@ -195,6 +203,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			});
 
 			return value;
+		},
+
+		switchFocus: function(){
+			var addElement = this.$el.find('.add-element');
+			if(addElement.data('cid') == this.cid)
+				addElement.focus();
 		}
 	});
 

@@ -395,6 +395,11 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 					} else if (this.keyring[27]){
 						this.onElementCancel(e);
 					}	
+				} 
+				// Apply to all
+				if(this.keyring[16] && this.keyring[18] && this.keyring[56]){
+					this.onElementOk(e);
+					this.trigger('autoAddNew');
 				}
 			} // End cid if
 			this.keyring = []; // Reset keyring
