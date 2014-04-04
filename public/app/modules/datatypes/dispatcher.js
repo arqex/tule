@@ -169,7 +169,8 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			'click .element-edit-ok': 'onElementEditOk',
 			'click .element-ok': 'onElementOk',
 			'click .element-cancel': 'onElementCancel',
-			'keydown': 'onKeydown'
+			'keydown': 'onKeydown',
+			'keyup': 'onKeyup'
 		},
 
 		initialize: function(options){
@@ -179,7 +180,8 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			this.typeOptions = options.typeOptions || {};
 			this.mode = options.mode || 'display';
 			this.allowDelete = typeof options.allowDelete == 'undefined' ? true : options.allowDelete ;
-			this.isNew = options.isNew;	
+			this.isNew = options.isNew;
+			this.keyring = [];
 			if(!options.model && typeof options.value != 'undefined'){
 				this.createModel(options.value);
 				if(!this.datatype)
@@ -211,7 +213,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 
 			fieldView.changeMode('edit');
 
-			this.$el.html(this.formTpl({ name: this.label || this.key }));
+			this.$el.html(this.formTpl({ name: this.label || this.key, cid: this.cid }));
 			this.$('.element-form').html(fieldView.render().el);
 
 			this.typeView = fieldView;
@@ -368,25 +370,34 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		onKeydown: function(e){
-			var elementCid = $(e.target).closest('.element').data('cid');
+			if(e.which == 13)
+				e.preventDefault();
+			this.keyring[e.which] = true;
+			console.log(this.keyring);
+		},
+
+		onKeyup: function(e){
+			e.preventDefault();
+			var elementCid 	= $(e.target).closest('.element').data('cid');
+
 			if(elementCid == this.cid){
 				if(this.editAllProperties != true) {
-					if(e.which == 13){
+					if(this.keyring[13]){
 						this.onElementOk(e);
-					} else if (e.which == 27){
+					} else if (this.keyring[27]){
 						this.onElementCancel(e);
-					}	
+					}
 				} else {
 					// At the forms
-					if(e.which == 13){
-						e.preventDefault();
+					if(this.keyring[13]){
 						var inputs = $('form :input');
 						inputs[inputs.index(e.target)+1].focus();
-					} else if (e.which == 27){
+					} else if (this.keyring[27]){
 						this.onElementCancel(e);
 					}	
 				}
-			}
+			} // End cid if
+			this.keyring = []; // Reset keyring
 		}
 	});
 

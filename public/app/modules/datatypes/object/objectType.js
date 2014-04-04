@@ -81,6 +81,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			if(typeof value == 'undefined')
 				this.subViews[key].createModel();
 
+			this.listenTo(this.subViews[key], 'elementOk', function(){
+				this.switchFocus();
+			});
+
+
 			this.listenTo(this.subViews[key].model, 'destroy', this.deleteProperty);
 		},
 
@@ -165,6 +170,11 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				}
 				this.stopListening(newElement, 'elementOk');
 				this.stopListening(newElement, 'elementCancel');
+
+				this.listenTo(newElement, 'elementOk', function(){
+					this.switchFocus();
+				});
+
 			});
 
 			this.listenTo(newElement, 'elementCancel', function(){
@@ -200,6 +210,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				value[key] = subView.typeView.getValue();
 			});
 			return value;
+		},
+
+		switchFocus: function(){
+			var addElement = this.$el.find('.add-element');
+			if(addElement.data('cid') == this.cid)
+				addElement.focus();
 		}
 	});
 

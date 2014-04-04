@@ -92,13 +92,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 
 		remake: function(newidx, oldidx){
-			/* //Better to not modify prototypes
-			Array.prototype.move = function (from, to) {
-			  this.splice(to, 0, this.splice(from, 1)[0]);
-			};
-			this.subViews.move(oldidx,newidx);
-			*/
-
 			this.subViews.splice(newidx, 0, this.subViews.splice(oldidx, 1)[0]);
 
 			_.each(this.subViews, function(subView, idx){
