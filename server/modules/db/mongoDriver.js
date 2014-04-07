@@ -58,9 +58,9 @@ MongoDriver.prototype = {
 };
 
 var callbackIndex = function(args){
-	var i = 1;
+	var i = 0;
 
-	while(i++<args.length)
+	while(++i<args.length)
 		if(typeof args[i] === 'function')
 			return i;
 	return -1;
@@ -72,9 +72,12 @@ var TuleCollection = {
 			original = arguments[index]
 		;
 
+		if(index == -1)
+			original('Find need a callback');
+
 		arguments[index] = function(err, cursor){
 			if(err)
-				return func(err, cursor);
+				return original(err, cursor);
 			cursor.toArray(function(err, results){
 				original(err, results);
 			});

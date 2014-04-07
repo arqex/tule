@@ -78,6 +78,141 @@ describe('Driver API', function() {
 		});
 	});
 
+	it("find({})", function(done){
+		collection.find({}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(4);
+			done();
+		});
+	});
+
+	it("find({msg: 'hello'}) expect 2 documents", function(done){
+		collection.find({msg: 'hello'}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
+			done();
+		});
+	});
+
+	it("find({msg: 'hello', integer: 1}) expect 1 document", function(done){
+		collection.find({msg: 'hello', integer: 1}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(1);
+			done();
+		});
+	});
+
+	it("find({msg: 'tule'}) expect integer = 2", function(done){
+		collection.find({msg: 'tule'}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs[0].integer).toBe(2);
+			done();
+		});
+	});
+
+	it("find({integer: {$gt: 1}}) expect 2 documents", function(done){
+		collection.find({integer: {$gt: 1}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
+			done();
+		});
+	});
+
+	it("find({integer: {$gte: 1}}) expect 3 documents", function(done){
+		collection.find({integer: {$gte: 1}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(3);
+			done();
+		});
+	});
+
+	it("find({integer: {$gte: 1.5}}) expect 2 documents", function(done){
+		collection.find({integer: {$gte: 1.5}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
+			done();
+		});
+	});
+
+	it("find({integer: {$lt: 1}}) expect 1 document1", function(done){
+		collection.find({integer: {$lt: 1}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(1);
+			done();
+		});
+	});
+
+	it("find({integer: {$gte: 1}}) expect 2 documents", function(done){
+		collection.find({integer: {$lte: 1}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
+			done();
+		});
+	});
+
+	it("find({msg: {$ne: 'hello'}}) expect 2 documents", function(done){
+		collection.find({msg: {$ne: 'hello'}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
+			done();
+		});
+	});
+
+	it("find({msg: {$in: ['hello', 'great']}}) expect 3 documents", function(done){
+		collection.find({msg: {$in: ['hello', 'great']}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(3);
+			done();
+		});
+	});
+
+	it("find({msg: {$nin: ['tule', 'great']}}) expect 2 documents", function(done){
+		collection.find({msg: {$nin: ['tule', 'great']}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
+			done();
+		});
+	});
+
+	it("find({$or:[{msg: 'hello'}, {integer: 3}]}) expect 3 documents", function(done){
+		collection.find({$or:[{msg: 'hello'}, {integer: 3}]}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(3);
+			done();
+		});
+	});
+
+	it("find({$and:[{msg: 'hello'}, {integer: 1}]}) expect 1 documents", function(done){
+		collection.find({$and:[{msg: 'hello'}, {integer: 1}]}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(1);
+			done();
+		});
+	});
+
+	it("find({$nor:[{msg: 'hello'}, {integer: 1}]}) expect 2 documents", function(done){
+		collection.find({$nor:[{msg: 'hello'}, {integer: 1}]}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
+			done();
+		});
+	});
+
 	it("renameCollection()", function(done){
 		driver.renameCollection(cname, 'new' + cname, function(err){
 			expect(err).toBeNull();
