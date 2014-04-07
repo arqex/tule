@@ -92,13 +92,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		},
 
 		remake: function(newidx, oldidx){
-			/* //Better to not modify prototypes
-			Array.prototype.move = function (from, to) {
-			  this.splice(to, 0, this.splice(from, 1)[0]);
-			};
-			this.subViews.move(oldidx,newidx);
-			*/
-
 			this.subViews.splice(newidx, 0, this.subViews.splice(oldidx, 1)[0]);
 
 			_.each(this.subViews, function(subView, idx){
@@ -148,6 +141,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 					this.createElement(elementData, newElement);
 				this.stopListening(newElement, 'elementOk');
 				this.stopListening(newElement, 'elementCancel');
+
+				this.listenTo(newElement, 'autoAddNew', function(){
+					this.autoAddNewElement();
+				});
 			});
 
 			this.listenTo(newElement, 'elementCancel', function(){
@@ -169,6 +166,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			newElement.isNew = false;
 
 			this.saveElement(newElement);
+
+			this.listenTo(newElement, 'autoAddNew', function(){
+				this.autoAddNewElement();
+			});
 		},
 
 		saveElement: function(newElement) {
@@ -180,11 +181,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		deleteElements: function(idx){
 			this.subViews.splice(idx,1);
 
-			while (this.subViews.length > idx) {
+			var onWhileIdx = idx;
+			while (this.subViews.length > onWhileIdx) {
 				var subView = this.subViews[idx];
 				subView.key = idx;
 				subView.label = idx;
-				idx++;
+				onWhileIdx++;
 			}
 
 			// Remove the model from the collection
@@ -202,6 +204,14 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			});
 
 			return value;
+		},
+
+		autoAddNewElement: function(){
+			var addElement = this.$el.find('.add-element');
+			if(addElement.data('cid') == this.cid){
+				this.onAddElement();
+				this.$el.focus();
+			}
 		}
 	});
 
