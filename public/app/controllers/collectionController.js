@@ -45,7 +45,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 							});
 						return false;
 					});
-					
+
 					view.on('click:' + fields[0], function(docView){
 						docView.open();
 					});
@@ -54,14 +54,14 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 					var newDocView = new CollectionViews.NewDocView({
 							type: type,
-							collection: results,					
+							collection: results,
 							collectionView: view,
 							settings: settings
 					});
-							
+
 					newDocView.render();
 					mainView.loadView(newDocView);
-					mainView.setTitle(type + ' collection');					
+					mainView.setTitle(type + ' collection');
 				});
 			});
 

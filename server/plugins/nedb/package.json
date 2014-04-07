@@ -1,7 +1,10 @@
 {
-	"name": "Tule NeDB",
-	"description": "NeDB integration for Tule cmjs.",
-	"version": "0.0",
-	"main": "nedb.js",
-	"author": "Javi Marquez <marquex@gmail>"
+  "name": "tule-nedb",
+  "description": "NeDB integration for Tule cmjs.",
+  "version": "0.0.1",
+  "main": "nedb.js",
+  "author": "Javi Marquez <marquex@gmail>",
+  "dependencies": {
+    "nedb": "~0.10.5"
+  }
 }

@@ -12,6 +12,7 @@ MongoDriver.prototype = {
 		var me = this,
 			deferred = when.defer()
 		;
+		console.log(config);
 		mongo.MongoClient.connect(config.mongo, function(err, db){
 			if(err)
 				deferred.reject(err);

@@ -7,7 +7,7 @@ var mongojs = require('mongojs'),
 ;
 
 function checkPropertiesKeys (res, doc){
-	for(var index in doc) { 
+	for(var index in doc) {
         if(index[0] === '$')
         	return res.send(400, {error: 'Type cannot start with $'});
         if(index.indexOf('.') != -1)
@@ -15,7 +15,7 @@ function checkPropertiesKeys (res, doc){
    	}
 };
 
-module.exports = {	
+module.exports = {
 	get: function(req, res){
 		var id = req.params.id,
 			type = req.params.type,
@@ -46,7 +46,7 @@ module.exports = {
 
         if(doc['_id'])
             return res.send(400, {error: 'Type _id is MongoDB reserved'});
-        
+
         checkPropertiesKeys(res, doc);
 
 		db.collection(type).insert(doc, function(err, newDoc){
@@ -124,7 +124,7 @@ module.exports = {
 
 			var page = params.page || 1,
 				pageSize = 20,
-				skip = page - 1 * pageSize,
+				skip = (page - 1) * pageSize,
 				collection = db.collection(type)
 			;
 
