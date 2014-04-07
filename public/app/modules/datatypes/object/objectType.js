@@ -154,7 +154,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				me.$('input').first().focus();
 			},50);
 
-			this.listenTo(newElement, 'elementOk', function(elementData){
+			this.listenTo(newElement, 'elementOk', function(elementData){				
 				var key = $.trim(elementData.key);
 
 				if(this.subViews[key])
@@ -214,9 +214,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 
 		autoAddNewProperty: function(){
 			var addElement = this.$el.find('.add-element');
-			if(addElement.data('cid') == this.cid){
+			if(addElement.data('cid') == this.cid)
 				this.onAddProperty();
-			}
 		}
 	});
 

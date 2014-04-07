@@ -142,8 +142,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 				this.stopListening(newElement, 'elementOk');
 				this.stopListening(newElement, 'elementCancel');
 
-				this.listenTo(newElement, 'elementOk', function(){
-					this.switchFocus();
+				this.listenTo(newElement, 'autoAddNew', function(){
+					this.autoAddNewElement();
 				});
 			});
 
@@ -167,8 +167,8 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 
 			this.saveElement(newElement);
 
-			this.listenTo(newElement, 'elementOk', function(){
-				this.switchFocus();
+			this.listenTo(newElement, 'autoAddNew', function(){
+				this.autoAddNewElement();
 			});
 		},
 
@@ -181,11 +181,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 		deleteElements: function(idx){
 			this.subViews.splice(idx,1);
 
-			while (this.subViews.length > idx) {
+			var onWhileIdx = idx;
+			while (this.subViews.length > onWhileIdx) {
 				var subView = this.subViews[idx];
 				subView.key = idx;
 				subView.label = idx;
-				idx++;
+				onWhileIdx++;
 			}
 
 			// Remove the model from the collection
@@ -205,10 +206,12 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			return value;
 		},
 
-		switchFocus: function(){
+		autoAddNewElement: function(){
 			var addElement = this.$el.find('.add-element');
-			if(addElement.data('cid') == this.cid)
-				addElement.focus();
+			if(addElement.data('cid') == this.cid){
+				this.onAddElement();
+				this.$el.focus();
+			}
 		}
 	});
 
