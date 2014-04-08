@@ -18,3 +18,5 @@ mongodb
 batch
 
 public/bower_components
+
+server/plugins/*

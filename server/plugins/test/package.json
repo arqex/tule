@@ -1,7 +1,0 @@
-{
-	"name": "First ever tule plugin",
-	"description": "NeDB integration for Tule cmjs.",
-	"version": "0.0",
-	"main": "nedb.js",
-	"author": "Javi Marquez <marquex@gmail>"
-}

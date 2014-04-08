@@ -2,14 +2,13 @@
 
 var mongojs = require('mongojs'),
     _       = require('underscore'),
-    config  = require('config')
+    config  = require('config'),
+    db = require(config.path.modules + '/db/dbManager').getInstance()
 ;
 
 module.exports = {
     getConfig: function(req, res){
-        var db      = req.app.db,
-            name    = req.params.name
-        ;
+        var name = req.params.name;
 
         db.collection(config.mon.settingsCollection).findOne({name:name}, function(err, settings){
             if(err){
@@ -25,8 +24,7 @@ module.exports = {
     },
 
     updateConfig: function(req, res){
-        var db      = req.app.db,
-            name    = req.params.name,
+        var name    = req.params.name,
             doc     = req.body
         ;
 
@@ -48,8 +46,7 @@ module.exports = {
     },
 
     createConfig: function(req, res){
-        var db   = req.app.db,
-            name = req.params.name,
+        var name = req.params.name,
             doc  = req.body
         ;
 
@@ -77,7 +74,7 @@ module.exports = {
         if(!type)
             res.send(400, {error: 'No document type given.'});
 
-        req.app.db.collection(type).remove(
+        db.collection(type).remove(
             {name: mongojs.ObjectId(name)},
             function(err){
                 if(err){

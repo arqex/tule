@@ -23,26 +23,24 @@ var collections = {
 			}
 		]
 	},
-	mongojs = require('mongojs'),
 	config = require('config'),
+	db = require(config.path.modules + '/db/dbManager').getInstance(),
 	_ = require('underscore')
 ;
 module.exports = {
 	main: function(req, res) {
-		req.app.db.dropDatabase(config.dbName);
-		req.app.db.close();
-		req.app.db = mongojs(config.mongo);
-		req.app.db.runCommand({ping:1}, function(err){
-			//Die if mongo is not available
-			if(err){
-				res.send('Couldn\'t reset the database');
-			}
-
-			_.each(collections, function(docs, name){
-				req.app.db.collection(name).insert(docs);
+		db.collections(function(err, collections){
+			collections.forEach(function(collection){
+				collection.drop();
 			});
-
-			res.send('Database reset successfully.');
 		});
+
+		setTimeout(function(){
+			_.each(collections, function(docs, name){
+				db.collection(name).insert(docs, function(){});
+			});
+		},2000);
+
+		res.send('Database reset successfully.');
 	}
 };
