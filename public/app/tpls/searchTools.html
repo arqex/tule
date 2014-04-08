@@ -1,0 +1,63 @@
+<div>
+
+<script type="text/template" id="findBoxTpl">
+	<div class="find-box">
+		<input type="text" name="find" size="20" />
+		<button type="submit"><span class="fa fa-search"></span></button>
+	</div>
+</script>
+
+<script type="text/template" id="buttonSearchTpl">
+	<div class="button-search-form">
+		<button class="search-new">New search</button>
+	</div>
+	<div class="search-form-placeholder"></div>
+</script>
+
+<script type="text/template" id="searchFormTpl">
+	<div class="search-form">
+		<div class="query-clauses"></div>
+		<div class="add-clause">
+			<span><span class="fa fa-plus"></span>  Add clause: </span>
+			<div class="select-clause-join">
+				<button value="and">And</button>
+				<button value="or">Or</button>
+				<button value="nor">Nor</button>
+			</div>
+			
+		</div>
+		<div class="query-controls">
+			<a href="#" data-bypass="true" class="cancel-query">Cancel</a>
+			<button class="search-query">Search</button>
+		</div>
+	</div>
+</script>
+
+<script type="text/template" id="queryClauseTpl">
+	<div class="query-clause">
+		<% if(position > 0) { %>
+			<select class="operator">
+				<option value="and" <% if(operator === "and"){ %> selected <% } %>>And</option>
+				<option value="or" <% if(operator === "or"){ %> selected <% } %>>Or</option>
+				<option value="nor" <% if(operator === "nor"){ %> selected <% } %>>Nor</option>
+			</select>
+		<% } %>
+		<input id="key" type="text" placeholder="Key [Ex.: Name]" <% if(key){ %> value="<%= key %>" <% } %> />
+		<select id="comparison">
+			<option value="eq" <% if(comparison === "eq"){ %>  selected <% } %>>   ==  </option>
+			<option value="ne" <% if(comparison === "ne"){ %>  selected <% } %>>   !=  </option>
+			<option value="gt" <% if(comparison === "gt"){ %>  selected <% } %>>   >   </option>
+			<option value="gte" <% if(comparison === "gte"){ %>  selected <% } %>> >=  </option>
+			<option value="lt" <% if(comparison === "lt"){ %>  selected <% } %>>   <   </option>
+			<option value="lte" <% if(comparison === "lte"){ %>  selected <% } %>> <=  </option>
+		</select>
+		<input id="value" type="text" placeholder="Value [Ex.: TuleCMJS]" <% if(value){ %> value="<%= value %>" <% } %> />
+		<% if(length > 0) { %> 
+			<a href="#" class="clause-delete" data-bypass="true" title="Delete clause">
+				<i class="fa fa-minus-circle"></i>
+			</a>
+		<% } %>
+	</div>
+</script>
+
+</div>

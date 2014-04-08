@@ -53,10 +53,10 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 					view.render();
 
 					var newDocView = new CollectionViews.NewDocView({
-							type: type,
-							collection: results,
-							collectionView: view,
-							settings: settings
+						type: type,
+						collection: results,					
+						collectionView: view,
+						settings: settings
 					});
 
 					newDocView.render();

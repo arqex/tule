@@ -1,11 +1,12 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
 	'text!tpls/docTable.html',
+	'text!tpls/searchTools.html',
 	'modules/datatypes/dispatcher',
 	'modules/alerts/alerts',
 	'models/mdispenser'
 ];
-define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
+define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alerts, Dispenser){
 	'use strict';
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
@@ -32,7 +33,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				});
 			}
 			this.trigger('rendered');
-
 		},
 
 		close: function(){
@@ -59,6 +59,141 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 		}
 
 	});
+	
+	var SearchTools = Backbone.View.extend({
+		findBoxTpl: $(tplSearchTools).find('#findBoxTpl').html(),
+		buttonSearchTpl: $(tplSearchTools).find('#buttonSearchTpl').html(),
+		searchFormTpl: $(tplSearchTools).find('#searchFormTpl').html(),
+		queryClauseTpl: _.template($(tplSearchTools).find('#queryClauseTpl').html()),
+
+		events: {
+			'click .search-new': 'onClickSearchForm',
+			'click .cancel-query': 'onClickCancel',
+			'click .select-clause-join': 'onClickAddClause',
+			'click .search-query': 'onClickSearch',
+			'click .clause-delete': 'onClickDelete'
+		},
+
+		initialize: function(opts){
+			this.query = {};
+			this.render();
+		},
+
+		render: function(){
+			this.$el.html(this.buttonSearchTpl);
+			//this.$el.html(this.findBoxTpl);
+		},
+
+		renderClauses: function(operator){
+			var clauses = this.$el.find('.query-clauses'),
+				me = this
+			;
+
+			clauses.empty(); 
+
+			_.each(this.query, function(clause){
+				clauses.append(me.queryClauseTpl({
+					position: clause['position'],
+					key: clause['key'],
+					comparison: clause['comparison'],
+					value: clause['value'],
+					operator: clause['operator'],
+					length: Object.keys(me.query).length
+				}));
+			});
+
+			if(operator != "delete") {
+				clauses.append(this.queryClauseTpl({
+					position: Object.keys(this.query).length,				
+					key: false,
+					comparison: false,
+					value: false,
+					operator: operator,
+					length: Object.keys(this.query).length
+				}));	
+			}
+		},
+
+		onClickSearchForm: function(e){
+			e.preventDefault();
+			
+			this.$el.find(".search-form-placeholder").append(this.searchFormTpl);
+			this.renderClauses();
+			$(e.target).css('display', 'none');
+		},
+
+		onClickCancel: function(e){
+			e.preventDefault();
+
+			this.$el.find('.search-new').css('display', 'block');
+			$(e.target).closest('.search-form').remove();
+		},
+
+		onClickAddClause:function(e){
+			var operator = $(e.target).val();
+			if(!this.saveQuery())
+				return Alerts.add({message:'There are empty values', level: 'error', autoclose:10000});
+			this.renderClauses(operator);
+		},
+
+		saveQuery: function(operator){
+			var clauses = this.$el.find('.query-clause'),
+				me = this,
+				empties = true,
+				position = 0
+			;
+
+			this.query = {};
+
+			_.each(clauses, function(clause){
+				var key = $(clause).find('#key').val(),
+					comparison = $(clause).find('#comparison').val(),
+					value = $(clause).find('#value').val(),
+					operator = $(clause).find('.operator').val()
+				;
+
+				if(key === '' || value === '')
+					empties = false;
+
+				me.query['clause.'+position] = {
+					position: position,
+					key: key,
+					comparison: comparison,
+					value: value,
+					operator: position == 0 ? undefined : operator
+				}
+
+				position++;
+			});
+
+			return empties;
+		},
+
+		onClickSearch: function(){
+			if(!this.saveQuery())
+				return Alerts.add({message:'There are empty values', level: 'error', autoclose:10000});
+			Alerts.add({message:'Searching . . .', autoclose:10000});
+		},
+
+		onClickDelete: function(e){
+			this.saveQuery();
+
+			var nearClause = $(e.target).closest('.query-clause'),
+				key = nearClause.find('#key').val(),				
+				value = nearClause.find('#value').val(),
+				me = this
+			;
+
+			_.each(this.query, function(clause){
+				if(clause['key'] == key && clause['value'] == value)
+					//delete me.query["clause."+clause['position']];
+					nearClause.remove();
+			});
+
+			this.saveQuery();
+			this.renderClauses("delete");
+		}
+	});
 
 	var NewDocView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#addNewTpl').html()),
@@ -71,11 +206,13 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 		initialize: function(opts){			
 			this.type = opts.type;
 			this.collectionView = opts.collectionView;
-			this.settings = opts.settings;		
+			this.settings = opts.settings;
+			this.searchTools = new SearchTools;
 		},
 
 		render: function(){
-			this.el = this.$el.html(this.tpl({type: this.type}));			
+			this.el = this.$el.html(this.tpl({type: this.type}));
+			this.el.append(this.searchTools.$el);
 			this.el.append(this.collectionView.$el);
 		},
 
@@ -228,7 +365,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 				table.prepend(view.el.children);
 				view.delegateEvents();
 			});
-
 		},
 
 		renderSubview: function(subView){
@@ -288,9 +424,10 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts, Dispenser){
 
 	return {
 		DocumentView: DocumentView,
-		CollectionView: CollectionView,
+		SearchTools: SearchTools,
 		NewDocView: NewDocView,
-		NewCollectionView: NewCollectionView
+		NewCollectionView: NewCollectionView,
+		CollectionView: CollectionView
 	};
 
 });
