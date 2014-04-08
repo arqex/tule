@@ -449,3 +449,30 @@ form.form {
 	display: none;
 	margin-bottom: 30px;
 }
+
+/******
+Add new search box
+*******/
+
+.find-box {
+	float: right;
+}
+
+.search-form-placeholder {
+	margin-left: 70px;
+}
+
+.query-controls {
+	float:right;
+}
+
+.operator {
+	display: inline-block;
+	text-align: right;
+	width: 60px;
+	margin-left: -64px;
+}
+
+.select-clause-join {
+	display: inline-block;
+}
