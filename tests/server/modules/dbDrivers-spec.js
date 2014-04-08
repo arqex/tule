@@ -12,7 +12,7 @@ promise = db.init();
 
 describe('Driver API', function() {
 	var cname = 'testCollectionName',
-		collectionCount, driver, collection
+		collectionCount, driver, collection, savedDoc
 	;
 
 	it('getCollectionNames()', function(done){
@@ -60,7 +60,7 @@ describe('Driver API', function() {
 	});
 
 	it("single collection.insert()", function(done){
-		collection.insert({msg: 'hello', integer: 0}, function(err, doc){
+		collection.insert({msg: 'hello', integer: 0}, function(err, docs){
 			collection.count(function(err, count){
 				expect(count).toBe(1);
 				done();
@@ -70,7 +70,7 @@ describe('Driver API', function() {
 
 
 	it("multiple collection.insert()", function(done){
-		collection.insert([{msg: 'hello', integer: 1}, {msg: 'tule', integer: 2},{msg: 'great', integer: 3}], function(err, doc){
+		collection.insert([{msg: 'hello', integer: 1}, {msg: 'tule', integer: 2},{msg: 'great', integer: 3}], function(err, docs){
 			collection.count(function(err, count){
 				expect(count).toBe(4);
 				done();
@@ -92,6 +92,23 @@ describe('Driver API', function() {
 			if(err)
 				console.log(err);
 			expect(docs.length).toBe(2);
+			done();
+		});
+	});
+
+	it("collection.count({msg: 'hello'})", function(done){
+		collection.count({msg: 'hello'}, function(err, count){
+			expect(count).toBe(2);
+			done();
+		});
+	});
+
+	it("find({msg: 'bye'}) expect 0 documents", function(done){
+		collection.find({msg: 'bye'}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(err).toBeNull();
+			expect(docs.length).toBe(0);
 			done();
 		});
 	});
@@ -210,6 +227,234 @@ describe('Driver API', function() {
 				console.log(err);
 			expect(docs.length).toBe(2);
 			done();
+		});
+	});
+
+	it("find({integer: {$not: {$lt:1}}}) expect 3 documents", function(done){
+		collection.find({integer: {$not: {$lt:1}}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(3);
+			done();
+		});
+	});
+
+	it("find({msg:'hello'}, {sort:{integer: -1}})", function(done){
+		collection.find({msg:'hello'}, {sort:{integer: -1}},  function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs[0].integer).toBe(1);
+			expect(docs[1].integer).toBe(0);
+			done();
+		});
+	});
+
+	it("find({msg:'hello'}, {sort:{integer: 1}})", function(done){
+		collection.find({msg:'hello'}, {sort:{integer: 1}},  function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs[0].integer).toBe(0);
+			expect(docs[1].integer).toBe(1);
+			done();
+		});
+	});
+
+	it("find({}, {sort:{integer: -1}})", function(done){
+		collection.find({}, {sort:{integer: -1}},  function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs[0].msg).toBe('great');
+			expect(docs[1].msg).toBe('tule');
+			expect(docs[2].integer).toBe(1);
+			expect(docs[3].integer).toBe(0);
+			done();
+		});
+	});
+
+	it("find({}, {sort:{integer: -1}, skip: 1}})", function(done){
+		collection.find({}, {sort:{integer: -1}, skip: 1},  function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs[0].msg).toBe('tule');
+			expect(docs[1].integer).toBe(1);
+			expect(docs[2].integer).toBe(0);
+			done();
+		});
+	});
+
+	it("find({}, {sort:{integer: -1}, limit: 1}})", function(done){
+		collection.find({}, {sort:{integer: -1}, limit: 1},  function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(1);
+			expect(docs[0].msg).toBe('great');
+			done();
+		});
+	});
+
+	it("find({}, {sort:{integer: -1}, limit: 2, skip:1}})", function(done){
+		collection.find({}, {sort:{integer: -1}, limit: 2, skip:1},  function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
+			expect(docs[0].msg).toBe('tule');
+			expect(docs[1].integer).toBe(1);
+			done();
+		});
+	});
+
+	it("findOne({msg:'great'})", function(done){
+		collection.findOne({msg:'great'}, function(err, doc){
+			if(err)
+				console.log(err);
+			expect(doc.integer).toBe(3);
+			done();
+		});
+	});
+
+	it("findOne({msg:'hello'}, {sort: {integer: -1}})", function(done){
+		collection.findOne({msg:'hello'}, {sort: {integer: -1}}, function(err, doc){
+			if(err)
+				console.log(err);
+			expect(doc.integer).toBe(1);
+			done();
+		});
+	});
+
+
+	it("findOne({msg:'bye'})", function(done){
+		collection.findOne({msg:'bye'}, function(err, doc){
+			if(err)
+				console.log(err);
+			expect(doc).toBeNull();
+			done();
+		});
+	});
+
+
+	it("save({msg: 'extra', integer: 4})", function(done){
+		collection.save({msg: 'extra', integer: 4}, function(err, doc){
+			if(err)
+				console.log(err);
+
+			savedDoc = doc;
+			expect(doc.msg).toBe('extra');
+			done();
+		});
+	});
+
+	it("Updating a document using save", function(done){
+		savedDoc.msg = 'saved';
+		collection.save(savedDoc, function(err, saved){
+			if(err)
+				console.log(err);
+
+			expect(saved).toBe(1);
+			collection.findOne(savedDoc, function(err, doc){
+				if(err)
+					console.log(err);
+
+				expect(doc.msg).toBe('saved');
+				done();
+			});
+		});
+	});
+
+	it("update({_id: savedDoc._id}, {$set: {msg: 'updated'}})", function(done){
+		collection.update({_id: savedDoc._id}, {$set: {msg: 'updated'}}, function(err, updated){
+			if(err)
+				console.log(err);
+
+			expect(updated).toBe(1);
+			collection.findOne({_id: savedDoc._id}, function(err, doc){
+				if(err)
+					console.log(err);
+
+				expect(doc.msg).toBe('updated');
+				expect(doc.integer).toBe(4);
+				done();
+			});
+		});
+	});
+
+	it("update({_id: savedDoc._id}, {msg: 'replaced'})", function(done){
+		collection.update({_id: savedDoc._id}, {msg: 'replaced'}, function(err, updated){
+			if(err)
+				console.log(err);
+
+			expect(updated).toBe(1);
+			collection.findOne({_id: savedDoc._id}, function(err, doc){
+				if(err)
+					console.log(err);
+
+				expect(doc.msg).toBe('replaced');
+				expect(doc.integer).toBeUndefined();
+				done();
+			});
+		});
+	});
+
+	it("update({msg: 'hello'}, {msg: 'tule'})", function(done){
+		collection.update({msg: 'hello'}, {msg: 'tule'}, function(err, updated){
+			if(err)
+				console.log(err);
+
+			expect(updated).toBe(1);
+			collection.find({msg: 'tule'}, function(err, docs){
+				if(err)
+					console.log(err);
+
+				expect(docs.length).toBe(2);
+				done();
+			});
+		});
+	});
+
+	it("update({msg: 'tule'}, {$set: {msg: 'tulecmjs'}}, {multi: true})", function(done){
+		collection.update({msg: 'tule'}, {$set: {msg: 'tulecmjs'}}, {multi: true}, function(err, updated){
+			if(err)
+				console.log(err);
+
+			expect(updated).toBe(2);
+			collection.find({msg: 'tulecmjs'}, function(err, docs){
+				if(err)
+					console.log(err);
+
+				expect(docs.length).toBe(2);
+				done();
+			});
+		});
+	});
+
+	it("update({_id: 123}, {msg: 'notinserted'})", function(done){
+		collection.update({_id: 123}, {msg: 'notinserted'}, function(err, updated){
+			if(err)
+				console.log(err);
+
+			expect(updated).toBe(0);
+			collection.findOne({_id: 123}, function(err, doc){
+				if(err)
+					console.log(err);
+
+				expect(doc).toBeNull();
+				done();
+			});
+		});
+	});
+
+	it("update({msg: 'nonexistent'}, {msg: 'existent', integer: 100}, {upsert:true})", function(done){
+		collection.update({msg: 'nonexistent'}, {msg: 'existent', integer: 100}, {upsert:true}, function(err, updated){
+			if(err)
+				console.log(err);
+
+			expect(updated).toBe(1);
+			collection.findOne({msg: 'existent'}, function(err, doc){
+				if(err)
+					console.log(err);
+
+				expect(doc.integer).toBe(100);
+				done();
+			});
 		});
 	});
 
