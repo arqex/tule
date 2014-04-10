@@ -15,8 +15,20 @@ function checkPropertiesKeys(res, doc){
    	}
 };
 
+function setHolder(comparison, holder, key, value){
+	if(comparison == '$eq')				
+		holder[key] = value;
+	else		
+		holder[key] = {};
+		holder[key][comparison] = value;
+	return holder;
+};
+
 function createQuery(clauses){
-	var query = {};
+	var query = {},
+		holder = {}
+	;
+
 	if(clauses === undefined)
 		return query;
 
@@ -25,30 +37,25 @@ function createQuery(clauses){
 			operator	= "$"+clause[0],
 			key 		= decodeURI(clause[1]),
 			comparison 	= "$"+clause[2],
-			value		= decodeURI(clause[3]),
-			aux			= {}
+			value		= decodeURI(clause[3])
 		;
 
-		//{$or:[{message: 'Message 5', num: 1}, {message: 'Message 3'}]}
-
-		if(operator == '$undefined')
-			if(comparison == '$eq')
-				query[key] = value 
-			else {
-				query[key] = {};
-				query[key][comparison] = value; }
-		else
-			if(comparison == '$eq') {
-				query[operator] = {};
-				query[operator][key] = value;
-			} else {
-				query[operator] = {};
-				query[operator][key] = {};
-				query[operator][key][comparison] = value;				
-			}
+		if(operator != '$or')
+			holder = setHolder(comparison, holder, key, value);
+		else {
+			if(!query['$or'])
+				query[operator] = [];
+			query[operator].push(holder);
+			holder = {}; 
+			holder = setHolder(comparison, holder, key, value);
+		}
 	}
 
-	console.log(query);
+	if(query['$or']) // Readable but not optimized
+		query['$or'].push(holder);
+	else
+		query = holder;
+
 	return query;
 };
 
