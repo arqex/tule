@@ -31,7 +31,7 @@ module.exports = {
 		var deferred = when.defer(),
 			driver = require(driverFile),
 			promise = driver.init()
-		;
+		;		
 
 		if(!_.isObject(promise) || !_.isFunction(promise.then)){
 			console.log('Driver error');

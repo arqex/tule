@@ -6,13 +6,50 @@ var mongojs = require('mongojs'),
     db = require(config.path.modules + '/db/dbManager').getInstance()
 ;
 
-function checkPropertiesKeys (res, doc){
+function checkPropertiesKeys(res, doc){
 	for(var index in doc) {
         if(index[0] === '$')
         	return res.send(400, {error: 'Type cannot start with $'});
         if(index.indexOf('.') != -1)
         	return res.send(400, {error: 'Type cannot contain . (dots)'});
    	}
+};
+
+function createQuery(clauses){
+	var query = {};
+	if(clauses === undefined)
+		return query;
+
+	for(var i in clauses){			
+		var clause 		= clauses[i].split('|'),
+			operator	= "$"+clause[0],
+			key 		= decodeURI(clause[1]),
+			comparison 	= "$"+clause[2],
+			value		= decodeURI(clause[3]),
+			aux			= {}
+		;
+
+		//{$or:[{message: 'Message 5', num: 1}, {message: 'Message 3'}]}
+
+		if(operator == '$undefined')
+			if(comparison == '$eq')
+				query[key] = value 
+			else {
+				query[key] = {};
+				query[key][comparison] = value; }
+		else
+			if(comparison == '$eq') {
+				query[operator] = {};
+				query[operator][key] = value;
+			} else {
+				query[operator] = {};
+				query[operator][key] = {};
+				query[operator][key][comparison] = value;				
+			}
+	}
+
+	console.log(query);
+	return query;
 };
 
 module.exports = {
@@ -107,8 +144,9 @@ module.exports = {
 	collection: function(req, res){
 		var urlparts = url.parse(req.url, true),
 			params = urlparts,
-			type = req.params.type
-		;
+			type = req.params.type,
+			query = createQuery(req.query.clause)
+		;		
 
 		if(!type)
 			return res.send(400, {error: 'No collection type given.'});
@@ -128,9 +166,9 @@ module.exports = {
 				collection = db.collection(type)
 			;
 
-			collection.find({}, {limit: pageSize, skip: skip}, function(err, docs){
+			collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
 				res.json(docs);
-			});
+			});							
 		});
-	}
+	},
 }
