@@ -1,25 +1,29 @@
 var path = require('path'),
 	when = require('when'),
 	config = require('config'),
-	db = require(path.join(__dirname, '../../..', 'server/modules/db/mongoDriver')),
+	//db = require(path.join(__dirname, '../../..', 'server/modules/db/mongoDriver')),
+	db = require(path.join(__dirname, '../../..', 'server/plugins/nedb/nedbDriver')),
 	promise
 ;
 
 console.log('DB');
 console.log(db.init);
-config.mongo = 'mongodb://localhost:27017/tule';
+//config.mongo = 'mongodb://localhost:27017/tule';
+config.nedb = {dataPath: path.join(__dirname, 'nedb')};
 promise = db.init();
 
 describe('Driver API', function() {
 	var cname = 'testCollectionName',
-		collectionCount, driver, collection, savedDoc
+		collectionCount, driver, collection, savedDoc, docCount
 	;
 
 	it('getCollectionNames()', function(done){
 		promise.then(function(d){
 			driver = d;
+			console.log(driver);
 			driver.getCollectionNames(function(err, names){
 				expect(err).toBeNull();
+				console.log(names);
 				collectionCount = names.length;
 				done();
 			});
@@ -34,6 +38,7 @@ describe('Driver API', function() {
 			expect(err).toBeNull();
 			driver.getCollectionNames(function(err, names){
 				var index = names.indexOf(cname);
+				console.log(names);
 				expect(names.length).toBe(collectionCount + 1);
 				expect(index).not.toBe(-1);
 				done();
@@ -41,7 +46,8 @@ describe('Driver API', function() {
 		})
 	});
 
-	it("collection()", function(){
+
+	it("collection()", function(done){
 		collection = driver.collection(cname);
 		expect(typeof collection.find).toEqual('function');
 		expect(typeof collection.findOne).toEqual('function');
@@ -50,10 +56,13 @@ describe('Driver API', function() {
 		expect(typeof collection.save).toEqual('function');
 		expect(typeof collection.remove).toEqual('function');
 		expect(typeof collection.count).toEqual('function');
+		done();
 	});
 
-	it("collection.count()", function(done){
+
+	it("collection.count() works without parameters", function(done){
 		collection.count(function(err, count){
+			console.log('COOOOUNT');
 			expect(count).toBe(0);
 			done();
 		});
@@ -220,7 +229,7 @@ describe('Driver API', function() {
 			done();
 		});
 	});
-
+	/*
 	it("find({$nor:[{msg: 'hello'}, {integer: 1}]}) expect 2 documents", function(done){
 		collection.find({$nor:[{msg: 'hello'}, {integer: 1}]}, function(err, docs){
 			if(err)
@@ -235,6 +244,17 @@ describe('Driver API', function() {
 			if(err)
 				console.log(err);
 			expect(docs.length).toBe(3);
+			done();
+		});
+	});
+	*/
+
+
+	it("find({$not: {msg: 'hello'}}) expect 2 documents", function(done){
+		collection.find({$not: {msg: 'hello'}}, function(err, docs){
+			if(err)
+				console.log(err);
+			expect(docs.length).toBe(2);
 			done();
 		});
 	});
@@ -331,7 +351,6 @@ describe('Driver API', function() {
 		});
 	});
 
-
 	it("save({msg: 'extra', integer: 4})", function(done){
 		collection.save({msg: 'extra', integer: 4}, function(err, doc){
 			if(err)
@@ -345,6 +364,7 @@ describe('Driver API', function() {
 
 	it("Updating a document using save", function(done){
 		savedDoc.msg = 'saved';
+
 		collection.save(savedDoc, function(err, saved){
 			if(err)
 				console.log(err);
@@ -458,15 +478,66 @@ describe('Driver API', function() {
 		});
 	});
 
+
+	it("update({msg: 'nonexistent'}, {msg: 'existent', integer: 100}, {upsert:true})", function(done){
+		collection.update({msg: 'nonexistent'}, {msg: 'existent', integer: 100}, {upsert:true}, function(err, updated){
+			if(err)
+				console.log(err);
+
+			expect(updated).toBe(1);
+			collection.findOne({msg: 'existent'}, function(err, doc){
+				if(err)
+					console.log(err);
+
+				expect(doc.integer).toBe(100);
+				done();
+			});
+		});
+	});
+
+	it("remove({msg:'great'}) removes 1 document", function(done){
+		collection.count(function(err, count){
+			docCount = count;
+
+			collection.remove({msg:'great'}, function(err, removed){
+				expect(removed).toBe(1);
+
+				collection.count(function(err, recount){
+					expect(recount).toBe(docCount - 1);
+					docCount = recount;
+					done();
+				});
+			});
+		});
+	});
+
+
+	it("remove({}) removes all elements", function(done){
+		collection.remove({}, function(err, removed){
+			if(err)
+				console.log(err);
+
+			collection.count(function(err, count){
+				expect(count).toBe(0);
+				done();
+			});
+		});
+	});
+
+
 	it("renameCollection()", function(done){
 		driver.renameCollection(cname, 'new' + cname, function(err){
 			expect(err).toBeNull();
+
 			driver.getCollectionNames(function(err, names){
 				var index = names.indexOf('new' + cname);
-				expect(names.length).toBe(collectionCount + 1);
 				expect(index).not.toBe(-1);
+				console.log(names);
+				expect(names.length).toBe(collectionCount + 1);
 				done();
 			});
+
+			done();
 		});
 	});
 
@@ -475,11 +546,19 @@ describe('Driver API', function() {
 			expect(err).toBeNull();
 			driver.getCollectionNames(function(err, names){
 				var index = names.indexOf('new' + cname);
+				console.log(names);
+
 				expect(names.length).toBe(collectionCount);
 				expect(index).toBe(-1);
 				done();
 			});
 		});
 	});
-
+/*
+	it("Should remove all the test collections", function(done){
+		driver.dropCollection(cname, function(err){
+			done();
+		})
+	})
+*/
 });
