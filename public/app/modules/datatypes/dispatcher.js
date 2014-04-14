@@ -373,7 +373,8 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			if(e.which == 13)
 				e.preventDefault();
 			this.keyring[e.which] = true;
-			console.log(this.keyring);
+			// Uncomment to track the keyring
+			//console.log(this.keyring);
 		},
 
 		onKeyup: function(e){

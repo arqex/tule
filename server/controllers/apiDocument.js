@@ -59,6 +59,21 @@ function createQuery(clauses){
 	return query;
 };
 
+function updateFieldDefinitions(doc, type){
+	type = 'collection_' + type;
+	db.collection(config.mon.settingsCollection).findOne(
+		{name: type},
+		function(err, collection){
+			if(err)
+				return;
+			collection.propertyDefinitions.forEach(function(property){
+				console.log(property);
+				console.log(doc);
+			});
+		}
+	);
+};
+
 module.exports = {
 	get: function(req, res){
 		var id = req.params.id,
@@ -91,6 +106,7 @@ module.exports = {
             return res.send(400, {error: 'Type _id is MongoDB reserved'});
 
         checkPropertiesKeys(res, doc);
+        //updateFieldDefinitions(doc, type);
 
 		db.collection(type).insert(doc, function(err, newDoc){
 			if(err)
