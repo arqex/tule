@@ -264,10 +264,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 
 		onClickCreate: function(e){
 			e.preventDefault();
-
-			var doc = Dispenser.getMDoc(this.objectView.getValue()),
-				me = this
-			;
+			var stack = {};
 
 			_.each(this.objectView.subViews, function(subView){
 				if(subView.key === '_id'){
@@ -276,24 +273,15 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 				}
 				subView.typeView.save();
 				subView.changeMode('display');
-				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
+				var value = {};
+				value['key'] = subView.key;
+				value['label'] = subView.label || subView.key;
+				value['datatype'] = subView.datatype;
+				value['value'] = subView.typeView.getValue();
+				stack[subView.key] = value;
 			});
 
-			// Force right url
-			doc.urlRoot = encodeURI('/api/docs/' + this.type);
-
-			doc.save(null, {success: function(){
-				Alerts.add({message:'Document saved correctly', autoclose:6000});	
-				doc.url = encodeURI('/api/docs/' + me.type + '/' + doc.id);
-				me.objectView = false;
-				me.$el.find('.form').remove();
-				me.close();
-				// Render collection view
-				me.collection.add(doc);
-				me.collectionView.createDocViews();
-				me.collectionView.render();	
-			}});
-		
+			this.trigger('createDoc', this.type, stack);
 		}
 	});
 
