@@ -106,7 +106,7 @@ module.exports = {
             return res.send(400, {error: 'Type _id is MongoDB reserved'});
 
         checkPropertiesKeys(res, doc);
-        updateFieldDefinitions(doc, type);
+        //updateFieldDefinitions(doc, type);
 
 		db.collection(type).insert(doc, function(err, newDoc){
 			if(err)

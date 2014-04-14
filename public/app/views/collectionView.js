@@ -398,16 +398,26 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			e.preventDefault();
 			var	docId = $(e.target).closest('tr').data('id'),
 				doc = this.collection.get(docId),
-				view = this.docViews[docId]
+				view = this.docViews[docId],
+				me = this,
+				stack = {}
 			;
 
-			_.each(view.getValue(), function(value, key){
-				doc.set(key, value, {silent:true});
+			_.each(view.objectView.subViews, function(subView){
+
+				var values = {};
+				values['key'] = subView.key;
+				values['label'] = subView.label || subView.key;
+				values['datatype'] = subView.datatype;
+				values['value'] = subView.typeView.getValue();
+				stack[subView.key] = values;
+				doc.set(values['key'], values['value'], {silent:true});
 			});
 
 			doc.save(null, {success: function(){
 				Alerts.add({message:'Document saved correctly', autoclose:6000});
 				view.render();
+				me.trigger('saveDoc', stack);
 			}});
 		},
 
