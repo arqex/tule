@@ -4,3 +4,4 @@
 /batch/*
 /mongodb/*
 /tests/*
+/server/plugins/nedb/data

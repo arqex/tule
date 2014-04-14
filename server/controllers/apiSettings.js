@@ -1,7 +1,6 @@
 'use strict';
 
-var mongojs = require('mongojs'),
-    _       = require('underscore'),
+var _       = require('underscore'),
     config  = require('config'),
     db = require(config.path.modules + '/db/dbManager').getInstance()
 ;
@@ -27,9 +26,6 @@ module.exports = {
         var name    = req.params.name,
             doc     = req.body
         ;
-
-        // Creates object id
-        doc['_id'] = new mongojs.ObjectId(doc['_id']);
 
         if(!name)
             res.send(400, {error: 'No document name given.'});
@@ -75,7 +71,7 @@ module.exports = {
             res.send(400, {error: 'No document type given.'});
 
         db.collection(type).remove(
-            {name: mongojs.ObjectId(name)},
+            {name: name},
             function(err){
                 if(err){
                     console.log(err);

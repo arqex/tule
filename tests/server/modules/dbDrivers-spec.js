@@ -1,15 +1,15 @@
 var path = require('path'),
 	when = require('when'),
 	config = require('config'),
-	//db = require(path.join(__dirname, '../../..', 'server/modules/db/mongoDriver')),
-	db = require(path.join(__dirname, '../../..', 'server/plugins/nedb/nedbDriver')),
+	db = require(path.join(__dirname, '../../..', 'server/modules/db/mongoDriver')),
+	//db = require(path.join(__dirname, '../../..', 'server/plugins/nedb/nedbDriver')),
 	promise
 ;
 
 console.log('DB');
 console.log(db.init);
-//config.mongo = 'mongodb://localhost:27017/tule';
-config.nedb = {dataPath: path.join(__dirname, 'nedb')};
+config.mongo = 'mongodb://localhost:27017/tule';
+//config.nedb = {dataPath: path.join(__dirname, 'nedb')};
 promise = db.init();
 
 describe('Driver API', function() {
@@ -355,8 +355,8 @@ describe('Driver API', function() {
 		collection.save({msg: 'extra', integer: 4}, function(err, doc){
 			if(err)
 				console.log(err);
-
-			savedDoc = doc;
+			//Save it after json, to not depend on objectId
+			savedDoc = JSON.parse(JSON.stringify(doc));
 			expect(doc.msg).toBe('extra');
 			done();
 		});
@@ -511,6 +511,21 @@ describe('Driver API', function() {
 		});
 	});
 
+	it("remove({_id: savedDoc._id}) removes 1 document", function(done){
+		collection.count(function(err, count){
+			docCount = count;
+
+			collection.remove({_id: savedDoc._id}, function(err, removed){
+				expect(removed).toBe(1);
+
+				collection.count(function(err, recount){
+					expect(recount).toBe(docCount - 1);
+					docCount = recount;
+					done();
+				});
+			});
+		});
+	});
 
 	it("remove({}) removes all elements", function(done){
 		collection.remove({}, function(err, removed){

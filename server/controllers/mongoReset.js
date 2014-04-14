@@ -29,9 +29,9 @@ var collections = {
 ;
 module.exports = {
 	main: function(req, res) {
-		db.collections(function(err, collections){
+		db.getCollectionNames(function(err, collections){
 			collections.forEach(function(collection){
-				collection.drop();
+				db.dropCollection(collection);
 			});
 		});
 

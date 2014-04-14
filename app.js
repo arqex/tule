@@ -12,33 +12,38 @@ var app = express();
 
 //Start plugins
 var pluginManager = require(config.path.modules + '/plugins/pluginManager.js');
-pluginManager.init(app);
-app.managers = {plugins: pluginManager};	
 
-//Start database
-var dbManager = require(config.path.modules + '/db/dbManager.js');
-dbManager.init(app).then(function(){
-	console.log('DATABASE OK!');
-	var http = require('http');
-	var server = http.createServer(app);
-	var _u = require('underscore');
+pluginManager.init(app).then(function(){
+	app.managers = {plugins: pluginManager};
 
-	app.use(express.static('public'), {maxAge: 0});
-	app.use(express.bodyParser());
-	app.use(express.methodOverride());
+	//Start database
+	var dbManager = require(config.path.modules + '/db/dbManager.js');
+	dbManager.init(app).then(function(){
+		console.log('DATABASE OK!');
+		var http = require('http');
+		var server = http.createServer(app);
+		var _u = require('underscore');
 
-	//Templates
-	var UTA = require('underscore-template-additions'),
-		templates = new UTA()
-	;
-	app.set('views', config.path.views);
-	app.engine('html', templates.forExpress());
+		app.use(express.static('public'), {maxAge: 0});
+		app.use(express.bodyParser());
+		app.use(express.methodOverride());
 
-	//Init routes
-	var routeManager = require(config.path.modules + '/routes/routeManager.js');
-	routeManager.init(app);
-	console.log('ROUTES OK!');
+		//Templates
+		var UTA = require('underscore-template-additions'),
+			templates = new UTA()
+		;
+		app.set('views', config.path.views);
+		app.engine('html', templates.forExpress());
 
-	server.listen(3000);
-	console.log('Listening on port 3000');
+		//Init routes
+		var routeManager = require(config.path.modules + '/routes/routeManager.js');
+		routeManager.init(app);
+		console.log('ROUTES OK!');
+
+		server.listen(3000);
+		console.log('Listening on port 3000');
+	});
+
+}).catch(function(err){
+	throw err;
 });

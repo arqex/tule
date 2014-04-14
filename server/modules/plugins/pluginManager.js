@@ -18,8 +18,9 @@ var PluginManager = function(){
 
 PluginManager.prototype = {
 	init: function(appObject){
-		console.log('Starting Plugins!');
-		var me = this;
+		var me = this,
+			deferred = when.defer()
+		;
 		app = appObject;
 		this.getActivePlugins().then(
 			function(definitions){
@@ -42,11 +43,13 @@ PluginManager.prototype = {
 						console.error(e);
 					}
 				});
+				deferred.resolve();
 			},
 			function(){
-				console.log('Error retrieving plugin definitions');
+				deferred.reject('Error retrieving plugin definitions');
 			}
 		);
+		return deferred.promise;
 	},
 	getAllPluginDefinitions: function(){
 		var me = this,
