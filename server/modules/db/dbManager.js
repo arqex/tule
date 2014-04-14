@@ -14,6 +14,7 @@ module.exports = {
 			deferred = when.defer()
 		;
 		app = appObject;
+		console.log("Init Driver");
 		hooks.filter('db:driverpath', this.defaultDriver).then(function(driverPath){
 			me.initDriver(driverPath).then(
 				function(driver){
@@ -32,6 +33,9 @@ module.exports = {
 			driver = require(driverFile),
 			promise = driver.init()
 		;
+
+		console.log("Function?");
+		console.log(driverFile);
 
 		if(!_.isObject(promise) || !_.isFunction(promise.then)){
 			console.log('Driver error');

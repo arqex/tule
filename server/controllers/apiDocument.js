@@ -1,25 +1,24 @@
 'use strict';
 
-var mongojs = require('mongojs'),
-	url = require('url'),
+var url = require('url'),
 	config = require('config'),
-    db = require(config.path.modules + '/db/dbManager').getInstance()
+    db = require(config.path.modules + '/db/dbManager').getInstance(),
+    mongojs = require('mongojs')
 ;
 
 function checkPropertiesKeys (res, doc){
 	for(var index in doc) {
         if(index[0] === '$')
-        	return res.send(400, {error: 'Type cannot start with $'});
+			return res.send(400, {error: 'Type cannot start with $'});
         if(index.indexOf('.') != -1)
-        	return res.send(400, {error: 'Type cannot contain . (dots)'});
-   	}
-};
+			return res.send(400, {error: 'Type cannot contain . (dots)'});
+	}
+}
 
 module.exports = {
 	get: function(req, res){
 		var id = req.params.id,
-			type = req.params.type,
-			collection
+			type = req.params.type
 		;
 		if(!id)
 			res.send(400, {error: 'No document id given.'});
@@ -27,7 +26,7 @@ module.exports = {
 			res.send(400, {error: 'No document type given.'});
 
 		db.collection(type).findOne(
-			{_id: mongojs.ObjectId(id)},
+			{_id: id},
 			function(err, doc){
 				if(!doc)
 					res.send(404);
@@ -55,6 +54,7 @@ module.exports = {
 			res.json(newDoc[0]);
 		});
 	},
+
 	update: function(req, res){
 		var id = req.params.id,
 			type = req.params.type,
@@ -69,8 +69,6 @@ module.exports = {
 
 		if(id != doc._id)
 			res.send(400, {error: 'Wrong id for the document.'});
-
-		doc._id = new mongojs.ObjectId(doc._id);
 
 		db.collection(type).save(doc, function(err, newDoc){
 				if(err){
@@ -92,13 +90,14 @@ module.exports = {
 		if(!type)
 			res.send(400, {error: 'No document type given.'});
 
-		db.collection(type).remove(
-			{_id: mongojs.ObjectId(id)},
-			function(err){
+		console.log('Removing ' + id);
+
+		db.collection(type).remove({_id: id}, function(err){
 				if(err){
 					console.log(err);
 					res.send(400, {error: 'Internal Error'});
 				}
+				console.log(arguments);
 				res.send(200, {}); // Empty hash needed for trigger backbone's success callback
 			}
 		);

@@ -4,32 +4,16 @@ var mongo = require('mongodb'),
 	_ = require('underscore')
 ;
 
-var MongoDriver = function(){};
+var MongoDriver = function(nativeDriver){
+	this.db = nativeDriver;
+};
 
 
 MongoDriver.prototype = {
-	init: function(){
-		var me = this,
-			deferred = when.defer()
-		;
-		console.log(config);
-		mongo.MongoClient.connect(config.mongo, function(err, db){
-			if(err)
-				deferred.reject(err);
-			else {
-				_.extend(db, me);
-				console.log(me.getCollectionNames);
-				console.log('Driver working ok');
-				console.log(me.getCollectionNames);
-				deferred.resolve(db);
-			}
-		});
-		return deferred.promise;
-	},
 
 	// Following method to complete Tule DB API
 	getCollectionNames: function(callback){
-		return this.collectionNames(function(err, names){
+		return this.db.collectionNames(function(err, names){
 			// WTF: Mongo native driver includes the db name: dbName.collectionName. Remove it!
 			var simpleNames = names ? names.map(function(name){return name.name.split('.').slice(1).join('.');}) : [];
 			callback(err, simpleNames);
@@ -52,19 +36,50 @@ MongoDriver.prototype = {
 			return null;
 		}
 
-		return _.extend(mongo.Db.prototype.collection.apply(this, arguments), TuleCollection);
+		return _.extend(this.db.collection.apply(this.db, arguments), TuleCollection);
+	},
+
+	createCollection: function(){
+		return this.db.createCollection.apply(this.db, arguments);
+	},
+
+	renameCollection: function(){
+		return this.db.renameCollection.apply(this.db, arguments);
+	},
+
+	dropCollection: function(){
+		return this.db.dropCollection.apply(this.db, arguments);
 	}
 
 };
 
 var callbackIndex = function(args){
-	var i = -1;
+		var i = -1;
 
-	while(++i<args.length)
-		if(typeof args[i] === 'function')
-			return i;
-	return -1;
-};
+		while(++i<args.length)
+			if(typeof args[i] === 'function')
+				return i;
+		return -1;
+	},
+
+	toObjectID = function(collection, method, args){
+		if(args[0])
+			args[0] = deepToObjectID(args[0]);
+		return mongo.Collection.prototype[method].apply(collection, args);
+	},
+
+	deepToObjectID = function(query){
+		var keys = Object.getOwnPropertyNames(query);
+		keys.forEach(function(key){
+			if(key == '_id' && typeof query._id == 'string')
+				query._id = new mongo.ObjectID(query._id);
+			else if (typeof query[key] == 'object')
+				query[key] = deepToObjectID(query[key]);
+		});
+		return query;
+	}
+;
+
 
 var TuleCollection = {
 	find: function(){
@@ -83,12 +98,52 @@ var TuleCollection = {
 				original(err, results);
 			});
 		}
+		return toObjectID(this, 'find', arguments);
+	},
 
-		return mongo.Collection.prototype.find.apply(this, arguments);
+	findOne: function(){
+		return toObjectID(this, 'findOne', arguments);
+	},
+
+	//insert is the same as the navive one.
+
+	update: function(){
+		return toObjectID(this, 'update', arguments);
+	},
+
+	save: function(){
+		return toObjectID(this, 'save', arguments);
+	},
+
+	remove: function(){
+		return toObjectID(this, 'remove', arguments);
+	},
+
+	count: function(){
+		if(typeof arguments[0] == 'function')
+			return mongo.Collection.prototype.count.apply(this, arguments);
+		return toObjectID(this, 'count', arguments);
 	}
 };
 
 
 
 var driver = new MongoDriver();
-module.exports = driver;
+module.exports = {
+	init: function(){
+		var me = this,
+			deferred = when.defer()
+		;
+		console.log(config);
+		mongo.MongoClient.connect(config.mongo, function(err, db){
+			if(err)
+				deferred.reject(err);
+			else {
+				var driver = new MongoDriver(db);
+				deferred.resolve(driver);
+			}
+		});
+		return deferred.promise;
+
+	}
+};
