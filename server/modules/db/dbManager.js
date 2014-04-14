@@ -32,7 +32,7 @@ module.exports = {
 		var deferred = when.defer(),
 			driver = require(driverFile),
 			promise = driver.init()
-		;
+		;		
 
 		console.log("Function?");
 		console.log(driverFile);

@@ -6,7 +6,7 @@ var url = require('url'),
     mongojs = require('mongojs')
 ;
 
-function checkPropertiesKeys (res, doc){
+function checkPropertiesKeys(res, doc){
 	for(var index in doc) {
         if(index[0] === '$')
 			return res.send(400, {error: 'Type cannot start with $'});
@@ -14,6 +14,50 @@ function checkPropertiesKeys (res, doc){
 			return res.send(400, {error: 'Type cannot contain . (dots)'});
 	}
 }
+
+function setHolder(comparison, holder, key, value){
+	if(comparison == '$eq')				
+		holder[key] = value;
+	else		
+		holder[key] = {};
+		holder[key][comparison] = value;
+	return holder;
+};
+
+function createQuery(clauses){
+	var query = {},
+		holder = {}
+	;
+
+	if(clauses === undefined)
+		return query;
+
+	for(var i in clauses){			
+		var clause 		= clauses[i].split('|'),
+			operator	= "$"+clause[0],
+			key 		= decodeURI(clause[1]),
+			comparison 	= "$"+clause[2],
+			value		= decodeURI(clause[3])
+		;
+
+		if(operator != '$or')
+			holder = setHolder(comparison, holder, key, value);
+		else {
+			if(!query['$or'])
+				query[operator] = [];
+			query[operator].push(holder);
+			holder = {}; 
+			holder = setHolder(comparison, holder, key, value);
+		}
+	}
+
+	if(query['$or']) // Readable but not optimized
+		query['$or'].push(holder);
+	else
+		query = holder;
+
+	return query;
+};
 
 module.exports = {
 	get: function(req, res){
@@ -106,8 +150,9 @@ module.exports = {
 	collection: function(req, res){
 		var urlparts = url.parse(req.url, true),
 			params = urlparts,
-			type = req.params.type
-		;
+			type = req.params.type,
+			query = createQuery(req.query.clause)
+		;		
 
 		if(!type)
 			return res.send(400, {error: 'No collection type given.'});
@@ -127,9 +172,9 @@ module.exports = {
 				collection = db.collection(type)
 			;
 
-			collection.find({}, {limit: pageSize, skip: skip}, function(err, docs){
+			collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
 				res.json(docs);
-			});
+			});							
 		});
-	}
+	},
 }

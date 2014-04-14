@@ -75,6 +75,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		},
 
 		initialize: function(opts){
+			this.type = opts.type;
 			this.query = {};
 			this.render();
 		},
@@ -172,6 +173,22 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		onClickSearch: function(){
 			if(!this.saveQuery())
 				return Alerts.add({message:'There are empty values', level: 'error', autoclose:10000});
+
+			var collection = Dispenser.getMCollection(this.type),
+				clauses = []
+			;
+
+			_.each(this.query, function(clause){
+				clauses.push(
+					clause.operator+'|'+
+					encodeURI(clause.key)+'|'+
+					clause.comparison+'|'+
+					encodeURI(clause.value)
+				);
+			});
+
+			collection.query({clause: clauses});
+
 			Alerts.add({message:'Searching . . .', autoclose:10000});
 		},
 
@@ -207,7 +224,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			this.type = opts.type;
 			this.collectionView = opts.collectionView;
 			this.settings = opts.settings;
-			this.searchTools = new SearchTools;
+			this.searchTools = new SearchTools({type: this.type});
 		},
 
 		render: function(){
