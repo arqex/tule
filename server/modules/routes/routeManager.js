@@ -9,7 +9,6 @@ var RouteManager = function(){};
 RouteManager.prototype = {
 	init: function(appObject){
 		app = appObject;
-		console.log(routes);
 		_.each(routes, this.addRoute);
 	},
 	addRoute: function(controllerData, routeData){
@@ -21,7 +20,7 @@ RouteManager.prototype = {
 			func = opts[1],
 			controller = func ? file[func] : file
 		;
-		console.log(method + ' ' + opts[0] + ' ' + opts[1]);
+		console.log('Added route: ' + method + ' ' + opts[0] + ' ' + opts[1]);
 		app[method](route, controller);
 	}
 };
