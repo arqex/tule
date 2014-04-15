@@ -2,15 +2,16 @@
 
 var url = require('url'),
 	config = require('config'),
-    db = require(config.path.modules + '/db/dbManager').getInstance(),
-    mongojs = require('mongojs')
+	db = require(config.path.modules + '/db/dbManager').getInstance(),
+	mongojs = require('mongojs'),
+	when = require('when')
 ;
 
 function checkPropertiesKeys(res, doc){
 	for(var index in doc) {
-        if(index[0] === '$')
+		if(index[0] === '$')
 			return res.send(400, {error: 'Type cannot start with $'});
-        if(index.indexOf('.') != -1)
+		if(index.indexOf('.') != -1)
 			return res.send(400, {error: 'Type cannot contain . (dots)'});
 	}
 }
@@ -18,45 +19,73 @@ function checkPropertiesKeys(res, doc){
 function setHolder(comparison, holder, key, value){
 	if(comparison == '$eq')				
 		holder[key] = value;
-	else		
+	else{
 		holder[key] = {};
 		holder[key][comparison] = value;
+	}
 	return holder;
 };
 
-function createQuery(clauses){
+function getDatatype(kindOf, value){	
+	if(kindOf === 'string')
+		return value;
+	if(kindOf === 'integer' || kindOf === 'float')
+		return Number(value);
+	if(kindOf === 'bool')
+		return Boolean(value);
+};
+
+function createQuery(clauses, type){
 	var query = {},
-		holder = {}
+		holder = {},
+		properties = {},
+		deferred = when.defer()
 	;
 
 	if(clauses === undefined)
-		return query;
+		return deferred.resolve(query);
 
-	for(var i in clauses){			
-		var clause 		= clauses[i].split('|'),
-			operator	= "$"+clause[0],
-			key 		= decodeURI(clause[1]),
-			comparison 	= "$"+clause[2],
-			value		= decodeURI(clause[3])
-		;
+	db.collection(config.mon.settingsCollection).findOne(
+		{name: 'collection_' + type},
+		function(err, collection){
+			if(err)
+				return res.send(400, {error: 'Internal error while fetching definitions'});
 
-		if(operator != '$or')
-			holder = setHolder(comparison, holder, key, value);
-		else {
-			if(!query['$or'])
-				query[operator] = [];
-			query[operator].push(holder);
-			holder = {}; 
-			holder = setHolder(comparison, holder, key, value);
+			for(var definition in collection.propertyDefinitions){
+				properties[collection.propertyDefinitions[definition].key] = collection.propertyDefinitions[definition];
+			}
+
+			for(var i in clauses){
+				var clause 		= clauses[i].split('|'),
+					operator	= "$"+clause[0],
+					key 		= decodeURI(clause[1]),
+					comparison 	= "$"+clause[2],
+					value		= decodeURI(clause[3])
+				;
+
+				if(properties[key])
+					value = getDatatype(properties[key].datatype.id, value);
+
+				if(operator != '$or')
+					holder = setHolder(comparison, holder, key, value);
+				else {
+					if(!query['$or'])
+						query[operator] = [];
+					query[operator].push(holder);
+					holder = {}; 
+					holder = setHolder(comparison, holder, key, value);
+				}
+			}
+
+			if(query['$or']) // Readable but not optimized
+				query['$or'].push(holder);
+			else
+				query = holder;
+
+			return deferred.resolve(query);
 		}
-	}
-
-	if(query['$or']) // Readable but not optimized
-		query['$or'].push(holder);
-	else
-		query = holder;
-
-	return query;
+	);
+	return deferred.promise;
 };
 
 module.exports = {
@@ -85,13 +114,13 @@ module.exports = {
 		;
 
 		if(!type)
-            res.send(400, {error: 'No type specified'});
+			res.send(400, {error: 'No type specified'});
 
-        if(doc['_id'])
-            return res.send(400, {error: 'Type _id is MongoDB reserved'});
+		if(doc['_id'])
+			return res.send(400, {error: 'Type _id is MongoDB reserved'});
 
-        checkPropertiesKeys(res, doc);
-        //updateFieldDefinitions(doc, type);
+		checkPropertiesKeys(res, doc);
+		//updateFieldDefinitions(doc, type);
 
 		db.collection(type).insert(doc, function(err, newDoc){
 			if(err)
@@ -152,11 +181,11 @@ module.exports = {
 		var urlparts = url.parse(req.url, true),
 			params = urlparts,
 			type = req.params.type,
-			query = createQuery(req.query.clause)
+			promise = createQuery(req.query.clause, type)
 		;		
 
 		if(!type)
-			return res.send(400, {error: 'No collection type given.'});
+		return res.send(400, {error: 'No collection type given.'});
 
 		db.getCollectionNames(function(err, names){
 			if(err){
@@ -173,9 +202,11 @@ module.exports = {
 				collection = db.collection(type)
 			;
 
-			collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
-				res.json(docs);
-			});							
+			promise.then(function(query){
+				collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
+					res.json(docs);
+				});	
+			});						
 		});
-	},
+	}
 }
