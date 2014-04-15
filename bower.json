@@ -11,7 +11,7 @@
     "manager",
     "cms"
   ],
-  "license": "BDS",
+  "license": "BSD",
   "private": true,
   "ignore": [
     "**/.*",
