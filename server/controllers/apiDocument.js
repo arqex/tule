@@ -59,21 +59,6 @@ function createQuery(clauses){
 	return query;
 };
 
-function updateFieldDefinitions(doc, type){
-	type = 'collection_' + type;
-	db.collection(config.mon.settingsCollection).findOne(
-		{name: type},
-		function(err, collection){
-			if(err)
-				return;
-			collection.propertyDefinitions.forEach(function(property){
-				console.log(property);
-				console.log(doc);
-			});
-		}
-	);
-};
-
 module.exports = {
 	get: function(req, res){
 		var id = req.params.id,

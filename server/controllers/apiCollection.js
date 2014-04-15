@@ -95,7 +95,7 @@ module.exports = {
 					return res.send(400, {error: 'Internal error while fetching definitions'});
 
 				for(var definition in collection.propertyDefinitions){
-					definitionsKeys[definition.key] = definition.label;
+					definitionsKeys[collection.propertyDefinitions[definition].key] = true;
 				};
 
 				for(var key in data){
