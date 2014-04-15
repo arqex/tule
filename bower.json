@@ -27,7 +27,8 @@
     "requirejs": "~2.1.10",
     "requirejs-text": "~2.0.10",
     "jqueryui": "~1.10.3",
-    "marionette": "~1.6.4"
+    "marionette": "~1.6.4",
+    "backbone-query-parameters": "~0.3.0"
   },
   "directory": "public/js",
   "resolutions": {

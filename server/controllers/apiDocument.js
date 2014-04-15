@@ -203,6 +203,7 @@ module.exports = {
 			;
 
 			promise.then(function(query){
+				console.log(query);
 				collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
 					res.json(docs);
 				});	

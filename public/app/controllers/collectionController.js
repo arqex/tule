@@ -20,6 +20,15 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 					fields.push({action: 'edit', href: "#", icon: 'pencil'});
 					fields.push({action: 'remove', href: "#", icon: 'times'});
 
+					var searchTools = new CollectionViews.SearchTools({
+						type: type
+					});
+
+					searchTools.on('searchDoc', function(results){
+						view.createDocViews(results);
+						view.render();
+					});
+
 					var view = new CollectionViews.CollectionView({
 						collection: results,
 						fields: fields,
@@ -63,6 +72,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 						type: type,
 						collection: results,
 						collectionView: view,
+						searchTools: searchTools,
 						settings: settings
 					});
 

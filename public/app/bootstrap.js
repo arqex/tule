@@ -6,6 +6,7 @@ require.config({
         'backbone':     '../bower_components/backbone/backbone',
         'text':         '../bower_components/requirejs-text/text',
         'marionette':   '../bower_components/marionette/lib/backbone.marionette',
+        'backbone-query-params': '../bower_components/backbone-query-parameters/backbone.queryparams',
 
         /* jQuery UI */
         'jquery.ui.core':       '../bower_components/jqueryui/ui/jquery.ui.core',

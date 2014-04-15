@@ -68,7 +68,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 
 		events: {
 			'click .search-new': 'onClickSearchForm',
-			'click .cancel-query': 'onClickCancel',
+			'click .cancel-query': 'onClose',
 			'click .select-clause-join': 'onClickAddClause',
 			'click .search-query': 'onClickSearch',
 			'click .clause-delete': 'onClickDelete'
@@ -123,7 +123,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			$(e.target).css('display', 'none');
 		},
 
-		onClickCancel: function(e){
+		onClose: function(e){
 			e.preventDefault();
 
 			this.$el.find('.search-new').css('display', 'block');
@@ -170,12 +170,13 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			return empties;
 		},
 
-		onClickSearch: function(){
+		onClickSearch: function(e){
 			if(!this.saveQuery())
 				return Alerts.add({message:'There are empty values', level: 'error', autoclose:10000});
 
 			var collection = Dispenser.getMCollection(this.type),
-				clauses = []
+				clauses = [],
+				me = this
 			;
 
 			_.each(this.query, function(clause){
@@ -187,7 +188,10 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 				);
 			});
 
-			collection.query({clause: clauses});
+			collection.query({clause: clauses}).then(function(results){
+				me.onClose(e);			
+				me.trigger('searchDoc', results);
+			});
 
 			Alerts.add({message:'Searching . . .', autoclose:10000});
 		},
@@ -223,8 +227,8 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		initialize: function(opts){			
 			this.type = opts.type;
 			this.collectionView = opts.collectionView;
+			this.searchTools = opts.searchTools || {};
 			this.settings = opts.settings;
-			this.searchTools = new SearchTools({type: this.type});
 		},
 
 		render: function(){
@@ -330,16 +334,18 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		},
 		initialize: function(opts) {
 			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
-			this.docViews = {};
+			this.docViews = {};			
 			this.docOptions = opts.docOptions || {};
-			this.createDocViews();
+			this.createDocViews(this.collection);
+
 			this.listenTo(this.collection, 'remove', $.proxy(this.removeSubView, this));
 		},
-		createDocViews: function(){
+
+		createDocViews: function(currentCollection){
 			var me = this,
 				docViews = {}
 			;
-			this.collection.each(function(doc){
+			currentCollection.each(function(doc){
 				var docId = doc.id;
 				if(doc.newborn){
 					var editing = doc.newborn ? true : false;
@@ -365,6 +371,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		render: function(){			
 			this.$el.html(this.tpl);
 			var table = this.$('table');
+
 			_.each(this.docViews, function(view){
 				view.render();				
 				table.prepend(view.el.children);
