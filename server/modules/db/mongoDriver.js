@@ -10,7 +10,6 @@ var MongoDriver = function(nativeDriver){
 
 
 MongoDriver.prototype = {
-
 	// Following method to complete Tule DB API
 	getCollectionNames: function(callback){
 		return this.db.collectionNames(function(err, names){
