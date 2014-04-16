@@ -96,6 +96,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 						});
 					});
 
+					view.createDocViews(results);
 					view.render();
 
 					var newDocView = new CollectionViews.NewDocView({
