@@ -26,7 +26,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 					if(query != undefined){
 						var collection = Dispenser.getMCollection(type);
-						collection.query({clause: query}).then(function(results){
+						collection.query({clause: query.clause}).then(function(results){
 							view.createDocViews(results);
 							view.render();
 						});
@@ -34,12 +34,19 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 					searchTools.on('searchDoc', function(clauses){
 						var collection = Dispenser.getMCollection(type);
+
 						collection.query({clause: clauses}).then(function(results){
-							var paramName = encodeURI("clause[]"),
-								paramValue = encodeURI(clauses)
+							var	customUrl = "",
+								paramName = encodeURI("clause[]"),
+								paramValue = ''
 							;
 
-							Backbone.history.navigate("/collections/list/" + type + "?" + paramName + "=" + paramValue);
+							for(var i in clauses){
+								paramValue = encodeURI(clauses[i]);
+								customUrl += (paramName + "=" + paramValue + "&");
+							}
+
+							Backbone.history.navigate("/collections/list/" + type + "?" + customUrl);
 
 							view.createDocViews(results);
 							view.render();

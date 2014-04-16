@@ -363,9 +363,10 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 
 		render: function(){			
 			this.$el.html(this.tpl({
-				current: this.collection.length, 
-				total: this.collection.length
+				current: Object.keys(this.docViews).length, 
+				total: Object.keys(this.docViews).length
 			}));
+
 			var table = this.$('table');
 
 			_.each(this.docViews, function(view){
