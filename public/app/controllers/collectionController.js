@@ -26,7 +26,13 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 					if(query != undefined){
 						var collection = Dispenser.getMCollection(type);
-						collection.query({clause: query.clause}).then(function(results){
+						var clauses = [];
+						if(_.isString(query.clause))
+							clauses.push(query.clause);
+						else
+							clauses = query.clause;
+
+						collection.query({clause: clauses}).then(function(results){
 							view.createDocViews(results);
 							view.render();
 						});
