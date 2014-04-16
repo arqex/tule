@@ -174,10 +174,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			if(!this.saveQuery())
 				return Alerts.add({message:'There are empty values', level: 'error', autoclose:10000});
 
-			var collection = Dispenser.getMCollection(this.type),
-				clauses = [],
-				me = this
-			;
+			var clauses = [];
 
 			_.each(this.query, function(clause){
 				clauses.push(
@@ -188,12 +185,8 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 				);
 			});
 
-			collection.query({clause: clauses}).then(function(results){
-				me.onClose(e);			
-				me.trigger('searchDoc', results);
-			});
-
-			Alerts.add({message:'Searching . . .', autoclose:10000});
+			this.onClose(e);
+			this.trigger('searchDoc', clauses);
 		},
 
 		onClickDelete: function(e){

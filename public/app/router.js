@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'config'], function($, _, Backbone, config){
+define(['jquery', 'underscore', 'backbone', 'config', 'backbone-query-params'], function($, _, Backbone, config){
 var nofunction = function(){},
 	QRouter = Backbone.Router.extend({
 		//Routes are loaded automatically in the initialize method.

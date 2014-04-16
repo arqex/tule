@@ -202,8 +202,7 @@ module.exports = {
 				collection = db.collection(type)
 			;
 
-			promise.then(function(query){
-				console.log(query);
+			promise.then(function(query){				
 				collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
 					res.json(docs);
 				});	

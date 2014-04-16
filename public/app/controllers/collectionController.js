@@ -10,7 +10,7 @@ var deps = [
 
 define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts){
 	return {
-		list: function(type, page){
+		list: function(type, page, query){
 			var mcollection = Dispenser.getMCollection(type);
 			var settingsPromise = mcollection.getSettings();
 
@@ -24,9 +24,26 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 						type: type
 					});
 
-					searchTools.on('searchDoc', function(results){
-						view.createDocViews(results);
-						view.render();
+					if(query != undefined){
+						var collection = Dispenser.getMCollection(type);
+						collection.query({clause: query}).then(function(results){
+							view.createDocViews(results);
+							view.render();
+						});
+					}
+
+					searchTools.on('searchDoc', function(clauses){
+						var collection = Dispenser.getMCollection(type);
+						collection.query({clause: clauses}).then(function(results){
+							var paramName = encodeURI("clause[]"),
+								paramValue = encodeURI(clauses)
+							;
+
+							Backbone.history.navigate("/collections/list/" + type + "?" + paramName + "=" + paramValue);
+
+							view.createDocViews(results);
+							view.render();
+						});
 					});
 
 					var view = new CollectionViews.CollectionView({
