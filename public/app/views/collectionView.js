@@ -63,7 +63,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 	var SearchTools = Backbone.View.extend({
 		findBoxTpl: $(tplSearchTools).find('#findBoxTpl').html(),
 		buttonSearchTpl: $(tplSearchTools).find('#buttonSearchTpl').html(),
-		searchFormTpl: $(tplSearchTools).find('#searchFormTpl').html(),
+		searchFormTpl: _.template($(tplSearchTools).find('#searchFormTpl').html()),
 		queryClauseTpl: _.template($(tplSearchTools).find('#queryClauseTpl').html()),
 
 		events: {
@@ -118,7 +118,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		onClickSearchForm: function(e){
 			e.preventDefault();
 			
-			this.$el.find(".search-form-placeholder").append(this.searchFormTpl);
+			this.$el.find(".search-form-placeholder").append(this.searchFormTpl({type: this.type}));
 			this.renderClauses();
 			$(e.target).css('display', 'none');
 		},

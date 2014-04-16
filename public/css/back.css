@@ -444,10 +444,19 @@ Alerter
 /******
 Add new form
 *******/
-form.form { 
-	margin-left: 15px; 
+form.form {  
 	display: none;
-	margin-bottom: 30px;
+	border: 1px solid #eafafa;
+	padding: 0 5px 5px 5px;
+	background-color: #e5f5f5;
+}
+
+form.form h4 {
+	margin: 0 0 15px 10px;
+}
+
+form.form .field-mode-edit:before {
+	border: 0px;
 }
 
 /******
@@ -458,12 +467,18 @@ Add new search box
 	float: right;
 }
 
-.search-form-placeholder {
-	margin-left: 70px;
+.search-form {
+	border: 1px solid #eafafa;
+	padding: 0 5px 5px 70px;
+	background-color: #e5f5f5;
+}
+
+.search-form h4 {
+	margin: 0 0 15px -55px;
 }
 
 .query-controls {
-	float:right;
+	text-align: right;
 }
 
 .operator {
@@ -476,3 +491,4 @@ Add new search box
 .select-clause-join {
 	display: inline-block;
 }
+
