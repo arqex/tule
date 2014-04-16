@@ -319,7 +319,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 
 
 	var CollectionView = Backbone.View.extend({
-		tpl: $(tplSource).find('#tableTpl').html(),
+		tpl: _.template($(tplSource).find('#tableTpl').html()),
 		events: {
 			'click .document-ok': 'onClickOk',
 			'click .document-cancel': 'onClickCancel',
@@ -362,7 +362,10 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		},
 
 		render: function(){			
-			this.$el.html(this.tpl);
+			this.$el.html(this.tpl({
+				current: this.collection.length, 
+				total: this.collection.length
+			}));
 			var table = this.$('table');
 
 			_.each(this.docViews, function(view){

@@ -492,3 +492,17 @@ Add new search box
 	display: inline-block;
 }
 
+/************
+COLLECTION TAB 
+*************/
+.tab {
+	background-color: #bfd9d9;
+	height: 23px;
+	width: auto;
+	padding: 0 4px 0 4px;
+	text-align: right;
+	float: right;
+	margin-right: 10px;
+	margin-bottom: -1px;
+	border: 1px solid #eafafa;
+}
