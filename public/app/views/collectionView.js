@@ -4,7 +4,7 @@ var deps = [
 	'text!tpls/searchTools.html',
 	'modules/datatypes/dispatcher',
 	'modules/alerts/alerts',
-	'models/mdispenser'
+	'models/dispenser'
 ];
 define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alerts, Dispenser){
 	'use strict';
@@ -287,7 +287,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		onClickCreate: function(e){
 			e.preventDefault();
 
-			var doc = Dispenser.getMCollection(this.objectView.getValue()),
+			var doc = Dispenser.getCollection(this.objectView.getValue()),
 				me = this
 			;			
 

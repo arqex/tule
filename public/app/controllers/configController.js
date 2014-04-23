@@ -1,7 +1,7 @@
 "use strict";
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'models/mdispenser',
+	'models/dispenser',
 	'views/collectionView',
 	'views/mainView'
 ];
@@ -42,7 +42,7 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 
 	return {
 		main: function(){
-			var collections = Dispenser.getMCollectionList(),
+			var collections = Dispenser.getCollectionList(),
 				view
 			;
 

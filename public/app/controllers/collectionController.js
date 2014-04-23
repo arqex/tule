@@ -4,7 +4,7 @@ var deps = [
 	'jquery', 'underscore', 'backbone',
 	'views/collectionView',
 	'views/mainView',
-	'models/mdispenser',
+	'models/dispenser',
 	'modules/alerts/alerts'
 ];
 
@@ -32,7 +32,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 					});
 
 					if(query != undefined){
-						var collection = Dispenser.getMCollection(type);
+						var collection = Dispenser.getCollection(type);
 						var clauses = [];
 						if(_.isString(query.clause))
 							clauses.push(query.clause);
@@ -46,7 +46,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 					}
 
 					searchTools.on('searchDoc', function(clauses){
-						var collection = Dispenser.getMCollection(type);
+						var collection = Dispenser.getCollection(type);
 
 						collection.query({clause: clauses}).then(function(results){
 							var	customUrl = "",
@@ -124,7 +124,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 
 					newDocView.on('createDoc', function(type, data){
 						var me = this,
-							doc = Dispenser.getMDoc(type)
+							doc = Dispenser.getDoc(type)
 						;
 
 						_.each(data, function(values, key){
