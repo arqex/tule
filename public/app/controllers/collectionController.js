@@ -11,12 +11,19 @@ var deps = [
 define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts){
 	return {
 		list: function(type, page, query){
-			var mcollection = Dispenser.getMCollection(type);
-			var settingsPromise = mcollection.getSettings();
+			var collection = Dispenser.getCollection(type);
+			var settingsPromise = collection.getSettings();
 
-			mcollection.query({}).then(function(results, options){
+			collection.query({}).then(function(results, options){
 				settingsPromise.then(function(settings){
-					var fields = settings.tableFields || [];
+
+					var fields 		= settings.tableFields || [],
+						documents 	= results.get('documents'),
+						total 		= results.get('total'),
+						current		= results.get('current'),
+						limit 		= results.get('limit')
+					;
+
 					fields.push({action: 'edit', href: "#", icon: 'pencil'});
 					fields.push({action: 'remove', href: "#", icon: 'times'});
 
@@ -59,11 +66,19 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 						});
 					});
 
+					var pagination = new CollectionViews.PaginationView({
+						currentPage: Math.round(current),
+						lastPage: Math.round(total / limit)
+					});
+
+					pagination.render();
+
 					var view = new CollectionViews.CollectionView({
-						collection: results,
+						collection: documents,
 						fields: fields,
 						customFields: 1,
-						docOptions: settings
+						docOptions: settings,
+						paginationView: pagination
 					});
 
 					view.on('click:edit', function(docView){
@@ -96,7 +111,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Alerts
 						});
 					});
 
-					view.createDocViews(results);
+					view.createDocViews(documents);
 					view.render();
 
 					var newDocView = new CollectionViews.NewDocView({

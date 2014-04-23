@@ -18,8 +18,40 @@
 	</form>
 </script>
 
+<script type="text/template" id="paginationTpl">
+	<div class="tab">
+		<% if(lastPage > 1) { %>
+			<div class="js-tab-results">
+				<a class="js-before"><i class="fa fa-chevron-left"></i></a>
+				<a class="js-goto" data-page="1">1</a>
+				... <a class="js-goto" data-page="<%= currentPage %>"><%= currentPage %></a>
+				... <a class="js-goto" data-page="<%= lastPage %>"><%= lastPage %></a>
+				<a class="js-next"><i class="fa fa-chevron-right"></i></a>
+				<a class="js-goto-switcher">
+				<input type="checkbox" name="goto-switcher" id="button-goto-switcher" />
+				<label for="button-goto-switcher" class="fa fa-arrow-circle-right" name="arrow-right"></label></a>
+				<div class="goto-panel">
+				    <div class="contents">
+				        <div class="inner">
+				            Go to <input type="number" /> <button class="js-goto-ok">Go</button>
+				        </div>
+				    </div>
+				</div>
+			</div>
+		<% } else if (lastPage == 1) { %>
+			<div class="js-tab-result">
+				<span> All results </span>
+			</div>
+		<% } else if (lastPage == 0) { %>
+			<div class="js-tab-noresults">
+				<span> No results found </span>
+			</div>
+		<% } %>
+	</div>
+</script>
+
 <script type="text/template" id="tableTpl">
-	<div class="tab"><span class="tab-counter"><%= current %> &mdash; <%= total %></span></div>
+	<div class="js-tab"></div>
 	<table class="collection-table"></table>
 </script>
 

@@ -202,9 +202,11 @@ module.exports = {
 				collection = db.collection(type)
 			;
 
-			promise.then(function(query){				
+			promise.then(function(query){		
 				collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
-					res.json(docs);
+					collection.count(query, function(err, size){
+						res.json({documents: docs, total: size, limit: pageSize, current: page});
+					})					
 				});	
 			});						
 		});

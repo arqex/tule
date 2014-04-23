@@ -120,13 +120,13 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			
 			this.$el.find(".search-form-placeholder").append(this.searchFormTpl({type: this.type}));
 			this.renderClauses();
-			$(e.target).css('display', 'none');
+			$('.button-search-form').hide();
 		},
 
 		onClose: function(e){
 			e.preventDefault();
 
-			this.$el.find('.search-new').css('display', 'block');
+			this.$el.find('.button-search-form').show();
 			$(e.target).closest('.search-form').remove();
 		},
 
@@ -317,6 +317,50 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		}
 	});
 
+	var PaginationView = Backbone.View.extend({
+		tpl: _.template($(tplSource).find('#paginationTpl').html()),
+		events: {
+			'click .js-before': 'onClickBefore',
+			'click .js-goto': 'onClickGoto',
+			'click .js-next': 'onClickNext',
+			'click .js-goto-ok': 'onClickGotoOk',
+			'click #button-goto-switcher': 'onClickSwitcher'
+		},
+
+		initialize: function(opts){
+			this.currentPage = opts.currentPage || 15;
+			this.lastPage = opts.lastPage || 30;			
+		},
+
+		render: function(){
+			this.$el.html(this.tpl({
+				currentPage: this.currentPage,
+				lastPage: this.lastPage
+			}));
+		},
+
+		onClickSwitcher: function(e){
+			var inner = this.$('.inner');
+			var panel = this.$('.goto-panel');
+			var tab = this.$('.js-tab-results');
+
+			if(inner.css('left') == '-100px'){
+				panel.css('width', '140px');
+				tab.css('width', '285px');
+				tab.css('margin-right', '12px');
+				inner.css('left', 0);
+				inner.css('width', '100%');	
+			} else {
+				panel.css('width', '0px');
+				tab.css('width', '140px');
+				tab.css('margin-right', '-2px');
+				inner.css('width', 0);				
+				inner.css('left', '-100px');
+			}
+			
+		}
+	});
+
 
 	var CollectionView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#tableTpl').html()),
@@ -330,6 +374,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			this.docViews = {};			
 			this.docOptions = opts.docOptions || {};
 			this.createDocViews(this.collection);
+			this.pagination = opts.paginationView;
 
 			this.listenTo(this.collection, 'remove', $.proxy(this.removeSubView, this));
 		},
@@ -338,6 +383,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			var me = this,
 				docViews = {}
 			;
+			
 			currentCollection.each(function(doc){
 				var docId = doc.id;
 				if(doc.newborn){
@@ -362,10 +408,10 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		},
 
 		render: function(){			
-			this.$el.html(this.tpl({
-				current: Object.keys(this.docViews).length, 
-				total: Object.keys(this.docViews).length
-			}));
+			this.$el.html(this.tpl);
+
+			if(this.pagination != undefined)
+				this.$('.js-tab').append(this.pagination.el);
 
 			var table = this.$('table');
 
@@ -446,7 +492,8 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		SearchTools: SearchTools,
 		NewDocView: NewDocView,
 		NewCollectionView: NewCollectionView,
-		CollectionView: CollectionView
+		CollectionView: CollectionView,
+		PaginationView: PaginationView
 	};
 
 });

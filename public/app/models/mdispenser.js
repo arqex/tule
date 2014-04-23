@@ -6,18 +6,18 @@ var fields = {
 	test: ['message']
 };
 
-var MDoc = Backbone.Model.extend({
+var Doc = Backbone.Model.extend({
 	idAttribute: '_id'
 });
 
-var SettingsDoc = MDoc.extend({
+var SettingsDoc = Doc.extend({
 	idAttribute: 'name',
 	initialize: function(){
 		this.isFetched = false;
 	},
 	fetch: function(opts){
 		var me = this;
-		return MDoc.prototype.fetch.call(this, opts).then(function(){
+		return Doc.prototype.fetch.call(this, opts).then(function(){
 			me.isFetched = true;
 		});
 	},
@@ -29,33 +29,41 @@ var SettingsDoc = MDoc.extend({
 	},
 	save: function(attrs, opts){
 		var me = this;
-		return MDoc.prototype.save.call(this, attrs, opts).then(function(){
+		return Doc.prototype.save.call(this, attrs, opts).then(function(){
 			me.isFetched = true;
 		});
 	}
 });
 
-var MQuery = Backbone.Collection.extend({
-	model: MDoc,
+var DocCollection = Backbone.Collection.extend({
+	model: Doc,
 	initialize: function(models, options){
+		this.type = options.type;
+	}
+});
+
+var Query = Backbone.Model.extend({
+	initialize: function(attrs, options){
 		this.type = options.type;
 		this.url = '/api/docs/' + this.type;
 	}
 });
 
-var MCollection = SettingsDoc.extend({
+var Collection = SettingsDoc.extend({
 	initialize: function(attrs, opts){
 		this.type = opts.type;
 		this.set('name', 'collection_' + opts.type);
 		this.settingsFetched = false;
 	},
 	query: function(opts){
-		var query = new MQuery([], {type: this.type}),
-			deferred = $.Deferred()
+		var query = new Query([], {type: this.type}),
+			deferred = $.Deferred(),
+			me = this
 		;
 		query.fetch({
 			data: opts,
 			success: function(){
+				query.set('documents', new DocCollection(query.get('documents'), {type: me.type})); 
 				deferred.resolve(query, opts);
 			}
 		});
@@ -75,8 +83,8 @@ var MCollection = SettingsDoc.extend({
 	}
 });
 
-var MCollectionList = Backbone.Collection.extend({
-	model: MCollection,
+var CollectionList = Backbone.Collection.extend({
+	model: Collection,
 	url: '/api/collections',
 	fetch: function(options) {
 		var me = this,
@@ -111,7 +119,7 @@ var getSettings = function(newName) {
 var dispenser = function(){
 	var collections = {},
 		doc = function(type){
-			var model = new MDoc();
+			var model = new Doc();
 			model.urlRoot = '/api/docs/' + type;
 			model.type = type;
 			model.fields = fields[type];
@@ -121,19 +129,19 @@ var dispenser = function(){
 			if(collections.type)
 				return collections.type;
 
-			var collection = new MCollection([], {type: type});
+			var collection = new Collection([], {type: type});
 
 			return collection;
 		},
 		list = function(){
-			return new MCollectionList();
+			return new CollectionList();
 		}
 	;
 
 	return {
-		getMDoc: doc,
-		getMCollection: collection,
-		getMCollectionList: list,
+		getDoc: doc,
+		getCollection: collection,
+		getCollectionList: list,
 		SettingsDoc: SettingsDoc,
 		getSettings: getSettings
 	};

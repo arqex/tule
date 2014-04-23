@@ -462,6 +462,10 @@ form.form .field-mode-edit:before {
 /******
 Add new search box
 *******/
+.button-search-form {
+	width: 100%;
+	float: right;
+}
 
 .find-box {
 	float: right;
@@ -492,17 +496,96 @@ Add new search box
 	display: inline-block;
 }
 
+.search-form-placeholder {
+	display: block;
+}
+
 /************
-COLLECTION TAB 
+PAGINATION TAB 
 *************/
 .tab {
-	background-color: #bfd9d9;
-	height: 23px;
+	height: 31px;
 	width: auto;
-	padding: 0 4px 0 4px;
+	padding: 2px 4px 0 4px;
 	text-align: right;
 	float: right;
-	margin-right: 10px;
+	margin-right: -15px;
 	margin-bottom: -1px;
-	border: 1px solid #eafafa;
 }
+
+.tab a {
+	cursor:pointer;
+}
+
+.js-tab-results input {
+	width: 55px;
+}
+
+.js-tab-results {
+	width: 140px;
+	white-space: nowrap;
+}
+
+.goto-panel {
+	position: relative;
+    display:inline-block;
+    width:0px;
+    margin-right: 10px;  
+}
+
+.label {
+    display: inline-block;
+    width: 1em;
+}
+
+.contents, .contents .inner {
+    display:inline-block;
+}
+
+.contents {
+    white-space:nowrap;
+}
+
+.goto-panel .contents .inner {
+	position: absolute;
+    width:0%;
+    overflow: hidden;
+    -webkit-transition: width 1s ease;
+    -moz-transition: width 1s ease;
+    -o-transition: width 1s ease;
+    transition: width 1s ease;
+    left: -100px;
+    top: -2px;
+}
+
+#button-goto-switcher{
+	display: none;
+}
+
+#button-goto-switcher:checked ~ .fa-arrow-circle-right {
+	-webkit-animation:spin 0.5s linear;
+    -moz-animation:spin 0.5s linear;
+    animation:spin 0.5s linear;
+    -webkit-animation-fill-mode:forwards;
+    -moz-animation-fill-mode:forwards; /*FF 5+*/
+   	-ms-animation-fill-mode:forwards; /*IE 10+*/
+   	animation-fill-mode:forwards; /*when the spec is finished*/
+}
+
+#button-goto-switcher:not(:checked) ~ .fa-arrow-circle-right {
+	-webkit-animation:spin-back 0.5s linear;
+    -moz-animation:spin-back 0.5s linear;
+    animation:spin-back 0.5s linear;
+    -webkit-animation-fill-mode:forwards;
+    -moz-animation-fill-mode:forwards; /*FF 5+*/
+   	-ms-animation-fill-mode:forwards; /*IE 10+*/
+   	animation-fill-mode:forwards; /*when the spec is finished*/
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(180deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(180deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(180deg); transform:rotate(180deg); } }
+
+@-moz-keyframes spin-back { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin-back { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin-back { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
