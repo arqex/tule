@@ -74,7 +74,6 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 				var newCollectionView = new Collection.NewCollectionView({
 					type: 'collection',
 					collection: collections,			
-					collectionView: view,
 					settings: {
 						customProperties: false,
 						name: "newCollection",
@@ -89,9 +88,16 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 						mandatoryProperties: ['name']
 					}
 				});
-				
+
 				newCollectionView.render();
-				mainView.loadView(newCollectionView);
+
+				var superView = new Collection.SuperView({
+					adderView: newCollectionView,
+					collectionView: view
+				});
+				
+				superView.render();
+				mainView.loadView(superView);
 				mainView.setTitle('Settings');
 			});
 
