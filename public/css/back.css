@@ -503,6 +503,10 @@ Add new search box
 /************
 PAGINATION TAB 
 *************/
+.current-page {
+	font-size: 20px;
+	font-weight: bold;
+}
 .tab {
 	height: 31px;
 	width: auto;

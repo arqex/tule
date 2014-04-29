@@ -36,8 +36,7 @@
 		<% if(position > 0) { %>
 			<select class="operator">
 				<option value="and" <% if(operator === "and"){ %> selected <% } %>>And</option>
-				<option value="or" <% if(operator === "or"){ %> selected <% } %>>Or</option>
-				<option value="nor" <% if(operator === "nor"){ %> selected <% } %>>Nor</option>
+				<option value="or" <% if(operator === "or"){ %> selected <% } %>>Or</option>		
 			</select>
 		<% } %>
 		<input id="key" type="text" placeholder="Key [Ex.: Name]" <% if(key){ %> value="<%= key %>" <% } %> />

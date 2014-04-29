@@ -1,13 +1,23 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
+
 	'text!tpls/docTable.html',
 	'text!tpls/searchTools.html',
+
 	'modules/datatypes/dispatcher',
 	'modules/alerts/alerts',
+
 	'models/dispenser'
 ];
-define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alerts, Dispenser){
+
+define(deps, function(
+		$, _, Backbone, 
+		tplSource, tplSearchTools, 
+		dispatcher, Alerts, 
+		Dispenser ){
 	'use strict';
+
+
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
 
@@ -219,15 +229,11 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		},
 		initialize: function(opts){			
 			this.type = opts.type;
-			this.collectionView = opts.collectionView;
-			this.searchTools = opts.searchTools || {};
 			this.settings = opts.settings;
 		},
 
 		render: function(){
 			this.el = this.$el.html(this.tpl({type: this.type}));
-			this.el.append(this.searchTools.$el);
-			this.el.append(this.collectionView.$el);
 		},
 
 		onClickNew: function(e){
@@ -328,15 +334,42 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		},
 
 		initialize: function(opts){
-			this.currentPage = opts.currentPage || 15;
-			this.lastPage = opts.lastPage || 30;			
+			this.currentPage = opts.currentPage || 1;
+			this.lastPage 	 = opts.lastPage || 1;
+			this.distance 	 = this.lastPage - this.currentPage;
+			this.limit 		 = opts.limit;
+			this.skip 		 = opts.skip;
 		},
 
 		render: function(){
 			this.$el.html(this.tpl({
 				currentPage: this.currentPage,
-				lastPage: this.lastPage
+				lastPage: this.lastPage,
+				distance: this.distance
 			}));
+		},
+
+		update: function(current, total){
+			this.currentPage = current;
+			this.lastPage = Math.ceil(total / this.limit);
+			this.distance = this.lastPage - this.currentPage;
+			this.render();			
+		},
+
+		onClickBefore: function(e){
+			this.trigger('navigate', this.currentPage - 1);
+		},
+
+		onClickGoto: function(e){
+			this.trigger('navigate', $(e.target).closest('a').data('page'));
+		},
+
+		onClickNext: function(e){
+			this.trigger('navigate', this.currentPage + 1);
+		},
+
+		onClickGotoOk: function(e){
+			this.trigger('navigate', parseInt($(e.target).prev().val()));
 		},
 
 		onClickSwitcher: function(e){
@@ -357,7 +390,6 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 				inner.css('width', 0);				
 				inner.css('left', '-100px');
 			}
-			
 		}
 	});
 
@@ -374,7 +406,6 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 			this.docViews = {};			
 			this.docOptions = opts.docOptions || {};
 			this.createDocViews(this.collection);
-			this.pagination = opts.paginationView;
 
 			this.listenTo(this.collection, 'remove', $.proxy(this.removeSubView, this));
 		},
@@ -410,14 +441,11 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, dispatcher, Alert
 		render: function(){			
 			this.$el.html(this.tpl);
 
-			if(this.pagination != undefined)
-				this.$('.js-tab').append(this.pagination.el);
-
 			var table = this.$('table');
 
 			_.each(this.docViews, function(view){
 				view.render();				
-				table.prepend(view.el.children);
+				table.append(view.el.children);
 				view.delegateEvents();
 			});
 		},

@@ -178,14 +178,12 @@ module.exports = {
 	},
 
 	collection: function(req, res){
-		var urlparts = url.parse(req.url, true),
-			params = urlparts,
-			type = req.params.type,
+		var type = req.params.type,
 			promise = createQuery(req.query.clause, type)
-		;		
+		;
 
 		if(!type)
-		return res.send(400, {error: 'No collection type given.'});
+			return res.send(400, {error: 'No collection type given.'});
 
 		db.getCollectionNames(function(err, names){
 			if(err){
@@ -196,17 +194,22 @@ module.exports = {
 			if(names.indexOf(type) == -1)
 				return res.send(400, {error: 'Unknown collection type.'});
 
-			var page = params.page || 1,
-				pageSize = 20,
-				skip = (page - 1) * pageSize,
+			var pageSize = req.query.limit || 10, // default value
+				skip = req.query.skip || 0, 
 				collection = db.collection(type)
-			;
+			;			
 
 			promise.then(function(query){		
 				collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
 					collection.count(query, function(err, size){
-						res.json({documents: docs, total: size, limit: pageSize, current: page});
-					})					
+						res.json({
+							documents: docs, 
+							total: size,
+							skip: skip,
+							limit: pageSize, 
+							current: Math.floor(skip/pageSize) + 1
+						});
+					});		
 				});	
 			});						
 		});

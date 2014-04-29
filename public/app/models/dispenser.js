@@ -39,6 +39,7 @@ var DocCollection = Backbone.Collection.extend({
 	model: Doc,
 	initialize: function(models, options){
 		this.type = options.type;
+		this.url = '/api/docs/' + this.type;
 	}
 });
 

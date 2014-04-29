@@ -22,14 +22,42 @@
 	<div class="tab">
 		<% if(lastPage > 1) { %>
 			<div class="js-tab-results">
+
+			<% if(currentPage == 1) { %> 
+				<a class="js-goto current-page" data-page="1">1</a>
+			<% } else if (currentPage == 2) { %>
 				<a class="js-before"><i class="fa fa-chevron-left"></i></a>
 				<a class="js-goto" data-page="1">1</a>
-				... <a class="js-goto" data-page="<%= currentPage %>"><%= currentPage %></a>
-				... <a class="js-goto" data-page="<%= lastPage %>"><%= lastPage %></a>
+				<a class="js-goto current-page" data-page="2">2</a>
+			<% } else if (currentPage > 2) { %>
+				<a class="js-before"><i class="fa fa-chevron-left"></i></a>
+				<a class="js-goto" data-page="<%= currentPage - 2 %>"><%= currentPage - 2 %></a>
+				<a class="js-goto" data-page="<%= currentPage - 1 %>"><%= currentPage - 1 %></a>
+				<a class="js-goto current-page" data-page="<%= currentPage %>"><%= currentPage %></a>
+			<% } %>
+
+			<% if(distance == 2) { %>
+				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
+			<% } else if(distance == 3) { %>
+				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
+				<a class="js-goto" data-page="<%= currentPage + 2 %>"><%= currentPage + 2 %></a>
+			<% } else if(distance > 3) { %>
+				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
+				<a class="js-goto" data-page="<%= currentPage + 2 %>"><%= currentPage + 2 %></a>
+				<a class="js-goto" data-page="<%= currentPage + 3 %>"><%= currentPage + 3 %></a>
+				 ... 
+			<% } %>
+
+			<% if(distance != 0) { %> 
+				<a class="js-goto" data-page="<%= lastPage %>"><%= lastPage %></a>
 				<a class="js-next"><i class="fa fa-chevron-right"></i></a>
+			<% } %>
+
 				<a class="js-goto-switcher">
 				<input type="checkbox" name="goto-switcher" id="button-goto-switcher" />
-				<label for="button-goto-switcher" class="fa fa-arrow-circle-right" name="arrow-right"></label></a>
+				<label for="button-goto-switcher" class="fa fa-arrow-circle-right" name="arrow-right"></label>
+				</a>
+
 				<div class="goto-panel">
 				    <div class="contents">
 				        <div class="inner">
@@ -51,7 +79,6 @@
 </script>
 
 <script type="text/template" id="tableTpl">
-	<div class="js-tab"></div>
 	<table class="collection-table"></table>
 </script>
 
