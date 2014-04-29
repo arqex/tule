@@ -6,10 +6,11 @@ var deps = [
 	'views/mainView',
 	'text!tpls/superView.html',
 	'models/dispenser',
-	'models/superViewTools'
+	'models/superViewTools',
+	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispenser, Tools){
+define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispenser, Tools, Alerts){
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
 			currentPage: Math.round(current),
@@ -104,9 +105,9 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 					doc.url = encodeURI('/api/docs/' + me.type + '/' + doc.id);
 
 					// Reset the form on DOM
-					me.objectView = false;
-					me.$el.find('.form').remove();
-					me.close();
+					me.adder.objectView = false;
+					me.adder.$el.find('.form').remove();
+					me.adder.close();
 
 					// Add possible new property definitions
 					$.post('/api/collection/'+me.type, {
@@ -115,9 +116,8 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 					});
 
 					// Render collection view
-					me.collection.add(doc);
-					me.collectionView.createDocViews(me.collection);
-					me.collectionView.render();
+					me.trigger('renderCollection', doc);
+
 				}});
 			}); // End of createDoc
 		},
@@ -174,8 +174,6 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 							customUrl = customUrl + "&clause[]=" + clause;
 						});						
 					}
-					// clause%5B%5D=undefined%7Cmessage%7Ceq%7CMessage%2520=					
-					// clause%5B%5D=undefined|message|eq|Message%20=
 
 					customUrl = encodeURI(customUrl);
 					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
@@ -187,6 +185,12 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 		},
 
 		runItemsListeners: function(){
+			this.listenTo(this, 'renderCollection', function(doc){
+				this.items.collection.add(doc);
+				this.items.createDocViews(this.items.collection);
+				this.render();
+			});
+
 			this.listenTo(this.items, 'click:edit', function(docView){
 				docView.open();
 			}); // End of click edit
