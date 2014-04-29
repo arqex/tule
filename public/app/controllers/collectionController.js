@@ -188,7 +188,8 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 			this.listenTo(this, 'renderCollection', function(doc){
 				this.items.collection.add(doc);
 				this.items.createDocViews(this.items.collection);
-				this.render();
+				this.items.render();
+				this.pagination.render();
 			});
 
 			this.listenTo(this.items, 'click:edit', function(docView){
