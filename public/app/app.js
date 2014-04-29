@@ -2,25 +2,30 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 	function($, _, Router, Navigation, Backbone, Dispenser){
 
 	var init = function() {
-		registerDataTypes(function(){
-			fetchNavigation(function(navData){
-				Router.init();
-				var nav = new Navigation.NavCollectionView({
-					collection: new Navigation.NavCollection(navData),
-					el: 'nav.navigation'
-				});
-				nav.render();
+		var settings = window.tuleSettings;
+		window.tuleSettings = undefined;
 
-				// On hash change set current navigation
-				selectFirstNavElement(); // When load at first from url (no clicking menu)
-				Backbone.history.on('route', function(name, args) {
-					selectCurrentNavElement();
-				});
-			});
+		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){
+			startNavigation(settings.routes);
 		});
 	};
 
-	var registerDataTypes = function(clbk) {
+	var startNavigation = function(routes){
+		Router.init();
+		var nav = new Navigation.NavCollectionView({
+			collection: new Navigation.NavCollection(routes),
+			el: 'nav.navigation'
+		});
+		nav.render();
+
+		// On hash change set current navigation
+		selectFirstNavElement(); // When load at first from url (no clicking menu)
+		Backbone.history.on('route', function(name, args) {
+			selectCurrentNavElement();
+		});
+	}
+
+	var registerDataTypes = function(datatypes, path, clbk) {
 		var globals = new Dispenser.SettingsDoc({ name: 'globals' });
 		var promise = globals.fetch();
 
@@ -36,18 +41,6 @@ define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 
 			require(deps, function(){
 				clbk();
 			});
-		});
-	};
-
-	var fetchNavigation = function(clbk) {
-		var navigation = new Dispenser.SettingsDoc({ name: 'navData'});
-
-		navigation.fetch().then(function(){
-			var array = $.map(navigation.attributes.routes, function(value, index) {
-				return [value];
-			});
-
-			clbk(array);
 		});
 	};
 
