@@ -1,63 +1,22 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
+
 	'text!tpls/docTable.html',
 	'text!tpls/searchTools.html',
-	'text!tpls/superView.html',
+
 	'modules/datatypes/dispatcher',
 	'modules/alerts/alerts',
+
 	'models/dispenser'
 ];
-define(deps, function($,_,Backbone, tplSource, tplSearchTools, tplSuper, dispatcher, Alerts, Dispenser){
+
+define(deps, function(
+		$, _, Backbone, 
+		tplSource, tplSearchTools, 
+		dispatcher, Alerts, 
+		Dispenser ){
 	'use strict';
 
-	var SuperView = Backbone.View.extend({
-		tplSuperView: $(tplSuper).find('#superTpl').html(),
-
-		initialize: function(opts){
-			this.type 		= opts.type;
-			this.adder 		= opts.adderView;
-			this.search 	= opts.searchView || '<div></div>';
-			this.pagination = opts.paginationView || '<div></div>';
-			this.items		= opts.collectionView;
-
-			this.runListeners();
-		},
-
-		render: function(){
-			this.$el.html(this.tplSuperView);
-
-			this.$('.adderPlaceholder').append(this.adder.el);
-			this.$('.searchPlaceholder').append(this.search.el);
-			this.$('.paginationPlaceholder').append(this.pagination.el);
-			this.$('.collectionPlaceholder').append(this.items.el);
-		},
-
-		runListeners: function(){
-			this.listenTo(this.search, 'searchDoc', function(clauses){
-				var collection = Dispenser.getCollection(this.type),
-					me = this
-				;
-
-				collection.query({clause: clauses}).then(function(results){
-					var	customUrl = "",
-						paramName = encodeURI("clause[]"),
-						paramValue = ''
-					;
-
-					for(var i in clauses){
-						paramValue = encodeURI(clauses[i]);
-						customUrl += (paramName + "=" + paramValue + "&");
-					}
-
-					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
-
-					me.pagination.update(1, results.get('total'));
-					me.items.createDocViews(results.get('documents'));
-					me.items.render();
-				});
-			});
-		}
-	});
 
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
@@ -562,8 +521,7 @@ define(deps, function($,_,Backbone, tplSource, tplSearchTools, tplSuper, dispatc
 		NewDocView: NewDocView,
 		NewCollectionView: NewCollectionView,
 		CollectionView: CollectionView,
-		PaginationView: PaginationView,
-		SuperView: SuperView
+		PaginationView: PaginationView
 	};
 
 });
