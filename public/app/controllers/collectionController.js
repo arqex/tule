@@ -3,14 +3,13 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
 	'views/collectionView',
-	'views/mainView',
-	'text!tpls/superView.html',
+	'views/mainView',	
 	'models/dispenser',
 	'models/superViewTools',
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispenser, Tools, Alerts){
+define(deps, function($,_,Backbone, CollectionViews, mainView, Dispenser, Tools, Alerts){
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
 			currentPage: Math.round(current),
@@ -51,9 +50,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 		return view;
 	};
 
-	var SuperView = Backbone.View.extend({
-		tplSuperView: $(tplSuper).find('#superTpl').html(),
-
+	var CollectionController = Backbone.View.extend({
 		initialize: function(opts){
 			this.type 		= opts.type;
 			this.params		= opts.params;
@@ -61,38 +58,34 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 			this.search 	= opts.searchView || null;
 			this.pagination = opts.paginationView || null;
 			this.items		= opts.collectionView || null;
+			this.slaves 	= [];
 			this.fullItems	= Dispenser.getCollection(this.type);
 
-			if(this.adder)
+			if(this.adder){
 				this.runAdderListeners();
-			if(this.search)
+				this.slaves.push(this.adder); }
+			if(this.search){
 				this.runSearchListeners();
-			if(this.pagination)
+				this.slaves.push(this.search); }
+			if(this.pagination){
 				this.runPaginationListeners();
-			if(this.items)
+				this.slaves.push(this.pagination); }
+			if(this.items){
 				this.runItemsListeners();
+				this.slaves.push(this.items); }
 		},
 
-		render: function(){
-			this.$el.html(this.tplSuperView);
-
-			if(this.adder){
-				this.adder.render();
-				this.$('.adderPlaceholder').append(this.adder.el); }
-			if(this.search){
-				this.search.render();
-				this.$('.searchPlaceholder').append(this.search.el); }
-			if(this.pagination){
-				this.pagination.render();
-				this.$('.paginationPlaceholder').append(this.pagination.el); }
-			if(this.items){
-				this.items.render();
-				this.$('.collectionPlaceholder').append(this.items.el); }
+		render: function(){			
+			var el = this.$el;			
+			_.each(this.slaves, function(slave){
+				slave.render();
+				el.append(slave.el);
+			});
 		},
 
 		runAdderListeners: function(){
 			this.listenTo(this.adder, 'createDoc', function(type, data){
-				var me = this,
+				var me 	= this,
 					doc = Dispenser.getDoc(type)
 				;
 
@@ -116,8 +109,10 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 					});
 
 					// Render collection view
-					me.trigger('renderCollection', doc);
-
+					this.items.collection.add(doc);
+					this.items.createDocViews(this.items.collection);
+					this.items.render();
+					this.pagination.render();
 				}});
 			}); // End of createDoc
 		},
@@ -127,9 +122,9 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 				var me = this;
 
 				this.fullItems.query({clause: clauses}).then(function(results){
-					var	customUrl = "",
-						paramName = encodeURI("clause[]"),
-						paramValue = ''
+					var	customUrl 	= "",
+						paramName 	= encodeURI("clause[]"),
+						paramValue 	= ''
 					;
 
 					for(var i in clauses){
@@ -137,7 +132,6 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 						customUrl += (paramName + "=" + paramValue);
 						if(i < clauses.length - 1) 
 							customUrl += "&";
-							
 					}
 
 					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
@@ -151,21 +145,21 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 
 		runPaginationListeners: function(){
 			this.listenTo(this.pagination, 'navigate', function(page){
-				var	limit = this.pagination.limit,
-					conditions = this.params || {},
-					query = {},
-					me = this
+				var	limit 		= this.pagination.limit,
+					conditions 	= this.params || {},
+					query 		= {},
+					me 			= this
 				;
 
-				conditions.skip 	= (page * limit) - limit;
-				conditions.limit	= limit;
+				conditions.skip  = (page * limit) - limit;
+				conditions.limit = limit;
 
 				query = Tools.createQuery(this.type, conditions);
 
 				this.fullItems.query(query).then(function(results, options){
-					me.pagination.currentPage = page;
-					me.pagination.distance = me.pagination.lastPage - page;
-					me.pagination.lastPage = Math.ceil(results.get('total') / limit);
+					me.pagination.currentPage 	= page;
+					me.pagination.distance 		= me.pagination.lastPage - page;
+					me.pagination.lastPage 		= Math.ceil(results.get('total') / limit);
 					me.pagination.render();
 
 					var customUrl = "skip=" + conditions.skip + "&limit=" + conditions.limit;
@@ -185,13 +179,6 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 		},
 
 		runItemsListeners: function(){
-			this.listenTo(this, 'renderCollection', function(doc){
-				this.items.collection.add(doc);
-				this.items.createDocViews(this.items.collection);
-				this.items.render();
-				this.pagination.render();
-			});
-
 			this.listenTo(this.items, 'click:edit', function(docView){
 				docView.open();
 			}); // End of click edit
@@ -256,8 +243,8 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 						newDocView		= createAdderView(type, results, settings)						
 					;
 
-					// Create the SuperView
-					var superView = new SuperView({
+					// Create the SuperView: collectionController
+					var collectionController = new CollectionController({
 						type: type,
 						params: query,
 						adderView: newDocView,
@@ -267,8 +254,8 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplSuper, Dispens
 					});
 
 					// Render the set
-					superView.render();
-					mainView.loadView(superView);
+					collectionController.render();
+					mainView.loadView(collectionController);
 					mainView.setTitle(type + ' collection');
 				});
 			});
