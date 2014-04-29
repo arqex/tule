@@ -25,6 +25,10 @@ RouteManager.prototype = {
 			func = opts[1],
 			controller = func ? file[func] : file
 		;
+
+		if(baseUrl[baseUrl.length - 1] == '/')
+			baseUrl = baseUrl.substring(0, baseUrl.length -1);
+
 		console.log('Added route: ' + method + ' ' + opts[0] + ' ' + opts[1]);
 		app[method](baseUrl + route, controller);
 	},
