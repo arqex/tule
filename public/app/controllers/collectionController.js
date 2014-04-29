@@ -89,7 +89,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplController, Di
 
 		initialize: function(opts){
 			this.type 		= opts.type;
-			this.params		= opts.params;
+			this.params		= opts.params || {};
 			this.fullItems	= Dispenser.getCollection(this.type);
 
 			// Override
@@ -145,6 +145,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplController, Di
 		runSearchListeners: function(){
 			this.listenTo(this.subViews['search'], 'searchDoc', function(clauses){
 				var me = this;
+				this.params['clause'] = clauses;
 
 				this.fullItems.query({clause: clauses}).then(function(results){
 					var	customUrl 	= "",
