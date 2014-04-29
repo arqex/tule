@@ -1,17 +1,17 @@
 var path = require('path'),
 	basepath = path.join(__dirname, '../..'),
-	monBaseUrl = '/',
+	baseUrl = '/',
 	dbName = 'tule'
 ;
 
 module.exports = {
 	mon: {
-		baseUrl: monBaseUrl,
+		baseUrl: baseUrl,
 		settingsCollection: 'monSettings'
 	},
 	dbName: dbName,
 	mongo: 'mongodb://localhost:27017/' + dbName,
-	routes: require('./routes')(monBaseUrl),
+	routes: require('./routes')(baseUrl),
 	navigation: '',
 	path: {
 		base: basepath,

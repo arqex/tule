@@ -6,7 +6,8 @@ var fs = require('fs'),
 	when = require('when'),
 	promisify = require('when/node/function'),
 	pluginsPath = config.path.plugins,
-	_ = require('underscore')
+	_ = require('underscore'),
+	hooks = require(config.path.modules + '/hooks/hooksManager')
 ;
 
 
@@ -228,6 +229,7 @@ PluginManager.prototype = {
 
 				me.saveActivePlugins(pluginList);
 				deferred.resolve(pluginList);
+				hooks.trigger('plugin:activated', pluginId);
 			});
 		});
 		return deferred.promise;
@@ -248,6 +250,7 @@ PluginManager.prototype = {
 			pluginList = definitions.map(function(def){return def.id;});
 			me.active = definitions;
 			deferred.resolve(pluginList);
+			hooks.trigger('plugin:deactivated', pluginId);
 		});
 		return deferred.promise;
 	}
