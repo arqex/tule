@@ -1,6 +1,6 @@
 "use strict";
 
-define(['jquery', 'underscore', 'backbone', 'models/dispenser'], function($, _, Backbone, Dispenser){
+define(['jquery', 'underscore', 'backbone', 'modules/core/dispenser'], function($, _, Backbone, Dispenser){
 
 	var createQuery = function(type, query){
 		var collection = Dispenser.getCollection(type),

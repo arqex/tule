@@ -1,20 +1,6 @@
 "use strict";
 
-define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
-	var Region = Backbone.View.extend({
-		initialize: function(opts){
-			this.setElement(opts.selector);
-		},
-
-		show: function(view){
-			if(this.view)
-				this.view.remove();
-			this.view = view;
-			this.view.render();
-			this.$el.html(this.view.el);
-		}
-	});
-
+define(['jquery', 'underscore', 'backbone', './region'], function($, _, Backbone, Region){
 	var PageController = Backbone.View.extend({
 		tpl: '', // controller tpl
 		subViews: {}, // key, view
@@ -34,7 +20,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 			this.$el.html(this.tpl);
 			var me = this;
 			_.each(this.regionViews, function(viewId, regionId){
-				var region = new Region({selector: me.$(regionId)});
+				var region = new Region.getRegion({selector: me.$(regionId)});
 				region.show(me.subViews[viewId]);
 				me.regions[regionId] = region;
 			});
@@ -42,6 +28,6 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 	});
 
 	return {		
-		PageController: PageController
+		getPageController: PageController
 	}
 });

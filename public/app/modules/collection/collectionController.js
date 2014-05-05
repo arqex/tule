@@ -2,16 +2,19 @@
 
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'views/collectionView',
-	'views/mainView',
-	'text!tpls/collectionControllerTpl.html',
-	'models/dispenser',
-	'models/superViewTools',
-	'models/regions',
+
+	'modules/collection/collectionViews',	
+	'text!modules/collection/collectionControllerTpl.html',
+
+	'modules/core/mainController',
+	'modules/core/dispenser',
+	'modules/core/coreTools',
+	'modules/core/pageController',
+
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, CollectionViews, mainView, tplController, Dispenser, Tools, Regions, Alerts){
+define(deps, function($,_,Backbone, CollectionViews, tplController, mainController, Dispenser, Tools, PageController, Alerts){
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
 			currentPage: Math.round(current),
@@ -52,7 +55,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplController, Di
 		return view;
 	};
 
-	var CollectionController = Regions.PageController.extend({
+	var CollectionController = PageController.getPageController.extend({
 		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
 		regionViews:{
 			'.adderPlaceholder': 'adder',
@@ -216,7 +219,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplController, Di
 
 
 	return {
-		list: function(type, page, query){			
+		controller: function(type, page, query){			
 			var collection = Dispenser.getCollection(type);
 			var settingsPromise = collection.getSettings();
 
@@ -252,8 +255,8 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplController, Di
 
 					// Render the set
 					collectionController.render();
-					mainView.loadView(collectionController);
-					mainView.setTitle(type + ' collection');
+					mainController.loadView(collectionController);
+					mainController.setTitle(type + ' collection');
 				});
 			});
 		}

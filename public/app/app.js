@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'router', 'modules/nav/navigation', 'backbone', 'models/dispenser'],
+define(['jquery', 'underscore', 'router', 'modules/navigation/navigation', 'backbone', 'modules/core/dispenser'],
 	function($, _, Router, Navigation, Backbone, Dispenser){
 
 	var init = function() {

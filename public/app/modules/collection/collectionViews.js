@@ -1,23 +1,18 @@
+'use strict';
+
 var deps = [
 	'jquery', 'underscore', 'backbone',
 
-	'text!tpls/docTable.html',
-	'text!tpls/searchTools.html',
+	'text!modules/collection/docTable.html',
+	'text!modules/collection/searchTools.html',
 
 	'modules/datatypes/dispatcher',
 	'modules/alerts/alerts',
 
-	'models/dispenser'
+	'modules/core/dispenser'
 ];
 
-define(deps, function(
-		$, _, Backbone, 
-		tplSource, tplSearchTools, 
-		dispatcher, Alerts, 
-		Dispenser ){
-	'use strict';
-
-
+define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Alerts, Dispenser ){
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
 

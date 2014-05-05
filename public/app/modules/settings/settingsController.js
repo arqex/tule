@@ -1,12 +1,12 @@
 "use strict";
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'models/dispenser',
-	'views/collectionView',
-	'views/mainView'
+	'modules/collection/collectionViews',
+	'modules/core/dispenser',
+	'modules/core/mainController'
 ];
 
-define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
+define(deps, function($,_,Backbone, Collection, Dispenser, mainController){
 	//Structure for the collection docs
 	var docOptions = {
 		customProperties: false,
@@ -97,8 +97,8 @@ define(deps, function($,_,Backbone, Dispenser, Collection, mainView){
 				});
 				
 				superView.render();
-				mainView.loadView(superView);
-				mainView.setTitle('Settings');
+				mainController.loadView(superView);
+				mainController.setTitle('Settings');
 			});
 
 		}

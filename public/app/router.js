@@ -14,7 +14,7 @@ var nofunction = function(){},
 
 				me.route(route, controllerData, function(){
 					var args = arguments;
-					require(['controllers/' + file], function(controller){
+					require([file], function(controller){
 						controller[method].apply(me, args);
 					});
 				});
