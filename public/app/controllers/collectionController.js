@@ -52,33 +52,7 @@ define(deps, function($,_,Backbone, CollectionViews, mainView, tplController, Di
 		return view;
 	};
 
-	var PageController = Backbone.View.extend({
-		tpl: '', // controller tpl
-		subViews: {}, // key, view
-		regionViews: {}, // regionId (node selector), viewId
-		regions: {}, // regions showing views
-
-		render: function(){
-			if($.isEmptyObject(this.regions))
-				this.createRegions();
-
-			_.each(this.subViews, function(subView){
-				subView.render();				
-			});
-		},
-
-		createRegions: function(){
-			this.$el.html(this.tpl);
-			var me = this;
-			_.each(this.regionViews, function(viewId, regionId){
-				var region = new Regions.Region({selector: me.$(regionId)});
-				region.show(me.subViews[viewId]);
-				me.regions[regionId] = region;
-			});
-		}
-	});
-
-	var CollectionController = PageController.extend({
+	var CollectionController = Regions.PageController.extend({
 		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
 		regionViews:{
 			'.adderPlaceholder': 'adder',
