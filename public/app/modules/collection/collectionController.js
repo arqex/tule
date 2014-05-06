@@ -115,13 +115,12 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 			});
 		},
 
-		render: function(opts){
+/*		render: function(opts){
 			var me = this;
 			this.querying.then(function(){
-				PageController.prototype.render.call(me, opts);
-				opts.html(me.el);
+				PageController.prototype.render.call(me, opts);				
 			});
-		},
+		},*/
 
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createDoc', function(type, data){

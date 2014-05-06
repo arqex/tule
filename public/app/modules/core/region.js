@@ -15,7 +15,5 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 		}
 	});
 
-	return {		
-		getRegion: Region
-	}
+	return Region;
 });
