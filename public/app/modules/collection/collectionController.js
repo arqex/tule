@@ -7,15 +7,17 @@ var deps = [
 	'./collectionModels',
 	'text!modules/collection/collectionControllerTpl.html',
 
-	'modules/core/mainController',
-	'modules/core/dispenser',
+	'modules/core/mainController',	
 	'modules/core/coreTools',
 	'modules/core/pageController',
 
+	'modules/settings/settingsModels',
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplController, mainController, Dispenser, Tools, PageController, Alerts){
+define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplController, 
+	mainController, Tools, PageController, SettingsModels, Alerts){
+	
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
 			currentPage: Math.round(current),
@@ -68,9 +70,9 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 		initialize: function(opts){
 			this.type 		= opts.args[0];
 			this.params		= opts.args[2] || {};
-			this.fullItems	= Dispenser.getCollection(this.type);			
+			this.collection	= new SettingsModels.getCollection({type: this.type});
 
-			var settingsPromise = this.fullItems.getSettings(),
+			var settingsPromise = this.collection.getSettings(),
 				me = this
 			;
 
@@ -78,7 +80,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 			if(this.params != undefined)
 				this.params = Tools.createQuery(this.type, this.params);
 
-			this.querying = this.fullItems.query(this.params).then(function(results, options){
+			this.querying = this.collection.query(this.params).then(function(results, options){
 				settingsPromise.then(function(settings){
 					// Primitive vars
 					var fields 		= settings.tableFields || [],
@@ -124,7 +126,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createDoc', function(type, data){
 				var me 	= this,
-					doc = Dispenser.getDoc(type)
+					doc = new CollectionModels.getDocument({type: type})
 				;
 
 				_.each(data, function(values, key){
@@ -159,7 +161,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 				var me = this;
 				this.params['clause'] = clauses;
 
-				this.fullItems.query({clause: clauses}).then(function(results){
+				this.collection.query({clause: clauses}).then(function(results){
 					var	customUrl 	= "",
 						paramName 	= encodeURI("clause[]"),
 						paramValue 	= ''
@@ -194,7 +196,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 
 				query = Tools.createQuery(this.type, conditions);
 
-				this.fullItems.query(query).then(function(results, options){
+				this.collection.query(query).then(function(results, options){
 					me.subViews['pagination'].currentPage 	= page;
 					me.subViews['pagination'].distance 		= me.subViews['pagination'].lastPage - page;
 					me.subViews['pagination'].lastPage 		= Math.ceil(results.get('total') / limit);

@@ -1,7 +1,7 @@
 var deps = [
 	'jquery', 'underscore', 'backbone', 'router', 
 	'modules/core/dispenser', 'modules/core/mainController', 
-	'modules/navigation/NavigationController'
+	'modules/navigation/navigationController'
 ];
 
 define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
@@ -12,7 +12,9 @@ define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
 
 		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){
 			// App's init point
-			var main = new Main({routes: settings.routes});
+			var navigation 	= new Navigation({routes: settings.routes}),
+				main 		= new Main({navigation: navigation})
+			;
 
 			Backbone.Events.on('tuleRoute', function(file, method, args){
 				main.loadContent(file, method, args);
@@ -20,7 +22,7 @@ define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
 
 			Router.init();
 			Backbone.history.on('route', function(name, args) {
-				Navigation.selectCurrentNavElement();
+				navigation.selectCurrentNavElement();
 			});
 		});
 	};
