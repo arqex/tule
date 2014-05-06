@@ -24,6 +24,7 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 				var controller = new Controller({args: args});
 				controller.querying.then(function(){
 					me.viewRegion.show(controller);
+					me.navigationRegion.show(me.navigation);
 				});
 			});
 		}

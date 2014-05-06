@@ -115,13 +115,6 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 			});
 		},
 
-/*		render: function(opts){
-			var me = this;
-			this.querying.then(function(){
-				PageController.prototype.render.call(me, opts);				
-			});
-		},*/
-
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createDoc', function(type, data){
 				var me 	= this,
@@ -142,7 +135,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 					me.subViews['adder'].close();
 
 					// Add possible new property definitions
-					$.post('/api/collection/'+me.type, {
+					$.post('/api/collection/' + me.type, {
 						type: me.type,
 						data: data
 					});

@@ -4,12 +4,14 @@ define(['jquery', 'backbone', 'modules/navigation/navigationModels'],
 	var NavigationController = Backbone.View.extend({
 		initialize: function(opts){	
 			this.navigation = new Navigation.NavCollectionView({
-				collection: new Navigation.NavCollection(opts.routes),
-				el: 'nav.navigation'
-			});
+				collection: new Navigation.NavCollection(opts.routes)				
+			}); 
+		},
 
+		render: function(){
 			this.navigation.render();
-			this.selectFirstNavElement(); 
+			this.el = this.navigation.el;
+			this.selectCurrentNavElement(); // Caution! Maybe is wrong this selector
 		},
 
 		selectCurrentNavElement: function() {

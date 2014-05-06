@@ -13,7 +13,7 @@ define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
 		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){
 			// App's init point
 			var navigation 	= new Navigation({routes: settings.routes}),
-				main 		= new Main({navigation: navigation})
+				main 		= new Main({navigation: navigation, el: $(document)})
 			;
 
 			Backbone.Events.on('tuleRoute', function(file, method, args){
