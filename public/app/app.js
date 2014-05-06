@@ -1,29 +1,29 @@
-define(['jquery', 'underscore', 'router', 'modules/navigation/navigation', 'backbone', 'modules/core/dispenser'],
-	function($, _, Router, Navigation, Backbone, Dispenser){
+var deps = [
+	'jquery', 'underscore', 'backbone', 'router', 
+	'modules/core/dispenser', 'modules/core/mainController', 
+	'modules/navigation/NavigationController'
+];
+
+define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
 
 	var init = function() {
 		var settings = window.tuleSettings;
 		window.tuleSettings = undefined;
 
 		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){
-			startNavigation(settings.routes);
+			// App's init point
+			var main = new Main({routes: settings.routes});
+
+			Backbone.Events.on('tuleRoute', function(file, method, args){
+				main.loadContent(file, method, args);
+			});
+
+			Router.init();
+			Backbone.history.on('route', function(name, args) {
+				Navigation.selectCurrentNavElement();
+			});
 		});
 	};
-
-	var startNavigation = function(routes){
-		Router.init();
-		var nav = new Navigation.NavCollectionView({
-			collection: new Navigation.NavCollection(routes),
-			el: 'nav.navigation'
-		});
-		nav.render();
-
-		// On hash change set current navigation
-		selectFirstNavElement(); // When load at first from url (no clicking menu)
-		Backbone.history.on('route', function(name, args) {
-			selectCurrentNavElement();
-		});
-	}
 
 	var registerDataTypes = function(datatypes, path, clbk) {
 		var globals = new Dispenser.SettingsDoc({ name: 'globals' });
@@ -42,15 +42,6 @@ define(['jquery', 'underscore', 'router', 'modules/navigation/navigation', 'back
 				clbk();
 			});
 		});
-	};
-
-	var selectCurrentNavElement = function() {
-		$('.navitem').removeClass('navcurrent');
-		$( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('currentNavigation');
-	};
-
-	var selectFirstNavElement = function() {
-		$( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('firstNavigation');
 	};
 
 	return {

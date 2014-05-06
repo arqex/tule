@@ -1,6 +1,6 @@
 define(['jquery', 'underscore', 'backbone', 'config', 'backbone-query-params'], function($, _, Backbone, config){
 var nofunction = function(){},
-	QRouter = Backbone.Router.extend({
+	Router = Backbone.Router.extend({
 		//Routes are loaded automatically in the initialize method.
 		routes: {},
 		initialize: function(){
@@ -14,13 +14,9 @@ var nofunction = function(){},
 
 				me.route(route, controllerData, function(){
 					var args = arguments;
-					require([file], function(controller){
-						controller[method].apply(me, args);
-					});
+					Backbone.Events.trigger('tuleRoute', file, method, args);
 				});
 			});
-
-			//this.listenTo(location.hash, 'change', this.nofunction);
 		},
 		nofunction: function(){},
 		defaultAction: function(){
@@ -31,7 +27,7 @@ var nofunction = function(){},
 		}
 	}),
 	init = function(){
-		var router = new QRouter();
+		var router = new Router();
 		Backbone.history.start({pushState: true});
 		// Capture the links requests
 		$(document).on("click", "a:not([data-bypass])", function(evt) {

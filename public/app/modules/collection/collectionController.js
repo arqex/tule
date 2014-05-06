@@ -3,7 +3,8 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
 
-	'modules/collection/collectionViews',	
+	'./collectionViews',
+	'./collectionModels',
 	'text!modules/collection/collectionControllerTpl.html',
 
 	'modules/core/mainController',
@@ -14,7 +15,7 @@ var deps = [
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, CollectionViews, tplController, mainController, Dispenser, Tools, PageController, Alerts){
+define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplController, mainController, Dispenser, Tools, PageController, Alerts){
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
 			currentPage: Math.round(current),
@@ -55,7 +56,7 @@ define(deps, function($,_,Backbone, CollectionViews, tplController, mainControll
 		return view;
 	};
 
-	var CollectionController = PageController.getPageController.extend({
+	var CollectionController = PageController.extend({
 		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
 		regionViews:{
 			'.adderPlaceholder': 'adder',
@@ -65,25 +66,59 @@ define(deps, function($,_,Backbone, CollectionViews, tplController, mainControll
 		},
 
 		initialize: function(opts){
-			this.type 		= opts.type;
-			this.params		= opts.params || {};
-			this.fullItems	= Dispenser.getCollection(this.type);
+			this.type 		= opts.args[0];
+			this.params		= opts.args[2] || {};
+			this.fullItems	= Dispenser.getCollection(this.type);			
 
-			// Override
-			this.tpl = this.controllerTpl;
-			this.subViews['adder'] = createAdderView(this.type, opts.results, opts.settings);
-			this.subViews['search'] = createSearchTools(this.type);
-			this.subViews['pagination'] = createPagination(opts.pagination[0], opts.pagination[1], opts.pagination[2]);
-			this.subViews['items'] = createCollectionView(opts.documents, opts.fields, opts.settings, this.type);
-					
-			if(this.subViews['adder'])
-				this.runAdderListeners();
-			if(this.subViews['search'])
-				this.runSearchListeners();
-			if(this.subViews['pagination'])
-				this.runPaginationListeners();
-			if(this.subViews['items'])
-				this.runItemsListeners();
+			var settingsPromise = this.fullItems.getSettings(),
+				me = this
+			;
+
+			// If there are conditions in the url execute the query
+			if(this.params != undefined)
+				this.params = Tools.createQuery(this.type, this.params);
+
+			this.querying = this.fullItems.query(this.params).then(function(results, options){
+				settingsPromise.then(function(settings){
+					// Primitive vars
+					var fields 		= settings.tableFields || [],
+						documents 	= results.get('documents'),
+						pagination 	= []
+					;
+
+					pagination.push(results.get('current'));
+					pagination.push(results.get('limit'));
+					pagination.push(results.get('total'));
+
+					// Set up fields
+					fields.push({action: 'edit', href: "#", icon: 'pencil'});
+					fields.push({action: 'remove', href: "#", icon: 'times'});
+
+					// Override
+					me.tpl = me.controllerTpl;
+					me.subViews['adder'] = createAdderView(me.type, results, settings);
+					me.subViews['search'] = createSearchTools(me.type);
+					me.subViews['pagination'] = createPagination(pagination[0], pagination[1], pagination[2]);
+					me.subViews['items'] = createCollectionView(documents, fields, settings, me.type);
+							
+					if(me.subViews['adder'])
+						me.runAdderListeners();
+					if(me.subViews['search'])
+						me.runSearchListeners();
+					if(me.subViews['pagination'])
+						me.runPaginationListeners();
+					if(me.subViews['items'])
+						me.runItemsListeners();
+				});
+			});
+		},
+
+		render: function(opts){
+			var me = this;
+			this.querying.then(function(){
+				PageController.prototype.render.call(me, opts);
+				opts.html(me.el);
+			});
 		},
 
 		runAdderListeners: function(){
@@ -218,47 +253,5 @@ define(deps, function($,_,Backbone, CollectionViews, tplController, mainControll
 	});
 
 
-	return {
-		controller: function(type, page, query){			
-			var collection = Dispenser.getCollection(type);
-			var settingsPromise = collection.getSettings();
-
-			// If there are conditions in the url execute the query
-			if(query != undefined)
-				query = Tools.createQuery(type, query);
-
-			collection.query(query).then(function(results, options){
-				settingsPromise.then(function(settings){
-					// Primitive vars
-					var fields 		= settings.tableFields || [],
-						documents 	= results.get('documents'),
-						total 		= results.get('total'),
-						current		= results.get('current'),
-						limit 		= results.get('limit')
-					;
-
-					// Set up fields
-					fields.push({action: 'edit', href: "#", icon: 'pencil'});
-					fields.push({action: 'remove', href: "#", icon: 'times'});
-
-
-					// Create the SuperView: collectionController
-					var collectionController = new CollectionController({
-						type: type,
-						params: query,
-						settings: settings,
-						results: results,
-						documents: documents,
-						pagination: [current, limit, total],
-						fields: fields
-					});
-
-					// Render the set
-					collectionController.render();
-					mainController.loadView(collectionController);
-					mainController.setTitle(type + ' collection');
-				});
-			});
-		}
-	};
+	return CollectionController;
 });

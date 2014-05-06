@@ -7,6 +7,10 @@ define(['jquery', 'underscore', 'backbone', './region'], function($, _, Backbone
 		regionViews: {}, // regionId (node selector), viewId
 		regions: {}, // regions showing views
 
+		initialize: function(opts){
+			this.opts = opts;
+		},
+
 		render: function(){
 			if($.isEmptyObject(this.regions))
 				this.createRegions();
@@ -27,7 +31,5 @@ define(['jquery', 'underscore', 'backbone', './region'], function($, _, Backbone
 		}
 	});
 
-	return {		
-		getPageController: PageController
-	}
+	return PageController;
 });
