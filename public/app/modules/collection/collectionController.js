@@ -5,7 +5,7 @@ var deps = [
 
 	'./collectionViews',
 	'./collectionModels',
-	'text!modules/collection/collectionControllerTpl.html',
+	'text!.tpls/collectionControllerTpl.html',
 
 	'modules/core/mainController',	
 	'modules/core/coreTools',
@@ -17,7 +17,7 @@ var deps = [
 
 define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplController, 
 	mainController, Tools, PageController, SettingsModels, Alerts){
-	
+
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
 			currentPage: Math.round(current),

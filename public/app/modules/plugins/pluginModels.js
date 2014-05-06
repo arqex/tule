@@ -1,5 +1,5 @@
 var deps = [
-	'jquery', 'underscore', 'backbone', 'marionette', 'text!./plugins.html'
+	'jquery', 'underscore', 'backbone', 'marionette', 'text!.tpls/plugins.html'
 ];
 define(deps, function($,_,Backbone, Marionette, tplSource){
 	var tpls = $(tplSource);
