@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'text!.tpls/navItem.html'],
+define(['jquery', 'underscore', 'backbone', 'text!./tpls/navItem.html'],
     function($,_,Backbone, tplSource) {
 
     // Models

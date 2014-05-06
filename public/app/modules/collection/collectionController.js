@@ -5,7 +5,7 @@ var deps = [
 
 	'./collectionViews',
 	'./collectionModels',
-	'text!.tpls/collectionControllerTpl.html',
+	'text!./tpls/collectionControllerTpl.html',
 
 	'modules/core/mainController',	
 	'modules/core/coreTools',

@@ -3,8 +3,8 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
 
-	'text!.tpls/docTable.html',
-	'text!.tpls/searchTools.html',
+	'text!./tpls/docTable.html',
+	'text!./tpls/searchTools.html',
 
 	'modules/datatypes/dispatcher',
 	'modules/alerts/alerts',

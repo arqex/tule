@@ -2,7 +2,7 @@
 
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'text!.tpls/alert.html'
+	'text!./tpls/alert.html'
 ];
 define(deps, function($,_,Backbone, tplSource){
 	var Alert = Backbone.Model.extend({
