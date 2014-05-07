@@ -47,9 +47,9 @@ var Query = Backbone.Model.extend({
 });
 
 var Collection = Document.extend({
-	initialize: function(opts){
-		this.type = opts.type;
-		this.set('name', 'collection_' + opts.type);
+	initialize: function(attrs, opts){
+		this.type = attrs.type || opts.type;
+		this.set('name', 'collection_' + this.type);
 		this.settingsFetched = false;
 	},
 	query: function(opts){
