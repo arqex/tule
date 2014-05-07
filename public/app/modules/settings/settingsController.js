@@ -95,13 +95,16 @@ define(deps, function($,_,Backbone,
 	};
 
 	var SettingsController = BaseController.extend({
-		controllerTpl: $(tplController).find('#settingsControllerTpl').html(),
-		regionViews:{
-			'.adderPlaceholder': 'adder',
-			'.itemsPlaceholder': 'items'
-		},
+		controllerTpl: $(tplController).find('#settingsControllerTpl').html(),		
 
 		initialize: function(opts){
+			this.subViews = {};
+			this.regions = {};
+			this.regionViews = {
+				'.adderPlaceholder': 'adder',
+				'.itemsPlaceholder': 'items'
+			};
+
 			var me = this,
 				collections = new SettingsModels.getCollectionList()
 			;

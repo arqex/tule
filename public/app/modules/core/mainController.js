@@ -18,8 +18,7 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 		},
 
 		loadContent: function(file, method, args){
-			var me = this;
-			var el = $(document.children).find('.content');
+			var me = this;			
 			require([file], function(Controller){				
 				var controller = new Controller({args: args});
 				controller.querying.then(function(){

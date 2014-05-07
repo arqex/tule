@@ -60,14 +60,17 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 
 	var CollectionController = BaseController.extend({
 		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
-		regionViews:{
-			'.adderPlaceholder': 'adder',
-			'.searchPlaceholder': 'search',
-			'.paginationPlaceholder': 'pagination',
-			'.itemsPlaceholder': 'items'
-		},
 
 		initialize: function(opts){
+			this.subViews = {};
+			this.regions = {};
+			this.regionViews = {
+				'.adderPlaceholder': 'adder',
+				'.searchPlaceholder': 'search',
+				'.paginationPlaceholder': 'pagination',
+				'.itemsPlaceholder': 'items'
+			};
+
 			this.type 		= opts.args[0];
 			this.params		= opts.args[2] || {};
 			this.collection	= new SettingsModels.getCollection({type: this.type});

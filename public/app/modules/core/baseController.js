@@ -2,11 +2,6 @@
 
 define(['jquery', 'underscore', 'backbone', './region'], function($, _, Backbone, Region){
 	var BaseController = Backbone.View.extend({
-		tpl: '', // controller tpl
-		subViews: {}, // key, view
-		regionViews: {}, // regionId (node selector), viewId
-		regions: {}, // regions showing views
-
 		render: function(){
 			if($.isEmptyObject(this.regions))
 				this.createRegions();
