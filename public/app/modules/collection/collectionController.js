@@ -44,7 +44,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 			settings: settings
 		});
 
-		return newDocView;
+		return newDocView; 
 	};
 
 	var createCollectionView = function(documents, fields, settings){
