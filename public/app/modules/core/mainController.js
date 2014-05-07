@@ -13,7 +13,7 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 			this.$('.pagetitle').after(Alerts.alerter.el);
 
 			this.navigation 		= opts.navigation;
-			this.navigationRegion 	= new Region({selector: this.$('.navigation')});
+			this.navigationRegion 	= new Region({selector: this.$('nav')});
 			this.viewRegion 		= new Region({selector: this.$('.content')});
 		},
 
@@ -25,6 +25,7 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 				controller.querying.then(function(){
 					me.viewRegion.show(controller);
 					me.navigationRegion.show(me.navigation);
+					me.navigation.selectFirstNavElement();
 				});
 			});
 		}

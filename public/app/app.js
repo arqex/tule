@@ -12,7 +12,7 @@ define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
 
 		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){
 			// App's init point
-			var navigation 	= new Navigation({routes: settings.routes}),
+			var navigation 	= new Navigation({routes: settings.routes, el: $('nav')}),
 				main 		= new Main({navigation: navigation, el: $(document)})
 			;
 

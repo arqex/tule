@@ -23,6 +23,11 @@ define(['jquery', 'underscore', 'backbone', 'text!./tpls/navItem.html'],
             'currentNavigation': 'openNavigation',
             'firstNavigation': 'firstNavigation'
         },
+
+        initialize: function(){
+
+        },
+
         render: function(){
             this.$el.html(this.tpl(this.model.toJSON()));
             if (this.model.get('subItems').length > 0) {

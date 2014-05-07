@@ -5,13 +5,12 @@ define(['jquery', 'backbone', 'modules/navigation/navigationModels'],
 		initialize: function(opts){	
 			this.navigation = new Navigation.NavCollectionView({
 				collection: new Navigation.NavCollection(opts.routes)				
-			}); 
+			});			
 		},
 
 		render: function(){
 			this.navigation.render();
-			this.el = this.navigation.el;
-			this.selectCurrentNavElement(); // Caution! Maybe is wrong this selector
+			this.el = this.navigation.el;			
 		},
 
 		selectCurrentNavElement: function() {
