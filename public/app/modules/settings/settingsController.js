@@ -1,16 +1,21 @@
 "use strict";
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'modules/collection/collectionViews',
+	'modules/collection/collectionViews',	
 
 	'modules/core/baseController',
 	'modules/core/mainController',
 
 	'./settingsModels',
-	'text!./tpls/settingsControllerTpl.html'
+	'text!./tpls/settingsControllerTpl.html',
+	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, CollectionViews, BaseController, mainController, SettingsModels, tplController){
+define(deps, function($,_,Backbone, 
+	CollectionViews,
+	BaseController, mainController, 
+	SettingsModels, tplController, Alerts){
+
 	//Structure for the collection docs
 	var docOptions = {
 		customProperties: false,
@@ -108,7 +113,44 @@ define(deps, function($,_,Backbone, CollectionViews, BaseController, mainControl
 				me.tpl = me.controllerTpl;
 				me.subViews['adder'] = createAdderView(collections);
 				me.subViews['items'] = createItemsView(collections);
+
+				if(me.subViews['adder'])
+					me.runAdderListeners();
 			});
+		},
+
+		runAdderListeners: function(){
+			this.listenTo(this.subViews['adder'], 'createCollection', function(type, data){
+				var me 	= this,
+					collection = new SettingsModels.getCollection({type: type})
+				;
+
+				_.each(data, function(values, key){
+					collection.set(key, values.value);
+				});
+
+				collection.url = '/api/collection';
+				collection.save(null, {success: function(){
+					Alerts.add({message:'Document saved correctly', autoclose:6000});
+					collection.type = me.subViews['adder'].objectView.getValue()['name'];					
+
+					// Reset the form on DOM
+					me.subViews['adder'].objectView = false;
+					me.subViews['adder'].$el.find('.form').remove();
+					me.subViews['adder'].close();
+
+					// Add possible new property definitions
+					$.post('/api/collection/' + collection.type, {
+						type: collection.type,
+						data: data
+					});
+
+					// Render collection view
+					me.subViews['items'].collection.add(collection);
+					me.subViews['items'].createDocViews(me.subViews['items'].collection);
+					me.render();
+				}});
+			}); // End of createCollection
 		}
 	});
 

@@ -287,34 +287,20 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 		
 		onClickCreate: function(e){
 			e.preventDefault();
-
-			var doc = Dispenser.getCollection(this.objectView.getValue()),
-				me = this
-			;			
+			var stack = {};
 
 			_.each(this.objectView.subViews, function(subView){
 				subView.typeView.save();
 				subView.changeMode('display');
-				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
+				var value = {};
+				value['key'] = subView.key;
+				value['label'] = subView.label || subView.key;
+				value['datatype'] = subView.datatype;
+				value['value'] = subView.typeView.getValue();
+				stack[subView.key] = value;
 			});
 
-			doc.url = '/api/collection';
-
-			doc.save(null, {success: function(){
-				Alerts.add({message:'Document saved correctly', autoclose:6000});
-				doc.id = 'collection_' + me.objectView.getValue()['name'];
-				doc.type = me.objectView.getValue()['name'];
-				doc.url = encodeURI('/api/settings/collection_' + doc.type);
- 				me.objectView = false;
-				me.$el.find('.form').remove();
-				me.close();
-				doc.newborn = true;
-				// Render collection view
-				me.collection.add(doc);
-				me.collectionView.createDocViews();
-				me.collectionView.render();
-			}});
-		
+			this.trigger('createCollection', this.type, stack);
 		}
 	});
 
