@@ -1,7 +1,7 @@
 "use strict";
 
 define(['jquery', 'underscore', 'backbone', './region'], function($, _, Backbone, Region){
-	var PageController = Backbone.View.extend({
+	var BaseController = Backbone.View.extend({
 		tpl: '', // controller tpl
 		subViews: {}, // key, view
 		regionViews: {}, // regionId (node selector), viewId
@@ -27,5 +27,5 @@ define(['jquery', 'underscore', 'backbone', './region'], function($, _, Backbone
 		}
 	});
 
-	return PageController;
+	return BaseController;
 });

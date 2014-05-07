@@ -9,14 +9,14 @@ var deps = [
 
 	'modules/core/mainController',	
 	'modules/core/coreTools',
-	'modules/core/pageController',
+	'modules/core/baseController',
 
 	'modules/settings/settingsModels',
 	'modules/alerts/alerts'
 ];
 
 define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplController, 
-	mainController, Tools, PageController, SettingsModels, Alerts){
+	mainController, Tools, BaseController, SettingsModels, Alerts){
 
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
@@ -58,7 +58,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 		return view;
 	};
 
-	var CollectionController = PageController.extend({
+	var CollectionController = BaseController.extend({
 		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
 		regionViews:{
 			'.adderPlaceholder': 'adder',
