@@ -226,7 +226,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 						success: function(){
 							console.log('Document deleted');
 							Alerts.alerter.add({message: 'Deletion completed', autoclose: 6000});
-							me.render();
+							me.subViews['items'].render();
 						},
 						error: function(){
 							console.log('Document NOT deleted');

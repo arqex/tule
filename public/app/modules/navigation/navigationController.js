@@ -1,27 +1,37 @@
-define(['jquery', 'backbone', 'modules/navigation/navigationModels'], 
-	function($, Backbone, Navigation){
+define(['jquery', 'backbone', './navigationModels', './navigationViews'],
+	function($, Backbone, NavModels, NavViews){
 
-	var NavigationController = Backbone.View.extend({
-		initialize: function(opts){	
-			this.navigation = new Navigation.NavCollectionView({
-				collection: new Navigation.NavCollection(opts.routes)				
-			});			
-		},
+		var NavigationController = Backbone.View.extend({
+			initialize: function(opts){	
+				this.navigation = new NavViews.NavCollectionView({
+					collection: new NavModels.NavCollection(opts.routes)				
+				});			
+			},
 
-		render: function(){
-			this.navigation.render();
-			this.el = this.navigation.el;			
-		},
+			render: function(){
+				this.navigation.render();
+				this.el = this.navigation.el;			
+			},
 
-		selectCurrentNavElement: function() {
-			$('.navitem').removeClass('navcurrent');
-			$( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('currentNavigation');
-		},
+			highlightNavitem: function(route) {
+				var target 		= $('.navlink[href="' + route + '"]'),
+					parent 		= false,
+					maxHeight 	= 0
+				;
 
-		selectFirstNavElement: function() {
-			$( '.navlink[href="'+location.pathname+'"]' ).closest('.navitem').trigger('firstNavigation');
-		}
-	});
+				target.length > 0
+					? parent = target.closest('.navsubitem')
+					: parent = this.$el.children();
+
+				maxHeight = parent.children().length * 38
+
+				parent.find('.navcurrent').removeClass('navcurrent');
+				parent.css('max-height', maxHeight + 'px');
+
+				if(target)
+					target.addClass('navcurrent');
+			}
+		});
 
 	return NavigationController;
-});
+});	

@@ -15,6 +15,9 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 			this.navigation 		= opts.navigation;
 			this.navigationRegion 	= new Region({selector: this.$('nav')});
 			this.viewRegion 		= new Region({selector: this.$('.content')});
+
+			this.navigationRegion.show(this.navigation);
+			this.navigation.highlightNavitem(location.pathname);
 		},
 
 		loadContent: function(file, method, args){
@@ -25,14 +28,6 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 					me.viewRegion.show(controller);
 				});
 			});
-
-			if(this.navigationRegion.showed){
-				this.navigation.render();
-			} else {
-				this.navigationRegion.showed = true;
-				this.navigationRegion.show(this.navigation);
-				this.navigation.selectFirstNavElement();
-			}
 		}
 	});
 

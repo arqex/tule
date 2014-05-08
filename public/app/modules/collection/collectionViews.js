@@ -7,12 +7,10 @@ var deps = [
 	'text!./tpls/searchTools.html',
 
 	'modules/datatypes/dispatcher',
-	'modules/alerts/alerts',
-
-	'modules/core/dispenser'
+	'modules/alerts/alerts'
 ];
 
-define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Alerts, Dispenser ){
+define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Alerts){
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
 

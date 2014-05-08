@@ -5,7 +5,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 	var Document = Backbone.Model.extend({
 		idAttribute: '_id',
 		initialize: function(attrs, opts){
-			this.type = opts.type || "";
+			this.type = opts ? opts.type : attrs.type;			
 		},
 
 		urlRoot: function(){
