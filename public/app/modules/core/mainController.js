@@ -23,10 +23,16 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 				var controller = new Controller({args: args});
 				controller.querying.then(function(){
 					me.viewRegion.show(controller);
-					me.navigationRegion.show(me.navigation);
-					me.navigation.selectFirstNavElement();
 				});
 			});
+
+			if(this.navigationRegion.showed){
+				this.navigation.render();
+			} else {
+				this.navigationRegion.showed = true;
+				this.navigationRegion.show(this.navigation);
+				this.navigation.selectFirstNavElement();
+			}
 		}
 	});
 
