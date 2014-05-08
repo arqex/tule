@@ -22,7 +22,7 @@ define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
 
 			Router.init();
 			Backbone.history.on('route', function() {
-				navigation.highlightNavitem("/" + this.fragment);
+				navigation.manager("/" + this.fragment);
 			});
 		});
 	};

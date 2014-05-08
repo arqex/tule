@@ -17,7 +17,7 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 			this.viewRegion 		= new Region({selector: this.$('.content')});
 
 			this.navigationRegion.show(this.navigation);
-			this.navigation.highlightNavitem(location.pathname);
+			this.navigation.manager(location.pathname);
 		},
 
 		loadContent: function(file, method, args){

@@ -13,7 +13,7 @@ define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 				this.el = this.navigation.el;			
 			},
 
-			highlightNavitem: function(route) {
+			manager: function(route) {
 				var target 		= $('.navlink[href="' + route + '"]'),
 					parent 		= false,
 					maxHeight 	= 0
