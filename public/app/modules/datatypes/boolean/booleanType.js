@@ -21,9 +21,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher){
 			this.$el.html(tpl({value: this.model.get('value')}));
 		},
 
-		changeMode: function(){
-			// Forced by interface. Useless. Ignore it.
-		},
+		changeMode: function(){}, // Forced by interface. Useless. Ignore it.
 
 		saveBoolean: function(){
 			if(this.$('input:checked').length == 1)

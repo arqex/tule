@@ -1,16 +1,20 @@
 var deps = [
-	'jquery', 'underscore', 'backbone', 'router', 
-	'modules/core/dispenser', 'modules/core/mainController', 
-	'modules/navigation/navigationController'
+	'jquery', 'underscore', 'backbone', 'router', 'services',
+	'modules/settings/settingsModels', 'modules/core/mainController', 
+	'modules/navigation/navigationController',
+	'modules/collection/collectionService', 'modules/settings/settingsService'
 ];
 
-define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
+define(deps, function($, _, Backbone, Router, Services, Settings, Main, Navigation, CollectionService, SettingsService){
 
 	var init = function() {
 		var settings = window.tuleSettings;
 		window.tuleSettings = undefined;
 
 		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){
+			Services.add('collection', CollectionService);
+			Services.add('settings', SettingsService);
+
 			// App's init point
 			var navigation 	= new Navigation({routes: settings.routes, el: $('nav')}),
 				main 		= new Main({navigation: navigation, el: $(document)})
@@ -28,7 +32,7 @@ define(deps, function($, _, Backbone, Router, Dispenser, Main, Navigation){
 	};
 
 	var registerDataTypes = function(datatypes, path, clbk) {
-		var globals = new Dispenser.SettingsDoc({ name: 'globals' });
+		var globals = new Settings.getDocument({ name: 'globals' });
 		var promise = globals.fetch();
 
 		promise.then(function(){

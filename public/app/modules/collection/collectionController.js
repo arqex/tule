@@ -1,7 +1,7 @@
 "use strict";
 
 var deps = [
-	'jquery', 'underscore', 'backbone',
+	'jquery', 'underscore', 'backbone', 'services',
 
 	'./collectionViews',
 	'./collectionModels',
@@ -15,7 +15,7 @@ var deps = [
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplController, 
+define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels, tplController, 
 	mainController, Tools, BaseController, SettingsModels, Alerts){
 
 	var createPagination = function(current, limit, total){
@@ -69,11 +69,13 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 				'.searchPlaceholder': 'search',
 				'.paginationPlaceholder': 'pagination',
 				'.itemsPlaceholder': 'items'
-			};
+			};			
 
-			this.type 		= opts.args[0];
-			this.params		= opts.args[2] || {};
-			this.collection	= new SettingsModels.getCollection({type: this.type});
+			this.type 				= opts.args[0];
+			this.params				= opts.args[2] || {};
+			this.collectionService 	= Services.get('collection').collection(this.type);
+			this.settingsService 	= Services.get('settings');
+			this.collection			= new SettingsModels.getCollection({type: this.type});
 
 			var settingsPromise = this.collection.getSettings(),
 				me = this
@@ -113,7 +115,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 					if(me.subViews['pagination'])
 						me.runPaginationListeners();
 					if(me.subViews['items'])
-						me.runItemsListeners();
+						me.runItemsListeners();					
 				});
 			});
 		},
@@ -145,8 +147,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 
 					// Render collection view
 					me.subViews['items'].collection.add(doc);
-					me.subViews['items'].createDocViews(me.subViews['items'].collection);
-					me.render();
+					me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].lastPage);
 				}});
 			}); // End of createDoc
 		},
