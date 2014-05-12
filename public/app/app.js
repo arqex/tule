@@ -20,8 +20,8 @@ define(deps, function($, _, Backbone, Router, Services, Settings, Main, Navigati
 				main 		= new Main({navigation: navigation, el: $(document)})
 			;
 
-			Backbone.Events.on('tuleRoute', function(file, method, args){
-				main.loadContent(file, method, args);
+			Backbone.Events.on('tuleRoute', function(file, args){
+				main.loadContent(file, args);
 			});
 
 			Router.init();

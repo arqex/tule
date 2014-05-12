@@ -20,7 +20,7 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 			this.navigation.manager(location.pathname);
 		},
 
-		loadContent: function(file, method, args){
+		loadContent: function(file, args){
 			var me = this;			
 			require([file], function(Controller){				
 				var controller = new Controller({args: args});
