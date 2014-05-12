@@ -62,6 +62,10 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
 
 		initialize: function(opts){
+			var settingsService = Services.get('settings'),
+				collectionService = Services.get('collection').collection(this.type)
+			;
+
 			this.subViews = {};
 			this.regions = {};
 			this.regionViews = {
@@ -71,21 +75,20 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 				'.itemsPlaceholder': 'items'
 			};			
 
-			this.type 				= opts.args[0];
-			this.params				= opts.args[2] || {};
-			this.collectionService 	= Services.get('collection').collection(this.type);
-			this.settingsService 	= Services.get('settings');
-			this.collection			= new SettingsModels.getCollection({type: this.type});
+			this.type 	= opts.args[0];
+			this.params	= opts.args[2] || {};
 
-			var settingsPromise = this.collection.getSettings(),
+			this.metaCollection	= settingsService.get(this.type);
+			var	settingsPromise = settingsService.getCollectionSettings(this.metaCollection),
 				me = this
 			;
+
 
 			// If there are conditions in the url execute the query
 			if(this.params != undefined)
 				this.params = Tools.createQuery(this.type, this.params);
 
-			this.querying = this.collection.query(this.params).then(function(results, options){
+			this.querying = collectionService.find(this.metaCollection, this.params).then(function(results, options){
 				settingsPromise.then(function(settings){
 					// Primitive vars
 					var fields 		= settings.tableFields || [],
@@ -103,10 +106,10 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 
 					// Override
 					me.tpl = me.controllerTpl;
-					me.subViews['adder'] = createAdderView(me.type, results, settings);
-					me.subViews['search'] = createSearchTools(me.type);
-					me.subViews['pagination'] = createPagination(pagination[0], pagination[1], pagination[2]);
-					me.subViews['items'] = createCollectionView(documents, fields, settings, me.type);
+					me.subViews['adder'] 		= createAdderView(me.type, results, settings);
+					me.subViews['search'] 		= createSearchTools(me.type);
+					me.subViews['pagination'] 	= createPagination(pagination[0], pagination[1], pagination[2]);
+					me.subViews['items'] 		= createCollectionView(documents, fields, settings, me.type);
 							
 					if(me.subViews['adder'])
 						me.runAdderListeners();
@@ -123,7 +126,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createDoc', function(type, data){
 				var me 	= this,
-					doc = new CollectionModels.getDocument({type: type})
+					doc = new collectionService.get({type: type})
 				;
 
 				_.each(data, function(values, key){
@@ -157,7 +160,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 				var me = this;
 				this.params['clause'] = clauses;
 
-				this.collection.query({clause: clauses}).then(function(results){
+				this.metaCollection.query({clause: clauses}).then(function(results){
 					var	customUrl 	= "",
 						paramName 	= encodeURI("clause[]"),
 						paramValue 	= ''
@@ -192,7 +195,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 
 				query = Tools.createQuery(this.type, conditions);
 
-				this.collection.query(query).then(function(results, options){
+				this.metaCollection.query(query).then(function(results, options){
 					me.subViews['pagination'].currentPage 	= page;
 					me.subViews['pagination'].distance 		= me.subViews['pagination'].lastPage - page;
 					me.subViews['pagination'].lastPage 		= Math.ceil(results.get('total') / limit);

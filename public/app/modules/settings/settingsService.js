@@ -1,13 +1,18 @@
 "use strict";
 
-define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
-	var settingsService = {		
-		get: function(id){
+var deps = [
+	'jquery', 'underscore', 'backbone',
+	'./settingsModels'	
+];
 
+define(deps, function($, _, Backbone, SettingsModels){
+	var settingsService = {		
+		get: function(type){
+			return new SettingsModels.getCollection({type: type});
 		},
 
-		find: function(query){
-
+		getCollectionSettings: function(collection){
+			return collection.getSettings();
 		},
 
 		add: function(){
@@ -19,12 +24,5 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 		}
 	};
 
-	var settings = {
-		setting: function(type){
-			collectionService.type = type;
-			return collectionService;
-		}
-	};
-
-	return settings;
+	return settingsService;
 });
