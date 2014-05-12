@@ -62,10 +62,6 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
 
 		initialize: function(opts){
-			var settingsService = Services.get('settings'),
-				collectionService = Services.get('collection').collection(this.type)
-			;
-
 			this.subViews = {};
 			this.regions = {};
 			this.regionViews = {
@@ -78,6 +74,10 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 			this.type 	= opts.args[0];
 			this.params	= opts.args[2] || {};
 
+			var settingsService = Services.get('settings'),
+				collectionService = Services.get('collection').collection(this.type)
+			;
+
 			this.metaCollection	= settingsService.get(this.type);
 			var	settingsPromise = settingsService.getCollectionSettings(this.metaCollection),
 				me = this
@@ -88,7 +88,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 			if(this.params != undefined)
 				this.params = Tools.createQuery(this.type, this.params);
 
-			this.querying = collectionService.find(this.metaCollection, this.params).then(function(results, options){
+			this.querying = collectionService.find(this.params).then(function(results, options){
 				settingsPromise.then(function(settings){
 					// Primitive vars
 					var fields 		= settings.tableFields || [],
@@ -230,7 +230,8 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 						success: function(){
 							console.log('Document deleted');
 							Alerts.alerter.add({message: 'Deletion completed', autoclose: 6000});
-							me.subViews['items'].render();
+							me.subViews['items'].collection.remove(docView);
+							me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].currentPage);
 						},
 						error: function(){
 							console.log('Document NOT deleted');

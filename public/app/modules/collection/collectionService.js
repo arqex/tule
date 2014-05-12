@@ -6,12 +6,17 @@ var deps = [
 ];
 
 define(deps, function($, _, Backbone, CollectionModels, SettingsModels){
-	var collectionService = {		
+	var CollectionService = function(type){
+		this.type = type;
+	};
+
+	CollectionService.prototype = {		
 		get: function(type){
 			return new CollectionModels.getDocument({type: type});
 		},
 
-		find: function(collection, query){
+		find: function(query){
+			var collection = new SettingsModels.getCollection({type: this.type});
 			return collection.query(query);
 		},
 
@@ -26,8 +31,7 @@ define(deps, function($, _, Backbone, CollectionModels, SettingsModels){
 
 	var collections = {
 		collection: function(type){
-			collectionService.type = type;
-			return collectionService;
+			return new CollectionService(type);
 		}
 	};
 

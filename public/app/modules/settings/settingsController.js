@@ -135,20 +135,14 @@ define(deps, function($,_,Backbone,
 				collection.url = '/api/collection';
 				collection.save(null, {success: function(){
 					Alerts.add({message:'Document saved correctly', autoclose:6000});
-					collection.type = me.subViews['adder'].objectView.getValue()['name'];					
 
 					// Reset the form on DOM
 					me.subViews['adder'].objectView = false;
 					me.subViews['adder'].$el.find('.form').remove();
 					me.subViews['adder'].close();
 
-					// Add possible new property definitions
-					$.post('/api/collection/' + collection.type, {
-						type: collection.type,
-						data: data
-					});
-
 					// Render collection view
+					collection.unset('type');
 					me.subViews['items'].collection.add(collection);
 					me.subViews['items'].createDocViews(me.subViews['items'].collection);
 					me.render();
