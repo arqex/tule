@@ -384,15 +384,18 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
 			this.docViews = {};			
 			this.docOptions = opts.docOptions || {};
-			this.createDocViews(this.collection);
+			this.update(this.collection);
 
 			this.listenTo(this.collection, 'remove', $.proxy(this.removeSubView, this));
 		},
 
-		createDocViews: function(currentCollection){
+		update: function(currentCollection){
 			var me = this,
 				docViews = {}
 			;
+
+			if(this.collection != currentCollection)
+				this.collection.reset();
 			
 			currentCollection.each(function(doc){
 				var docId = doc.id;
@@ -413,6 +416,8 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 				docViews[docId].on('rendered', function(){
 					me.renderSubview(docViews[docId]);
 				});
+
+				me.collection.add(doc);
 			});
 			this.docViews = docViews;
 		},

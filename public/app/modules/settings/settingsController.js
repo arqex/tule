@@ -1,20 +1,19 @@
 "use strict";
 var deps = [
-	'jquery', 'underscore', 'backbone',
+	'jquery', 'underscore', 'backbone', 'services',
 	'modules/collection/collectionViews',	
 
 	'modules/core/baseController',
 	'modules/core/mainController',
 
-	'./settingsModels',
 	'text!./tpls/settingsControllerTpl.html',
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, 
+define(deps, function($,_,Backbone, Services,
 	CollectionViews,
 	BaseController, mainController, 
-	SettingsModels, tplController, Alerts){
+	tplController, Alerts){
 
 	//Structure for the collection docs
 	var docOptions = {
@@ -106,7 +105,8 @@ define(deps, function($,_,Backbone,
 			};
 
 			var me = this,
-				collections = new SettingsModels.getCollectionList()
+				settingsService = Services.get('settings'),
+				collections = settingsService.getCollectionList()
 			;
 
 			this.querying = collections.fetch().then(function(){
@@ -125,7 +125,7 @@ define(deps, function($,_,Backbone,
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createCollection', function(type, data){
 				var me 	= this,
-					collection = new SettingsModels.getCollection({type: type})
+					collection = SettingsService.get(type);
 				;
 
 				_.each(data, function(values, key){

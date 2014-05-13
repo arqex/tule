@@ -112,7 +112,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		render: function(){
-			var me = this,
+			var me 	= this,
 				tpl = this.tpl
 			;
 			if(this.mode == 'edit')
@@ -149,10 +149,6 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				return this.model.set('value', that.find('select').val());
 
 			this.model.set('value', that.find('input').val());
-		},
-
-		cancel: function(){
-
 		}
 	});
 
@@ -174,14 +170,15 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		},
 
 		initialize: function(options){
-			this.key = options.key;
-			this.label = options.label;
-			this.datatype = options.datatype;
-			this.typeOptions = options.typeOptions || {};
-			this.mode = options.mode || 'display';
-			this.allowDelete = typeof options.allowDelete == 'undefined' ? true : options.allowDelete ;
-			this.isNew = options.isNew;
-			this.keyring = [];
+			this.key 			= options.key;
+			this.label 			= options.label;
+			this.datatype 		= options.datatype;
+			this.typeOptions 	= options.typeOptions || {};
+			this.mode 			= options.mode || 'display';
+			this.allowDelete 	= typeof options.allowDelete == 'undefined' ? true : options.allowDelete ;
+			this.isNew 			= options.isNew;
+			this.keyring 		= [];
+
 			if(!options.model && typeof options.value != 'undefined'){
 				this.createModel(options.value);
 				if(!this.datatype)
@@ -255,8 +252,8 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			return this;
 		},
 		createTypeView: function(){
-			this.typeView = dispatcher.getView(this.datatype.id, this.datatype.options, this.model);
-			this.typeView.mode = this.mode;
+			this.typeView 		= dispatcher.getView(this.datatype.id, this.datatype.options, this.model);
+			this.typeView.mode 	= this.mode;
 			this.listenTo(this.typeView, 'changeMode', function(mode){
 				this.mode = mode;
 				this.typeView.changeMode(mode);
@@ -312,9 +309,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 					typeOptions: {}
 				}
 			;
-			if(this.advanced){
 
-			}
 			this.trigger('elementEdited', elementData);
 		},
 
@@ -364,9 +359,9 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			if(!this.datatype)
 				return false;
 
-			var typeData = dispatcher.types[this.datatype.id];
-			this.inline = !(typeData) || typeof typeData.inline === 'undefined' || typeData.inline;
-			this.controls = typeData && typeData.controls
+			var typeData	= dispatcher.types[this.datatype.id];
+			this.inline 	= !(typeData) || typeof typeData.inline === 'undefined' || typeData.inline;
+			this.controls 	= typeData && typeData.controls
 		},
 
 		onKeydown: function(e){
@@ -379,7 +374,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 
 		onKeyup: function(e){
 			e.preventDefault();
-			var elementCid 	= $(e.target).closest('.element').data('cid');
+			var elementCid = $(e.target).closest('.element').data('cid');
 
 			if(elementCid == this.cid){
 				if(this.editAllProperties != true) {
@@ -407,9 +402,9 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		}
 	});
 
-	dispatcher.BaseModel = FieldModel;
-	dispatcher.BaseView = DataTypeView;
-	dispatcher.DataElementView = DataElementView;
+	dispatcher.BaseModel 		= FieldModel;
+	dispatcher.BaseView 		= DataTypeView;
+	dispatcher.DataElementView 	= DataElementView;
 
 	return dispatcher;
 });

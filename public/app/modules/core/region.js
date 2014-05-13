@@ -3,7 +3,7 @@
 define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 	var Region = Backbone.View.extend({
 		initialize: function(opts){
-			this.setElement(opts.selector);
+			this.setElement(opts.node);
 		},
 
 		show: function(view){

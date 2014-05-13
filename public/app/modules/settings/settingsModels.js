@@ -80,26 +80,7 @@ var Collection = Document.extend({
 	}
 });
 
-var CollectionList = Backbone.Collection.extend({
-	model: Collection,
-	url: '/api/collections',
-	fetch: function(options) {
-		var me = this,
-			deferred = $.Deferred()
-		;
-		$.get(this.url, {}, function(data){
-			_.each(data, function(collection){
-				me.add(new me.model({}, {type: collection}));
-			});
-			deferred.resolve();
-		}, 'json');
 
-		return deferred.promise();
-	},
-	findByType: function(type){
-		return this.find(function(){ return doc.type == type; });
-	}
-});
 
 var getSettings = function(newName) {
 	var deferred = $.Deferred(),
@@ -116,7 +97,7 @@ var getSettings = function(newName) {
 	return {
 		getDocument: Document,
 		getCollection: Collection,
-		getCollectionList: CollectionList,
+		getQuery: Query,
 		getSettings: getSettings
 	};
 });

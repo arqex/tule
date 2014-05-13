@@ -69,29 +69,29 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 				'.searchPlaceholder': 'search',
 				'.paginationPlaceholder': 'pagination',
 				'.itemsPlaceholder': 'items'
-			};			
+			};
 
-			this.type 	= opts.args[0];
-			this.params	= opts.args[2] || {};
+			var me 	= this,
+				deferred = $.Deferred()
+			;	
 
-			var settingsService = Services.get('settings'),
-				collectionService = Services.get('collection').collection(this.type)
-			;
+			this.type 				= opts.args[0];
+			this.params				= opts.args[2] || {};
+			this.settingsService 	= Services.get('settings');
+			this.collectionService 	= Services.get('collection').collection(this.type);
+			this.querying 			= deferred.promise();
 
-			this.metaCollection	= settingsService.get(this.type);
-			var	settingsPromise = settingsService.getCollectionSettings(this.metaCollection),
-				me = this
-			;
+			this.settingsService.get(this.type).then(function(metadata){
+				me.metaCollection = metadata;
 
+				// If there are conditions in the url execute the query
+				if(me.params != undefined)
+					me.params = Tools.createQuery(me.type, me.params);
 
-			// If there are conditions in the url execute the query
-			if(this.params != undefined)
-				this.params = Tools.createQuery(this.type, this.params);
-
-			this.querying = collectionService.find(this.params).then(function(results, options){
-				settingsPromise.then(function(settings){
+				me.querying = me.collectionService.find(me.params).then(function(results, options){
 					// Primitive vars
-					var fields 		= settings.tableFields || [],
+					var settings 	= me.metaCollection.attributes,
+						fields 		= settings.tableFields || [],
 						documents 	= results.get('documents'),
 						pagination 	= []
 					;
@@ -118,7 +118,9 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					if(me.subViews['pagination'])
 						me.runPaginationListeners();
 					if(me.subViews['items'])
-						me.runItemsListeners();					
+						me.runItemsListeners();
+
+					me.querying = deferred.resolve();
 				});
 			});
 		},
@@ -126,14 +128,14 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createDoc', function(type, data){
 				var me 	= this,
-					doc = new collectionService.get({type: type})
+					doc = this.collectionService.getNew({type: type})
 				;
 
 				_.each(data, function(values, key){
 					doc.set(key, values.value);
 				});
 
-				doc.save(null, {success: function(){
+				this.collectionService.save(doc).then(function(){
 					Alerts.add({message:'Document saved correctly', autoclose:6000});	
 					doc.url = encodeURI('/api/docs/' + me.type + '/' + doc.id);
 
@@ -151,7 +153,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					// Render collection view
 					me.subViews['items'].collection.add(doc);
 					me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].lastPage);
-				}});
+				});
 			}); // End of createDoc
 		},
 
@@ -176,7 +178,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
 
 					me.subViews['pagination'].update(1, results.get('total'));
-					me.subViews['items'].createDocViews(results.get('documents'));
+					me.subViews['items'].update(results.get('documents'));
 					me.subViews['items'].render();
 				});
 			}); // End of searchDoc
@@ -211,7 +213,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					customUrl = encodeURI(customUrl);
 					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
 					
-					me.subViews['items'].createDocViews(results.get('documents'));
+					me.subViews['items'].update(results.get('documents'));
 					me.subViews['items'].render();
 				});
 			}); // Enf of navigate
@@ -228,13 +230,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					docView.model.destroy({
 						wait: true,
 						success: function(){
-							console.log('Document deleted');
 							Alerts.alerter.add({message: 'Deletion completed', autoclose: 6000});
 							me.subViews['items'].collection.remove(docView);
 							me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].currentPage);
 						},
 						error: function(){
-							console.log('Document NOT deleted');
 							Alerts.alerter.add({message: 'There was an error deleting the document.', level: 'error'});
 						}
 					});

@@ -15,7 +15,7 @@ define(['jquery', 'underscore', 'backbone', './region'], function($, _, Backbone
 			this.$el.html(this.tpl);
 			var me = this;
 			_.each(this.regionViews, function(viewId, regionId){
-				var region = new Region({selector: me.$(regionId)});
+				var region = new Region({node: me.$(regionId)});
 				region.show(me.subViews[viewId]);
 				me.regions[regionId] = region;
 			});

@@ -8,6 +8,21 @@ var deps = [
 define(deps, function($, _, Backbone, SettingsModels){
 	var settingsService = {		
 		get: function(type){
+			var query = new SettingsModels.getCollection([], {type: type}),
+				deferred = $.Deferred(),
+				me = this
+			;
+
+			query.fetch({				
+				success: function(){
+					deferred.resolve(query);
+				}
+			});
+
+			return deferred.promise();
+		},
+
+		getNew: function(type){
 			return new SettingsModels.getCollection({type: type});
 		},
 
@@ -15,12 +30,12 @@ define(deps, function($, _, Backbone, SettingsModels){
 			return collection.getSettings();
 		},
 
-		add: function(){
-
-		},
-
-		save: function(){
-			
+		save: function(collection){
+			var deferred = $.Deferred();
+			collection.save(null, {success: function(){
+				return deferred.resolve();
+			}});
+			return deferred.promise();
 		}
 	};
 
