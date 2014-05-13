@@ -81,17 +81,14 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 			this.collectionService 	= Services.get('collection').collection(this.type);
 			this.querying 			= deferred.promise();
 
-			this.settingsService.get(this.type).then(function(metadata){
-				me.metaCollection = metadata;
-
+			this.settingsService.get(this.type).then(function(settings){
 				// If there are conditions in the url execute the query
 				if(me.params != undefined)
 					me.params = Tools.createQuery(me.type, me.params);
 
 				me.querying = me.collectionService.find(me.params).then(function(results, options){
 					// Primitive vars
-					var settings 	= me.metaCollection.attributes,
-						fields 		= settings.tableFields || [],
+					var fields 		= settings.tableFields || [],
 						documents 	= results.get('documents'),
 						pagination 	= []
 					;
@@ -162,7 +159,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 				var me = this;
 				this.params['clause'] = clauses;
 
-				this.metaCollection.query({clause: clauses}).then(function(results){
+				this.collectionService.find(this.params).then(function(results, options){
 					var	customUrl 	= "",
 						paramName 	= encodeURI("clause[]"),
 						paramValue 	= ''
@@ -197,7 +194,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 
 				query = Tools.createQuery(this.type, conditions);
 
-				this.metaCollection.query(query).then(function(results, options){
+				this.collectionService.find(this.params).then(function(results, options){
 					me.subViews['pagination'].currentPage 	= page;
 					me.subViews['pagination'].distance 		= me.subViews['pagination'].lastPage - page;
 					me.subViews['pagination'].lastPage 		= Math.ceil(results.get('total') / limit);
