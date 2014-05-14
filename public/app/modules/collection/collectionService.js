@@ -55,10 +55,7 @@ define(deps, function($, _, Backbone, CollectionModels, SettingsModels){
 			var	deferred = $.Deferred();
 
 			$.get('/api/collections', {}, function(data){
-				_.each(data, function(collection){
-					me.add(new me.model({}, {type: collection}));
-				});
-				deferred.resolve();
+				deferred.resolve(data);
 			}, 'json');
 
 			return deferred.promise();

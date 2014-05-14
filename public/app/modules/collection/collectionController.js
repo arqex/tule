@@ -37,10 +37,9 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 		return searchTools;
 	};
 
-	var createAdderView = function(type, results, settings){
+	var createAdderView = function(type, settings){
 		var newDocView = new CollectionViews.NewDocView({
 			type: type,
-			collection: results,
 			settings: settings
 		});
 
@@ -81,14 +80,15 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 			this.collectionService 	= Services.get('collection').collection(this.type);
 			this.querying 			= deferred.promise();
 
-			this.settingsService.get(this.type).then(function(settings){
+			this.settingsService.get(this.type).then(function(metadata){
 				// If there are conditions in the url execute the query
 				if(me.params != undefined)
 					me.params = Tools.createQuery(me.type, me.params);
 
-				me.querying = me.collectionService.find(me.params).then(function(results, options){
+				me.collectionService.find(me.params).then(function(results, options){
 					// Primitive vars
-					var fields 		= settings.tableFields || [],
+					var settings 	= metadata.attributes,
+						fields 		= settings.tableFields || [],
 						documents 	= results.get('documents'),
 						pagination 	= []
 					;
@@ -103,7 +103,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 
 					// Override
 					me.tpl = me.controllerTpl;
-					me.subViews['adder'] 		= createAdderView(me.type, results, settings);
+					me.subViews['adder'] 		= createAdderView(me.type, settings);
 					me.subViews['search'] 		= createSearchTools(me.type);
 					me.subViews['pagination'] 	= createPagination(pagination[0], pagination[1], pagination[2]);
 					me.subViews['items'] 		= createCollectionView(documents, fields, settings, me.type);
@@ -117,7 +117,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					if(me.subViews['items'])
 						me.runItemsListeners();
 
-					me.querying = deferred.resolve();
+					deferred.resolve();
 				});
 			});
 		},

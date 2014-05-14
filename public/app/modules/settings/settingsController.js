@@ -45,13 +45,12 @@ define(deps, function($,_,Backbone, Services,
 			{key: 'hiddenProperties', label: 'Hidden Properties', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}}
 		],
 		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'hiddenProperties', 'tableFields'],
-		hiddenProperties: ['name', '_id']
+		hiddenProperties: ['name', '_id', 'type']
 	};
 
-	var createAdderView = function(collections){
+	var createAdderView = function(){
 		var adderView = new CollectionViews.NewCollectionView({
 			type: 'collection',
-			collection: collections,			
 			settings: {
 				customProperties: false,
 				name: "newCollection",
@@ -70,9 +69,20 @@ define(deps, function($,_,Backbone, Services,
 		return adderView;
 	};
 
-	var createItemsView = function(collections){			
+	var createItemsView = function(collections){
+		var CollectionList = Backbone.Collection.extend({
+			model: Services.get('settings').getNew({type: 'settings'}),
+			url: '/api/collections'
+		});
+
+		var collection = new CollectionList;
+
+		_.each(collections, function(type){
+			collection.add(Services.get('settings').getNew(type));
+		});
+
 		var itemsView = new CollectionViews.CollectionView({
-			collection: collections,
+			collection: collection,
 			fields: [
 				function(doc){ return doc.name.split('_')[1]; },
 				{action: 'browse', href:'#', icon:'eye'}
@@ -104,37 +114,47 @@ define(deps, function($,_,Backbone, Services,
 				'.itemsPlaceholder': 'items'
 			};
 
-			var me = this,
-				settingsService = Services.get('settings'),
-				collections = settingsService.getCollectionList()
+			var me 			= this,
+				deferred 	= $.Deferred()
 			;
 
-			this.querying = collections.fetch().then(function(){
-				collections.remove('collection_system.indexes');
-				collections.remove('collection_monSettings');
+			this.querying = deferred.promise();
+
+			Services.get('collection').getCollectionList().then(function(results){
+				var key = results.length;
+				while (key--) {
+					if(results[key] === 'system.indexes' || results[key] === 'monSettings')
+						results.splice(key, 1);
+				}
+
 				// Override
 				me.tpl = me.controllerTpl;
-				me.subViews['adder'] = createAdderView(collections);
-				me.subViews['items'] = createItemsView(collections);
+				me.subViews['adder'] = createAdderView();
+				me.subViews['items'] = createItemsView(results);
 
 				if(me.subViews['adder'])
 					me.runAdderListeners();
+
+				deferred.resolve();
 			});
 		},
 
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createCollection', function(type, data){
 				var me 	= this,
-					collection = SettingsService.get(type);
+					settingsService = Services.get('settings'),
+					collection = settingsService.getNew(type)
 				;
 
 				_.each(data, function(values, key){
 					collection.set(key, values.value);
 				});
 
+				var oldurl = collection.url;
 				collection.url = '/api/collection';
-				collection.save(null, {success: function(){
+				settingsService.save(collection).then(function(){
 					Alerts.add({message:'Document saved correctly', autoclose:6000});
+					collection.url = oldurl;
 
 					// Reset the form on DOM
 					me.subViews['adder'].objectView = false;
@@ -142,11 +162,10 @@ define(deps, function($,_,Backbone, Services,
 					me.subViews['adder'].close();
 
 					// Render collection view
-					collection.unset('type');
 					me.subViews['items'].collection.add(collection);
-					me.subViews['items'].createDocViews(me.subViews['items'].collection);
+					me.subViews['items'].update(me.subViews['items'].collection);
 					me.render();
-				}});
+				});
 			}); // End of createCollection
 		}
 	});
