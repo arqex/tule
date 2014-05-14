@@ -188,6 +188,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					me 			= this
 				;
 
+				page = (page > this.subViews['pagination'].lastPage) 
+					? this.subViews['pagination'].lastPage
+					: page
+				;
+				
 				conditions.skip  = (page * limit) - limit;
 				conditions.limit = limit;
 
