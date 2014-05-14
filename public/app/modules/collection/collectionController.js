@@ -125,7 +125,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createDoc', function(type, data){
 				var me 	= this,
-					doc = this.collectionService.getNew({type: type})
+					doc = this.collectionService.getNew(type)
 				;
 
 				_.each(data, function(values, key){
@@ -148,7 +148,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					});
 
 					// Render collection view
-					me.subViews['items'].collection.add(doc);
+//					me.subViews['items'].collection.add(doc);
 					me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].lastPage);
 				});
 			}); // End of createDoc
