@@ -23,7 +23,7 @@ define(deps, function($, _, Backbone, SettingsModels){
 		},
 
 		getNew: function(type){
-			return new SettingsModels.getCollection({type: type});
+			return new SettingsModels.getCollection({}, {type: type});
 		},
 
 		getCollectionSettings: function(collection){

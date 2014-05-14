@@ -148,7 +148,6 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					});
 
 					// Render collection view
-//					me.subViews['items'].collection.add(doc);
 					me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].lastPage);
 				});
 			}); // End of createDoc

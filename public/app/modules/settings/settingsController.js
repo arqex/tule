@@ -45,7 +45,7 @@ define(deps, function($,_,Backbone, Services,
 			{key: 'hiddenProperties', label: 'Hidden Properties', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}}
 		],
 		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'hiddenProperties', 'tableFields'],
-		hiddenProperties: ['name', '_id', 'type']
+		hiddenProperties: ['name', '_id']
 	};
 
 	var createAdderView = function(){

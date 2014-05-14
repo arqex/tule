@@ -28,7 +28,7 @@ define(deps, function($, _, Backbone, CollectionModels, SettingsModels){
 		},
 
 		getNew: function(type){
-			return new CollectionModels.getDocument({type: type});
+			return new CollectionModels.getDocument({}, {type: type});
 		},
 
 		find: function(query){
