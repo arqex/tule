@@ -5,7 +5,8 @@ var deps = [
 	'modules/collection/collectionService', 'modules/settings/settingsService'
 ];
 
-define(deps, function($, _, Backbone, Router, Services, Settings, Main, Navigation, CollectionService, SettingsService){
+define(deps, function($, _, Backbone, Router, Services, 
+	Settings, Main, Navigation, CollectionService, SettingsService){
 
 	var init = function() {
 		var settings = window.tuleSettings;
@@ -32,7 +33,7 @@ define(deps, function($, _, Backbone, Router, Services, Settings, Main, Navigati
 	};
 
 	var registerDataTypes = function(datatypes, path, clbk) {
-		var globals = new Settings.getDocument({ name: 'globals' });
+		var globals = new Settings.Settings({name: 'globals'});
 		var promise = globals.fetch();
 
 		promise.then(function(){

@@ -10,37 +10,47 @@ define(deps, function($, _, Backbone, CollectionModels, SettingsModels){
 		this.type = type;
 	};
 
-	CollectionService.prototype = {		
-		get: function(opts){
-			var query = new CollectionModels.getQuery([], {type: this.type}),
+	CollectionService.prototype = {
+		/**
+			Fetch a document given its id
+		*/
+		get: function(id){
+			var query = new CollectionModels.Query([], {objectID: id, type: this.type}),
 				deferred = $.Deferred(),
 				me = this
 			;
 
 			query.fetch({
-				data: opts,
+				data: id,
 				success: function(){
-					deferred.resolve(query, opts);
+					deferred.resolve(query, id);
 				}
 			});
 
 			return deferred.promise();
 		},
 
+		/** Get a blank document of the given type */
 		getNew: function(type){
-			return new CollectionModels.getDocument({}, {type: type});
+			return new CollectionModels.Document({}, {type: type});
 		},
 
+		/** Find a collection of documents which match a given query .
+			TODO: Explain find object
+		*/
 		find: function(query){
 			query = query || {};
-			var collection = new SettingsModels.getCollection({type: this.type});
+			var collection = new SettingsModels.SettingsCollection({}, {name: this.type});
 			return collection.query(query);
 		},
 
+		/**
+			Save a given document
+		*/
 		save: function(doc){
 			var deferred = $.Deferred();
 			doc.save(null, {success: function(){
-				return deferred.resolve();
+				return deferred.resolve(doc);
 			}});
 			return deferred.promise();
 		}

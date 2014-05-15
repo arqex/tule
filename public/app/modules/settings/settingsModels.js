@@ -2,18 +2,18 @@
 
 define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 
-	var Doc = Backbone.Model.extend({
+	var Document = Backbone.Model.extend({
 		idAttribute: '_id'
 	});
 
-	var Document = Doc.extend({
+	var Settings = Document.extend({
 		idAttribute: 'name',
 		initialize: function(){
 			this.isFetched = false;
 		},
 		fetch: function(opts){
 			var me = this;
-			return Doc.prototype.fetch.call(this, opts).then(function(){
+			return Document.prototype.fetch.call(this, opts).then(function(){
 				me.isFetched = true;
 			});
 		},
@@ -25,14 +25,14 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 		},
 		save: function(attrs, opts){
 			var me = this;
-			return Doc.prototype.save.call(this, attrs, opts).then(function(){
+			return Document.prototype.save.call(this, attrs, opts).then(function(){
 				me.isFetched = true;
 			});
 		}
 	});
 
 	var DocCollection = Backbone.Collection.extend({
-		model: Doc,
+		model: Document,
 		initialize: function(models, options){
 			this.type = options.type;
 			this.url = '/api/docs/' + this.type;
@@ -46,21 +46,21 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 		}
 	});
 
-	var Collection = Document.extend({
+	var SettingsCollection = Settings.extend({
 		initialize: function(attrs, opts){
-			this.type = attrs.type || opts.type;
-			this.set('name', 'collection_' + this.type);
+			this.name = opts.name;
+			this.set('name', 'collection_' + this.name);
 			this.settingsFetched = false;
 		},
 		query: function(opts){
-			var query = new Query([], {type: this.type}),
+			var query = new Query([], {type: this.name}),
 				deferred = $.Deferred(),
 				me = this
 			;
 			query.fetch({
 				data: opts,
 				success: function(){
-					query.set('documents', new DocCollection(query.get('documents'), {type: me.type})); 
+					query.set('documents', new DocCollection(query.get('documents'), {type: me.name})); 
 					deferred.resolve(query, opts);
 				}
 			});
@@ -80,13 +80,13 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 		}
 	});
 
-	var getSettings = function(newName) {
+	var getSettings = function(name) {
 		var deferred = $.Deferred(),
-			newSettings = new SettingsDoc({name: newName})
+			settings = new SettingsDoc({name: name})
 		;
 
-		newSettings.fetch({}).always(function(){
-			deferred.resolve(newSettings);
+		settings.fetch({}).always(function(){
+			deferred.resolve(settings);
 		});
 
 		return deferred.promise();
@@ -94,9 +94,8 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 	
 
 	return {
-		getDocument: Document,
-		getCollection: Collection,
-		getQuery: Query,
+		Settings: Settings,
+		SettingsCollection: SettingsCollection,
 		getSettings: getSettings
 	};
 });

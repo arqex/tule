@@ -7,7 +7,6 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 		initialize: function(attrs, opts){
 			this.type = opts.type;
 		},
-
 		urlRoot: function(){
 			return '/api/docs/' + this.type;
 		}
@@ -17,8 +16,8 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 		model: Document,
 		initialize: function(options){
 			var me = this;
-			this.type = options.type;
-			this.url = '/api/docs/' + this.type;
+			this.type 	= options.type;
+			this.url 	= '/api/docs/' + this.type;
 			this.each(function(model){
 				model.type = me.type;
 			});
@@ -27,15 +26,16 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 
 	var Query = Backbone.Model.extend({
 		initialize: function(attrs, options){
-			this.type = options.type;
-			this.url = '/api/docs/' + this.type;
+			this.objectID 	= options.objectID;
+			this.type 		= options.type;
+			this.url 		= '/api/docs/' + this.type + '/' + this.objectID;
 		}
 	});
 
 	return {
-		getDocument: Document,
-		getCollection: Collection,
-		getQuery: Query
+		Document: Document,
+		Collection: Collection,
+		Query: Query
 	};
 
 });

@@ -1,19 +1,14 @@
 "use strict";
 var deps = [
 	'jquery', 'underscore', 'backbone', 'services',
-	'modules/collection/collectionViews',	
-
+	'modules/collection/collectionViews',
 	'modules/core/baseController',
-	'modules/core/mainController',
-
 	'text!./tpls/settingsControllerTpl.html',
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, Services,
-	CollectionViews,
-	BaseController, mainController, 
-	tplController, Alerts){
+define(deps, function($,_, Backbone, Services, CollectionViews,
+	BaseController, tplController, Alerts){
 
 	//Structure for the collection docs
 	var docOptions = {
@@ -71,14 +66,14 @@ define(deps, function($,_,Backbone, Services,
 
 	var createItemsView = function(collections){
 		var CollectionList = Backbone.Collection.extend({
-			model: Services.get('settings').getNew({type: 'settings'}),
+			model: Services.get('settings').getNew(),
 			url: '/api/collections'
 		});
 
 		var collection = new CollectionList;
 
 		_.each(collections, function(type){
-			collection.add(Services.get('settings').getNew(type));
+			collection.add(Services.get('settings').getNewCollection(type));
 		});
 
 		var itemsView = new CollectionViews.CollectionView({
@@ -95,6 +90,7 @@ define(deps, function($,_,Backbone, Services,
 				docView.open();
 			});
 		});
+
 		itemsView.on('click:browse', function(docView){
 			var name = docView.model.get('name').split('_')[1];
 			Backbone.history.navigate('/collections/list/' + name, {trigger: true});
@@ -143,14 +139,14 @@ define(deps, function($,_,Backbone, Services,
 			this.listenTo(this.subViews['adder'], 'createCollection', function(type, data){
 				var me 	= this,
 					settingsService = Services.get('settings'),
-					collection = settingsService.getNew(type)
+					collection = settingsService.getNewCollection(data.name.value),
+					oldurl = collection.url()
 				;
 
 				_.each(data, function(values, key){
 					collection.set(key, values.value);
 				});
 
-				var oldurl = collection.url;
 				collection.url = '/api/collection';
 				settingsService.save(collection).then(function(){
 					Alerts.add({message:'Document saved correctly', autoclose:6000});

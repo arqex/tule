@@ -4,19 +4,16 @@ var deps = [
 	'jquery', 'underscore', 'backbone', 'services',
 
 	'./collectionViews',
-	'./collectionModels',
 	'text!./tpls/collectionControllerTpl.html',
-
-	'modules/core/mainController',	
+	
 	'modules/core/coreTools',
 	'modules/core/baseController',
 
-	'modules/settings/settingsModels',
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels, tplController, 
-	mainController, Tools, BaseController, SettingsModels, Alerts){
+define(deps, function($,_,Backbone, Services, CollectionViews, tplController, 
+	Tools, BaseController, Alerts){
 
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
@@ -51,7 +48,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 			collection: documents,
 			fields: fields,
 			customFields: 1,
-			docOptions: settings			
+			docOptions: settings
 		});
 
 		return view;
@@ -251,7 +248,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, CollectionModels,
 					type: this.type,
 					data: data
 				});
-			}); // End of saveDoc			
+			}); // End of saveDoc
 		}
 	});
 

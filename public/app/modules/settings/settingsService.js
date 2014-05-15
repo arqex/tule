@@ -2,37 +2,46 @@
 
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'./settingsModels'	
+	'./settingsModels'
 ];
 
 define(deps, function($, _, Backbone, SettingsModels){
-	var settingsService = {		
-		get: function(type){
-			var query = new SettingsModels.getCollection([], {type: type}),
-				deferred = $.Deferred(),
-				me = this
+	var settingsService = {
+
+		/** Fetch an existing settings document */
+		get: function(name){
+			var settings 	= new SettingsModels.SettingsCollection({}, {name: name}),
+				deferred 	= $.Deferred()
 			;
 
-			query.fetch({				
+			settings.fetch({
 				success: function(){
-					deferred.resolve(query);
+					deferred.resolve(settings);
 				}
 			});
 
 			return deferred.promise();
 		},
 
-		getNew: function(type){
-			return new SettingsModels.getCollection({}, {type: type});
+		/** Get a blank settings document */
+		getNew: function(name){
+			return new SettingsModels.Settings({name: name});
 		},
 
-		getCollectionSettings: function(collection){
-			return collection.getSettings();
+		getNewCollection: function(name){
+			return new SettingsModels.SettingsCollection({}, {name: name});
 		},
 
-		save: function(collection){
+		/** Fetch the collection settings from its name */
+		getCollectionSettings: function(name){
+			var collectionSettings = new SettingsModels.SettingsCollection({}, {name: name});
+			return collectionSettings.getSettings();
+		},
+
+		/** Save the settings */
+		save: function(settings){
 			var deferred = $.Deferred();
-			collection.save(null, {success: function(){
+			settings.save(null, {success: function(){
 				return deferred.resolve();
 			}});
 			return deferred.promise();
