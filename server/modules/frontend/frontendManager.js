@@ -1,10 +1,11 @@
 var config = require('config'),
-	hooks = require(config.path.modules + '/hooks/hooksManager'),
 	_ = require('underscore')
 ;
 
 module.exports = {
-	init: function(){
+	init: function(app){
+		console.log('FRONTSETTINGS');
+		var hooks = app.hooks;
 		hooks.addFilter('settings:front', function(settings){
 			settings = _.extend(settings, {
 				settingsCollection: 'monSettings',

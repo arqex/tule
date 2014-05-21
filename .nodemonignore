@@ -5,3 +5,4 @@
 /mongodb/*
 /tests/*
 /server/plugins/nedb/data
+/server/modules/plugins

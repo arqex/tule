@@ -1,11 +1,10 @@
 var when = require('when'),
 	_ = require('underscore'),
-	config = require('config'),
-	hooks = require(config.path.modules + '/hooks/hooksManager')
+	config = require('config')
 ;
 
 
-var app, driverInstance;
+var app, driverInstance, hooks;
 
 module.exports = {
 	defaultDriver: __dirname + '/mongoDriver.js',
@@ -14,12 +13,14 @@ module.exports = {
 			deferred = when.defer()
 		;
 		app = appObject;
+		hooks = app.hooks;
 		console.log("Init Driver");
 		hooks.filter('db:driverpath', this.defaultDriver).then(function(driverPath){
 			me.initDriver(driverPath).then(
 				function(driver){
 					console.log("Driver resolved");
 					deferred.resolve(driver);
+					hooks.trigger('db:ready');
 				},
 				function(error){
 					deferred.reject(error);
@@ -52,6 +53,7 @@ module.exports = {
 		return promise;
 	},
 	getInstance: function(){
+
 		console.log('Requesting instance');
 		return driverInstance;
 	}

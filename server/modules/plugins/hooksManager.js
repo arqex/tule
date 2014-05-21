@@ -1,16 +1,12 @@
 var when = require('when');
 
-var actions = {},
-	filters = {}
-;
-
 var resolve = function(queue, returnValue, args){
 	var callbacks = queue.shift(),
 		promises = [],
 		deferred = when.defer()
 	;
 	for (var i = 0; i < callbacks.length; i++) {
-		promises.push(callbacks[i].apply(undefined, args));
+		promises.push(callbacks[i].callback.apply(undefined, args));
 	}
 
 	when.settle(promises).then(function(results){
@@ -47,19 +43,21 @@ var createArray = function(ob){
 	return [ob];
 };
 
-var hookManager = {
-	on: function(hooks, hookName, priority, callback){
+module.exports = {
+	on: function(hooks, pluginId, hookName, priority, callback){
 		if(typeof priority === 'function'){
 			callback = priority;
 			priority = 0; //Default priority
 		}
+
+		console.log('ON ' + hookName);
 
 		if(!hooks[hookName])
 			hooks[hookName] = {};
 		if(!hooks[hookName][priority])
 			hooks[hookName][priority] = [];
 
-		hooks[hookName][priority].push(callback);
+		hooks[hookName][priority].push({callback: callback, pluginId: pluginId});
 	},
 	off: function(hooks, hookName, callback){
 		var priorities = hooks[hookName];
@@ -68,7 +66,7 @@ var hookManager = {
 		for(var priority in priorities){
 			var methods = priorities[priority];
 			for (var i = methods.length - 1; i >= 0; i--) {
-				if(methods[i] == callback)
+				if(methods[i].callback == callback)
 					priorities[priority].splice(i,1);
 			}
 		}
@@ -85,6 +83,9 @@ var hookManager = {
 			deferred.resolve(result);
 			return deferred.promise;
 		}
+
+
+		console.log('TRIGGER ' + hookName);
 
 		var priorityStack = hooks[hookName];
 		if(!priorityStack){
@@ -112,13 +113,4 @@ var hookManager = {
 
 		return resolve(queue, returnValue, args);
 	}
-};
-
-module.exports = {
-	on: hookManager.on.bind(this, actions),
-	off: hookManager.off.bind(this, actions),
-	trigger: hookManager.trigger.bind(this, actions, false),
-	addFilter: hookManager.on.bind(this, filters),
-	removeFilter: hookManager.off.bind(this, filters),
-	filter: hookManager.trigger.bind(this, filters, true)
 };

@@ -7,9 +7,14 @@ var fs = require('fs'),
 	promisify = require('when/node/function'),
 	pluginsPath = config.path.plugins,
 	_ = require('underscore'),
-	hooks = require(config.path.modules + '/hooks/hooksManager')
+	hooksManager = require('./hooksManager.js')
 ;
 
+//Hooks
+var actions = {},
+	filters = {},
+	pluginHashes = {}
+;
 
 var PluginManager = function(){
 		this.plugins = {};
@@ -22,27 +27,16 @@ PluginManager.prototype = {
 		var me = this,
 			deferred = when.defer()
 		;
+		console.log(hooksManager);
 		app = appObject;
+		app.hooks = me.getHooks(''); // Empty id for core hooks
 		this.getActivePlugins().then(
 			function(definitions){
 				console.log(definitions);
 				_.each(definitions, function(def){
-					try {
-						if(!def.main)
-							throw ('Unknown entry point for plugin ' + def.id);
-
-						var entryPoint = path.join(config.path.plugins, def.id, def.main),
-							plugin = require(entryPoint)
-						;
-
-						if(!_.isFunction(plugin.init))
-							throw ('No init function for plugin ' + def.id);
-
-						plugin.init();
+					var plugin = me.initPlugin(def);
+					if(!plugin.error)
 						me.plugins[def.id] = plugin;
-					} catch (e) {
-						console.error(e);
-					}
 				});
 				deferred.resolve();
 			},
@@ -50,7 +44,47 @@ PluginManager.prototype = {
 				deferred.reject('Error retrieving plugin definitions');
 			}
 		);
+
 		return deferred.promise;
+	},
+
+	initPlugin: function(definition){
+		var me = this,
+			error = false,
+			plugin
+		;
+
+		try {
+			if(!definition.main)
+				throw ('Unknown entry point for plugin ' + definition.id);
+
+			var entryPoint = path.join(config.path.plugins, definition.id, definition.main);
+
+			plugin = require(entryPoint);
+			if(!_.isFunction(plugin.init))
+				throw ('No init function for plugin ' + definition.id);
+
+			var hooks = me.getHooks(definition.id);
+			plugin.init(hooks);
+
+		} catch (e) {
+			console.error(e);
+			plugin = {error: e};
+		}
+
+		return plugin;
+	},
+	getHooks: function(pluginId){
+		var pluginHash = 'p' + Math.floor(Math.random() * 10000000);
+		pluginHashes[pluginId] = pluginHash;
+		return {
+			on: hooksManager.on.bind(this, actions, pluginHash),
+			off: hooksManager.off.bind(this, actions),
+			trigger: hooksManager.trigger.bind(this, actions, false),
+			addFilter: hooksManager.on.bind(this, filters, pluginHash),
+			removeFilter: hooksManager.off.bind(this, filters),
+			filter: hooksManager.trigger.bind(this, filters, true)
+		}
 	},
 	getAllPluginDefinitions: function(){
 		var me = this,
@@ -151,6 +185,7 @@ PluginManager.prototype = {
 		return definitions;
 	},
 
+
 	getActivePlugins: function(){
 		var me = this,
 			deferred = when.defer()
@@ -175,13 +210,16 @@ PluginManager.prototype = {
 				pluginList = [];
 			}
 
-			if(!pluginList.length){
+			console.log("**********PLUGIN INIT");
+			console.log(pluginList);
 
+			if(!pluginList.length){
 				deferred.resolve([]);
 			}
 
 			me.getPluginDefinitions(pluginList).then(function(definitions){
 				me.active = definitions;
+				console.log(definitions);
 
 				if(pluginList.length != definitions.length){
 					pluginList = definitions.map(function(def){return def.id;});
@@ -197,7 +235,7 @@ PluginManager.prototype = {
 	saveActivePlugins: function(pluginList){
 		var deferred = when.defer();
 		pluginList.sort();
-		fs.writeFile('./activePlugins.json', JSON.stringify(pluginList), 'utf8', function(err){
+		fs.writeFile(__dirname + '/activePlugins.json', JSON.stringify(pluginList), 'utf8', function(err){
 			if(err){
 				console.log('Can\'t write activePlugins.json');
 				return deferred.reject('Can\'t write activePlugins.json');
@@ -220,16 +258,21 @@ PluginManager.prototype = {
 				return deferred.resolve(definitions);
 
 			me.getPluginDefinition(pluginId).then(function(definition){
-				definitions.push(definition);
+				var plugin = me.initPlugin(definition);
+				if(plugin.error)
+					return deferred.reject(plugin.error);
 
-				//Update current active definitions
-				me.active = definitions;
+				me.plugins[pluginId] = plugin;
+				definitions.push(definition);
 
 				pluginList = definitions.map(function(def){return def.id;});
 
-				me.saveActivePlugins(pluginList);
-				deferred.resolve(pluginList);
-				hooks.trigger('plugin:activated', pluginId);
+				me.saveActivePlugins(pluginList).then(function(){
+					//Update current active definitions
+					me.active = definitions;
+					deferred.resolve(pluginList);
+					app.hooks.trigger('plugin:activated', pluginId);
+				});
 			});
 		});
 		return deferred.promise;
@@ -246,13 +289,40 @@ PluginManager.prototype = {
 			if(!definition)
 				return deferred.resolve(definitions);
 
-			definitions = _.filter(definitions, function(def){return def != pluginId;});
+			if(me.plugins[pluginId])
+				delete me.plugins[pluginId];
+
+			definitions = _.filter(definitions, function(def){return def.id != pluginId;});
 			pluginList = definitions.map(function(def){return def.id;});
-			me.active = definitions;
-			deferred.resolve(pluginList);
-			hooks.trigger('plugin:deactivated', pluginId);
+
+			me.saveActivePlugins(pluginList).then(function(){
+				//Update current active definitions
+				me.active = definitions;
+				deferred.resolve(pluginList);
+				me.cleanPluginCallbacks(pluginId);
+				app.hooks.trigger('plugin:deactivated', pluginId);
+			});
 		});
 		return deferred.promise;
+	},
+
+	cleanPluginCallbacks: function(pluginId){
+		var callbackObjects = [actions, filters],
+			pluginHash = pluginHashes[pluginId]
+		;
+
+		callbackObjects.forEach(function(callbackObj){
+			for(var hookName in callbackObj){
+				for(var priority in callbackObj[hookName]){
+					var callbacks = callbackObj[hookName][priority];
+					for (var i = callbacks.length - 1; i >= 0; i--) {
+						if(callbacks[i].pluginId == pluginHash)
+							callbacks.splice(i, 1);
+					};
+				}
+			}
+		});
+		delete pluginHashes[pluginId];
 	}
 };
 
