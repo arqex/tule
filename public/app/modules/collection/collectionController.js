@@ -1,22 +1,19 @@
 "use strict";
 
 var deps = [
-	'jquery', 'underscore', 'backbone',
+	'jquery', 'underscore', 'backbone', 'services',
 
 	'./collectionViews',
-	'./collectionModels',
 	'text!./tpls/collectionControllerTpl.html',
-
-	'modules/core/mainController',	
+	
 	'modules/core/coreTools',
-	'modules/core/pageController',
+	'modules/core/baseController',
 
-	'modules/settings/settingsModels',
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplController, 
-	mainController, Tools, PageController, SettingsModels, Alerts){
+define(deps, function($,_,Backbone, Services, CollectionViews, tplController, 
+	Tools, BaseController, Alerts){
 
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
@@ -37,14 +34,13 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 		return searchTools;
 	};
 
-	var createAdderView = function(type, results, settings){
+	var createAdderView = function(type, settings){
 		var newDocView = new CollectionViews.NewDocView({
 			type: type,
-			collection: results,
 			settings: settings
 		});
 
-		return newDocView;
+		return newDocView; 
 	};
 
 	var createCollectionView = function(documents, fields, settings){
@@ -52,38 +48,44 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 			collection: documents,
 			fields: fields,
 			customFields: 1,
-			docOptions: settings			
+			docOptions: settings
 		});
 
 		return view;
 	};
 
-	var CollectionController = PageController.extend({
+	var CollectionController = BaseController.extend({
 		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
-		regionViews:{
-			'.adderPlaceholder': 'adder',
-			'.searchPlaceholder': 'search',
-			'.paginationPlaceholder': 'pagination',
-			'.itemsPlaceholder': 'items'
-		},
 
 		initialize: function(opts){
-			this.type 		= opts.args[0];
-			this.params		= opts.args[2] || {};
-			this.collection	= new SettingsModels.getCollection({type: this.type});
+			this.subViews = {};
+			this.regions = {};
+			this.regionViews = {
+				'.adderPlaceholder': 'adder',
+				'.searchPlaceholder': 'search',
+				'.paginationPlaceholder': 'pagination',
+				'.itemsPlaceholder': 'items'
+			};
 
-			var settingsPromise = this.collection.getSettings(),
-				me = this
-			;
+			var me 	= this,
+				deferred = $.Deferred()
+			;	
 
-			// If there are conditions in the url execute the query
-			if(this.params != undefined)
-				this.params = Tools.createQuery(this.type, this.params);
+			this.type 				= opts.args[0];
+			this.params				= opts.args[2] || {};
+			this.settingsService 	= Services.get('settings');
+			this.collectionService 	= Services.get('collection').collection(this.type);
+			this.querying 			= deferred.promise();
 
-			this.querying = this.collection.query(this.params).then(function(results, options){
-				settingsPromise.then(function(settings){
+			this.settingsService.get(this.type).then(function(metadata){
+				// If there are conditions in the url execute the query
+				if(me.params != undefined)
+					me.params = Tools.createQuery(me.type, me.params);
+
+				me.collectionService.find(me.params).then(function(results, options){
 					// Primitive vars
-					var fields 		= settings.tableFields || [],
+					var settings 	= metadata.attributes,
+						fields 		= settings.tableFields || [],
 						documents 	= results.get('documents'),
 						pagination 	= []
 					;
@@ -98,10 +100,10 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 
 					// Override
 					me.tpl = me.controllerTpl;
-					me.subViews['adder'] = createAdderView(me.type, results, settings);
-					me.subViews['search'] = createSearchTools(me.type);
-					me.subViews['pagination'] = createPagination(pagination[0], pagination[1], pagination[2]);
-					me.subViews['items'] = createCollectionView(documents, fields, settings, me.type);
+					me.subViews['adder'] 		= createAdderView(me.type, settings);
+					me.subViews['search'] 		= createSearchTools(me.type);
+					me.subViews['pagination'] 	= createPagination(pagination[0], pagination[1], pagination[2]);
+					me.subViews['items'] 		= createCollectionView(documents, fields, settings, me.type);
 							
 					if(me.subViews['adder'])
 						me.runAdderListeners();
@@ -111,6 +113,8 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 						me.runPaginationListeners();
 					if(me.subViews['items'])
 						me.runItemsListeners();
+
+					deferred.resolve();
 				});
 			});
 		},
@@ -118,14 +122,14 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 		runAdderListeners: function(){
 			this.listenTo(this.subViews['adder'], 'createDoc', function(type, data){
 				var me 	= this,
-					doc = new CollectionModels.getDocument({type: type})
+					doc = this.collectionService.getNew(type)
 				;
 
 				_.each(data, function(values, key){
 					doc.set(key, values.value);
 				});
 
-				doc.save(null, {success: function(){
+				this.collectionService.save(doc).then(function(){
 					Alerts.add({message:'Document saved correctly', autoclose:6000});	
 					doc.url = encodeURI('/api/docs/' + me.type + '/' + doc.id);
 
@@ -141,10 +145,8 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 					});
 
 					// Render collection view
-					me.subViews['items'].collection.add(doc);
-					me.subViews['items'].createDocViews(me.subViews['items'].collection);
-					me.render();
-				}});
+					me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].lastPage);
+				});
 			}); // End of createDoc
 		},
 
@@ -153,7 +155,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 				var me = this;
 				this.params['clause'] = clauses;
 
-				this.collection.query({clause: clauses}).then(function(results){
+				this.collectionService.find(this.params).then(function(results, options){
 					var	customUrl 	= "",
 						paramName 	= encodeURI("clause[]"),
 						paramValue 	= ''
@@ -169,7 +171,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
 
 					me.subViews['pagination'].update(1, results.get('total'));
-					me.subViews['items'].createDocViews(results.get('documents'));
+					me.subViews['items'].update(results.get('documents'));
 					me.subViews['items'].render();
 				});
 			}); // End of searchDoc
@@ -183,12 +185,17 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 					me 			= this
 				;
 
+				page = (page > this.subViews['pagination'].lastPage) 
+					? this.subViews['pagination'].lastPage
+					: page
+				;
+				
 				conditions.skip  = (page * limit) - limit;
 				conditions.limit = limit;
 
 				query = Tools.createQuery(this.type, conditions);
 
-				this.collection.query(query).then(function(results, options){
+				this.collectionService.find(this.params).then(function(results, options){
 					me.subViews['pagination'].currentPage 	= page;
 					me.subViews['pagination'].distance 		= me.subViews['pagination'].lastPage - page;
 					me.subViews['pagination'].lastPage 		= Math.ceil(results.get('total') / limit);
@@ -204,7 +211,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 					customUrl = encodeURI(customUrl);
 					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
 					
-					me.subViews['items'].createDocViews(results.get('documents'));
+					me.subViews['items'].update(results.get('documents'));
 					me.subViews['items'].render();
 				});
 			}); // Enf of navigate
@@ -221,12 +228,11 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 					docView.model.destroy({
 						wait: true,
 						success: function(){
-							console.log('Document deleted');
 							Alerts.alerter.add({message: 'Deletion completed', autoclose: 6000});
-							me.render();
+							me.subViews['items'].collection.remove(docView);
+							me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].currentPage);
 						},
 						error: function(){
-							console.log('Document NOT deleted');
 							Alerts.alerter.add({message: 'There was an error deleting the document.', level: 'error'});
 						}
 					});
@@ -242,7 +248,7 @@ define(deps, function($,_,Backbone, CollectionViews, CollectionModels, tplContro
 					type: this.type,
 					data: data
 				});
-			}); // End of saveDoc			
+			}); // End of saveDoc
 		}
 	});
 

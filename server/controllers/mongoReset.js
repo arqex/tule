@@ -91,7 +91,7 @@ var collections = {
 				name: 'navData',
 				routes:[
 					{text: 'Collection', url: '/collections/list/test'},
-					{text: 'Config', url: '/config'}
+					{text: 'Settings', url: '/settings'}
 				]
 			}
 		]

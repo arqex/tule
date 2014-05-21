@@ -6,15 +6,11 @@ var nofunction = function(){},
 		initialize: function(){
 			var me = this;
 			_.each(_.keys(config.routes).reverse(), function(route){
-				var controllerData = config.routes[route],
-					controllerParts = controllerData.split('#'),
-					file = controllerParts[0],
-					method = controllerParts[1]
-				;
+				var controllerData = config.routes[route];
 
 				me.route(route, controllerData, function(){
 					var args = arguments;
-					Backbone.Events.trigger('tuleRoute', file, method, args);
+					Backbone.Events.trigger('tuleRoute', controllerData, args);
 				});
 			});
 		},

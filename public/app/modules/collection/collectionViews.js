@@ -7,12 +7,10 @@ var deps = [
 	'text!./tpls/searchTools.html',
 
 	'modules/datatypes/dispatcher',
-	'modules/alerts/alerts',
-
-	'modules/core/dispenser'
+	'modules/alerts/alerts'
 ];
 
-define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Alerts, Dispenser ){
+define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Alerts){
 	var DocumentView = Backbone.View.extend({
 		tpl: _.template($(tplSource).find('#docTpl').html()),
 
@@ -287,34 +285,20 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 		
 		onClickCreate: function(e){
 			e.preventDefault();
-
-			var doc = Dispenser.getCollection(this.objectView.getValue()),
-				me = this
-			;			
+			var stack = {};
 
 			_.each(this.objectView.subViews, function(subView){
 				subView.typeView.save();
 				subView.changeMode('display');
-				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
+				var value = {};
+				value['key'] = subView.key;
+				value['label'] = subView.label || subView.key;
+				value['datatype'] = subView.datatype;
+				value['value'] = subView.typeView.getValue();
+				stack[subView.key] = value;
 			});
 
-			doc.url = '/api/collection';
-
-			doc.save(null, {success: function(){
-				Alerts.add({message:'Document saved correctly', autoclose:6000});
-				doc.id = 'collection_' + me.objectView.getValue()['name'];
-				doc.type = me.objectView.getValue()['name'];
-				doc.url = encodeURI('/api/settings/collection_' + doc.type);
- 				me.objectView = false;
-				me.$el.find('.form').remove();
-				me.close();
-				doc.newborn = true;
-				// Render collection view
-				me.collection.add(doc);
-				me.collectionView.createDocViews();
-				me.collectionView.render();
-			}});
-		
+			this.trigger('createCollection', this.type, stack);
 		}
 	});
 
@@ -400,15 +384,18 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
 			this.docViews = {};			
 			this.docOptions = opts.docOptions || {};
-			this.createDocViews(this.collection);
+			this.update(this.collection);
 
 			this.listenTo(this.collection, 'remove', $.proxy(this.removeSubView, this));
 		},
 
-		createDocViews: function(currentCollection){
+		update: function(currentCollection){
 			var me = this,
 				docViews = {}
 			;
+
+			if(this.collection != currentCollection)
+				this.collection.reset();
 			
 			currentCollection.each(function(doc){
 				var docId = doc.id;
@@ -429,6 +416,8 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 				docViews[docId].on('rendered', function(){
 					me.renderSubview(docViews[docId]);
 				});
+
+				me.collection.add(doc);
 			});
 			this.docViews = docViews;
 		},

@@ -1,12 +1,15 @@
 "use strict";
 var deps = [
-	'jquery', 'underscore', 'backbone',
+	'jquery', 'underscore', 'backbone', 'services',
 	'modules/collection/collectionViews',
-	'modules/core/dispenser',
-	'modules/core/mainController'
+	'modules/core/baseController',
+	'text!./tpls/settingsControllerTpl.html',
+	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, Collection, Dispenser, mainController){
+define(deps, function($,_, Backbone, Services, CollectionViews,
+	BaseController, tplController, Alerts){
+
 	//Structure for the collection docs
 	var docOptions = {
 		customProperties: false,
@@ -40,67 +43,128 @@ define(deps, function($,_,Backbone, Collection, Dispenser, mainController){
 		hiddenProperties: ['name', '_id']
 	};
 
-	return {
-		main: function(){
-			var collections = Dispenser.getCollectionList(),
-				view
+	var createAdderView = function(){
+		var adderView = new CollectionViews.NewCollectionView({
+			type: 'collection',
+			settings: {
+				customProperties: false,
+				name: "newCollection",
+				propertyDefinitions: [{
+					datatype: {
+						id: "string",
+						options: {}
+					},
+					key: "name",
+					label: "Name"
+				}],
+				mandatoryProperties: ['name']
+			}
+		});
+
+		return adderView;
+	};
+
+	var createItemsView = function(collections){
+		var CollectionList = Backbone.Collection.extend({
+			model: Services.get('settings').getNew(),
+			url: '/api/collections'
+		});
+
+		var collection = new CollectionList;
+
+		_.each(collections, function(type){
+			collection.add(Services.get('settings').getNewCollection(type));
+		});
+
+		var itemsView = new CollectionViews.CollectionView({
+			collection: collection,
+			fields: [
+				function(doc){ return doc.name.split('_')[1]; },
+				{action: 'browse', href:'#', icon:'eye'}
+			],
+			docOptions: docOptions
+		});
+
+		itemsView.on('click:function1', function(docView){
+			docView.model.getSettings().then(function(){
+				docView.open();
+			});
+		});
+
+		itemsView.on('click:browse', function(docView){
+			var name = docView.model.get('name').split('_')[1];
+			Backbone.history.navigate('/collections/list/' + name, {trigger: true});
+		});	
+
+		return itemsView;
+	};
+
+	var SettingsController = BaseController.extend({
+		controllerTpl: $(tplController).find('#settingsControllerTpl').html(),		
+
+		initialize: function(opts){
+			this.subViews = {};
+			this.regions = {};
+			this.regionViews = {
+				'.adderPlaceholder': 'adder',
+				'.itemsPlaceholder': 'items'
+			};
+
+			var me 			= this,
+				deferred 	= $.Deferred()
 			;
 
-			collections.fetch().then(function(){
-				collections.remove('collection_system.indexes');
-				collections.remove('collection_monSettings');
+			this.querying = deferred.promise();
 
-				view = new Collection.CollectionView({
-					collection: collections,
-					fields: [
-						function(doc){ return doc.name.split('_')[1]; },
-						{action: 'browse', href:'#', icon:'eye'}
-					],
-					docOptions: docOptions
-				});
+			Services.get('collection').getCollectionList().then(function(results){
+				var key = results.length;
+				while (key--) {
+					if(results[key] === 'system.indexes' || results[key] === 'monSettings')
+						results.splice(key, 1);
+				}
 
-				view.on('click:function1', function(docView){
-					docView.model.getSettings().then(function(){
-						docView.open();
-					});
-				});
-				view.on('click:browse', function(docView){
-					var name = docView.model.get('name').split('_')[1];
-					Backbone.history.navigate('/collections/list/' + name, {trigger: true});
-				});
+				// Override
+				me.tpl = me.controllerTpl;
+				me.subViews['adder'] = createAdderView();
+				me.subViews['items'] = createItemsView(results);
 
-				view.render();
+				if(me.subViews['adder'])
+					me.runAdderListeners();
 
-				var newCollectionView = new Collection.NewCollectionView({
-					type: 'collection',
-					collection: collections,			
-					settings: {
-						customProperties: false,
-						name: "newCollection",
-						propertyDefinitions: [{
-							datatype: {
-								id: "string",
-								options: {}
-							},
-							key: "name",
-							label: "Name"
-						}],
-						mandatoryProperties: ['name']
-					}
-				});
-
-				newCollectionView.render();
-
-				var superView = new Collection.SuperView({
-					adderView: newCollectionView,
-					collectionView: view
-				});
-				
-				superView.render();
-				mainController.loadView(superView);
-				mainController.setTitle('Settings');
+				deferred.resolve();
 			});
+		},
 
+		runAdderListeners: function(){
+			this.listenTo(this.subViews['adder'], 'createCollection', function(type, data){
+				var me 	= this,
+					settingsService = Services.get('settings'),
+					collection = settingsService.getNewCollection(data.name.value),
+					oldurl = collection.url()
+				;
+
+				_.each(data, function(values, key){
+					collection.set(key, values.value);
+				});
+
+				collection.url = '/api/collection';
+				settingsService.save(collection).then(function(){
+					Alerts.add({message:'Document saved correctly', autoclose:6000});
+					collection.url = oldurl;
+
+					// Reset the form on DOM
+					me.subViews['adder'].objectView = false;
+					me.subViews['adder'].$el.find('.form').remove();
+					me.subViews['adder'].close();
+
+					// Render collection view
+					me.subViews['items'].collection.add(collection);
+					me.subViews['items'].update(me.subViews['items'].collection);
+					me.render();
+				});
+			}); // End of createCollection
 		}
-	};
+	});
+
+	return SettingsController;
 });

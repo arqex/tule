@@ -13,18 +13,19 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 			this.$('.pagetitle').after(Alerts.alerter.el);
 
 			this.navigation 		= opts.navigation;
-			this.navigationRegion 	= new Region({selector: this.$('.navigation')});
-			this.viewRegion 		= new Region({selector: this.$('.content')});
+			this.navigationRegion 	= new Region({node: this.$('nav')});
+			this.viewRegion 		= new Region({node: this.$('.content')});
+
+			this.navigationRegion.show(this.navigation);
+			this.navigation.manager(location.pathname);
 		},
 
-		loadContent: function(file, method, args){
-			var me = this;
-			var el = $(document.children).find('.content');
+		loadContent: function(file, args){
+			var me = this;			
 			require([file], function(Controller){				
 				var controller = new Controller({args: args});
 				controller.querying.then(function(){
 					me.viewRegion.show(controller);
-					me.navigationRegion.show(me.navigation);
 				});
 			});
 		}
