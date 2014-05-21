@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'modules/core/pageController', './pluginModels'],
+define(['jquery', 'underscore', 'backbone', 'modules/core/baseController', './pluginModels'],
 function($,_,Backbone, PageController, Plugins){
 
 	var PluginController = PageController.extend({
