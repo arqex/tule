@@ -1,5 +1,9 @@
 // Config * Hack, this should be an enviroment variable
 process.env.NODE_CONFIG_DIR = __dirname + '/server/config';
+
+// define port through the terminal or environment variable
+if (!process.env.PORT) process.env.PORT = process.argv[2] || 3000;
+
 var config = require('config');
 if(!config.mon.settingsCollection){
 	console.error('\r\n*** There is not a collection name for the settings. ***');
@@ -54,8 +58,8 @@ pluginManager.init(app).then(function(){
 		frontendManager.init(app);
 		console.log('FRONTEND OK!');
 
-		server.listen(3000);
-		console.log('Listening on port 3000');
+		server.listen(process.env.PORT);
+		console.log('Listening on port ' + process.env.PORT);
 	});
 
 }).catch(function(err){
