@@ -1,12 +1,17 @@
 var config = require('config'),
-	hooks = require(config.path.modules + '/hooks/hooksManager'),
 	db = require(config.path.modules + '/db/dbManager').getInstance(),
 	when = require('when')
 ;
 
-var settings = db.collection(config.mon.settingsCollection);
+var settings = db.collection(config.mon.settingsCollection),
+	hooks
+;
 
 module.exports = {
+	init: function(appObject) {
+		console.log('dentro');
+		hooks = appObject.hooks;
+	},
 	get: function(settingName){
 		var deferred = when.defer();
 		settings.findOne({name: settingName}, function(err, settingValue){

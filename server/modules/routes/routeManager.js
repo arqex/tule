@@ -1,19 +1,24 @@
 var routes = require('./routes.js'),
 	_ = require('underscore'),
 	config = require('config'),
-	hooks = require(config.path.modules + '/hooks/hooksManager')
+	express = require('express'),
+	Path = require('path')
 ;
 
-var app = false;
+var app = false, hooks;
 
 var RouteManager = function(){};
 
 RouteManager.prototype = {
 	init: function(appObject){
 		app = appObject;
+		hooks = app.hooks;
+		this.statics = [];
 		this.resetRoutes();
-		hooks.on('plugin:activate', this.resetRoutes);
-		hooks.on('plugin:deactivate', this.resetRoutes);
+		//add first mandatory static route
+		app.use('/r/tule', express.static('public'));
+		hooks.on('plugin:activated', this.resetRoutes.bind(this));
+		hooks.on('plugin:deactivated', this.resetRoutes.bind(this));
 	},
 	addRoute: function(controllerData, routeData){
 		var baseUrl = config.mon.baseUrl,
@@ -32,12 +37,53 @@ RouteManager.prototype = {
 		console.log('Added route: ' + method + ' ' + opts[0] + ' ' + opts[1]);
 		app[method](baseUrl + route, controller);
 	},
+	addStaticDirectory: function(route){
+		if(!route.url || !route.path)
+			return console.log('Cant add route ' + route);
+
+		if(route.url[0] && route.url[0] != '/')
+			route.url = '/' + route.url;
+
+		var url = config.mon.baseUrl + 'r' + route.url,
+			path = Path.join(config.path.plugins, route.path)
+		;
+
+		console.log('Adding route! ' + route);
+		var middleware = express.static(path, {maxAge: 0});
+		this.statics.push(middleware);
+		console.log('Added the route to the array');
+		app.stack.unshift({route: url, handle: middleware });
+		console.log('And to the app');
+	},
+	resetStaticRoutes: function(){
+		var me = this;
+		for (var i = app.stack.length - 1; i >= 0; i--) {
+			var f = app.stack[i].handle,
+				staticIndex = this.statics.indexOf(f)
+			;
+			if(staticIndex !== -1){
+				app.stack.splice(i, 1);
+				this.statics.splice(staticIndex, 1);
+			}
+		};
+
+		hooks.filter('routes:static', []).then(function(statics){
+			console.log(statics);
+			statics.forEach(function(s){
+				me.addStaticDirectory(s);
+			});
+			console.log(app.stack);
+		});
+	},
 	resetRoutes: function(){
 		var me = this;
 		console.log('Here we are: ROUTING');
 		hooks.filter('routes:server', routes).then(function(allRoutes){
 			_.each(allRoutes, me.addRoute);
 		});
+
+		//Also static routes
+		this.resetStaticRoutes();
 	}
 };
 

@@ -18,8 +18,11 @@ define(deps, function($,_,Backbone, Marionette, tplSource){
 		url: '/api/plugins'
 	});
 
-
 	var PluginView = Marionette.ItemView.extend({
+		triggers:{
+			'click .js-plugin-activate': 'activate',
+			'click .js-plugin-deactivate': 'deactivate'
+		},
 		template: function(data){
 			return _.template(tpls.find('#pluginTpl').html(), data);
 		},

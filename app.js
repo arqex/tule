@@ -24,9 +24,16 @@ pluginManager.init(app).then(function(){
 		var server = http.createServer(app);
 		var _u = require('underscore');
 
-		app.use(express.static('public'), {maxAge: 0});
+		//Settings manager
+		var settingsManager = require(config.path.modules + '/settings/settingsManager.js');
+		settingsManager.init(app);
+		console.log('SETTINGS OK!');
+
+		//app.use(express.static('public'), {maxAge: 0});
 		app.use(express.bodyParser());
 		app.use(express.methodOverride());
+
+		console.log(app.stack);
 
 		//Templates
 		var UTA = require('underscore-template-additions'),

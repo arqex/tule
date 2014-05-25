@@ -1,28 +1,50 @@
-define(['jquery', 'underscore', 'backbone', 'modules/core/mainController', './pluginModels'], 
-	function($,_,Backbone, mainController, Plugins){
+define(['jquery', 'underscore', 'backbone', 'modules/core/baseController', './pluginModels'],
+function($,_,Backbone, PageController, Plugins){
 
-	var DumbView = Backbone.View.extend({
-			render: function(text){
-				this.$el.html(text);
-			}
-		}),
-		dumbView = new DumbView({el: '#page>.content'})
-	;
+	var PluginController = PageController.extend({
+		title: 'Plugins',
+		tpl: '<div class="plugins"></div>',
+		regionViews: {},
+		regions: {},
+		initialize: function(options){
+			var me = this,
+				pluginList = new Plugins.PluginList([])
+			;
+			this.querying = pluginList.fetch().then(function(){
+				var listView = new Plugins.PluginListView({collection: pluginList});
+				me.regionViews = {'.plugins': 'list'};
+				me.subViews = {list: listView};
 
-	return {
-		main: function(){
-			mainController.render('Start kicking some asses selecting an option from the left menu.');
-			mainController.loadView(dumbView);
-			mainController.setTitle('Plugins');
-			dumbView.render('This is the plugin View');
-
-			var pluginList = new Plugins.PluginList([]);
-			pluginList.fetch().then(function(){
-				var pluginView = new Plugins.PluginListView({collection: pluginList});
-
-				mainController.loadView(pluginView.render());
-				console.log(pluginList);
+				me.bindPluginEvents();
+				me.trigger('intialized')
+			});
+		},
+		bindPluginEvents: function(){
+			var me = this;
+			this.listenTo(this.subViews.list, 'itemview:activate', function(itemView){
+				me.togglePlugin(itemView.model.id, 'activate');
+			});
+			this.listenTo(this.subViews.list, 'itemview:deactivate', function(itemView){
+				me.togglePlugin(itemView.model.id, 'deactivate');
+			});
+		},
+		togglePlugin: function(pluginId, action){
+			$.get(this.subViews.list.collection.url + '/' + action + '/' + pluginId)
+				.then(function(){
+					window.location.reload(true);
+				})
+				.fail(function(){
+					alert.add('There was an error trying to ' + action + ' the plugin. Please, try again', 'error');
+				})
+			;
+		},
+		render: function(){
+			var me = this;
+			this.querying.then(function(){
+				PageController.prototype.render.apply(me, arguments)
 			});
 		}
-	};
+	});
+
+	return PluginController;
 });

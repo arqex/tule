@@ -10,7 +10,9 @@ db.collection(config.mon.settingsCollection).findOne({name:'navData'}, function(
 });
 
 module.exports = {
-	init: function(){
+	init: function(app){
+		console.log('FRONTSETTINGS');
+		var hooks = app.hooks;
 		hooks.addFilter('settings:front', function(settings){
 			settings = _.extend(settings, {
 				settingsCollection: 'monSettings',
