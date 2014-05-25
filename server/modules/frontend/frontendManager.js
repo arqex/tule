@@ -1,7 +1,13 @@
-var config = require('config'),
-	hooks = require(config.path.modules + '/hooks/hooksManager'),
-	_ = require('underscore')
+var config 	= require('config'),
+	hooks 	= require(config.path.modules + '/hooks/hooksManager'),
+	_ 		= require('underscore'),
+	db 		= require(config.path.modules + '/db/dbManager').getInstance(),
+	navData = 0
 ;
+
+db.collection(config.mon.settingsCollection).findOne({name:'navData'}, function(err, settings){
+	navData = settings;
+});
 
 module.exports = {
 	init: function(){
@@ -10,10 +16,7 @@ module.exports = {
 				settingsCollection: 'monSettings',
 				datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field', 'select'],
 				datatypesPath: 'modules/datatypes/',
-				routes:[
-					{text: 'Collection', url: '/collections/list/test'},
-					{text: 'Config', url: '/config'}
-				]
+				routes: navData.routes
 			});
 			return settings;
 		});
