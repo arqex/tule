@@ -8,7 +8,7 @@ define(['jquery', 'underscore', 'backbone'], function($,_,Backbone){
 			'settings/collections': 'modules/settings/settingsController',
 			'settings/general': 'modules/settings/settingsGeneral',
 			'plugins': 'modules/plugins/pluginController',
-			'*path': 'modules/core/homeController',
+			'*path': 'modules/core/404Controller'
 		}
 	};
 });

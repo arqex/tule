@@ -1,26 +1,48 @@
-var config 	= require('config'),
-	//hooks 	= require(config.path.modules + '/hooks/hooksManager'),
-	_ 		= require('underscore'),
-	db 		= require(config.path.modules + '/db/dbManager').getInstance(),
-	navData = 0
+'use strict';
+
+var config = require('config'),
+	_ = require('underscore'),
+	when = require('when')
 ;
 
-db.collection(config.mon.settingsCollection).findOne({name:'navData'}, function(err, settings){
-	navData = settings;
-});
+var defaultClientRoutes = {
+		'(/)': 'modules/core/homeController',
+		'collections/list/:id(/page/:page)': 'modules/collection/collectionController',
+		'config': 'modules/settings/settingsController',
+		'plugins': 'modules/plugins/pluginController'
+	},
+	defaultFrontendSettings = {
+		settingsCollection: 'monSettings',
+		datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field', 'select'],
+		datatypesPath: 'modules/datatypes/',
+		routes:[
+			{text: 'Collection', url: '/collections/list/test'},
+			{text: 'Config', url: '/config'}
+		]
+	},
+	hooks
+;
 
 module.exports = {
 	init: function(app){
-		console.log('FRONTSETTINGS');
-		var hooks = app.hooks;
-		hooks.addFilter('settings:front', function(settings){
-			settings = _.extend(settings, {
-				settingsCollection: 'monSettings',
-				datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field', 'select'],
-				datatypesPath: 'modules/datatypes/',
-				routes: navData.routes
+		console.log(app);
+		hooks = app.hooks;
+	},
+	getFrontSettings: function(){
+		var settingsPromise = hooks.filter('settings:front', defaultFrontendSettings),
+			routesPromise = hooks.filter('routes:client', defaultClientRoutes),
+			deferred = when.defer()
+		;
+
+		settingsPromise.then(function(settings){
+			routesPromise.then(function(routes){
+				routes['*path'] = 'modules/core/404Controller';
+				settings.clientRoutes = routes;
+
+				deferred.resolve(settings);
 			});
-			return settings;
 		});
+
+		return deferred.promise;
 	}
 };

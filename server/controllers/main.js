@@ -1,10 +1,10 @@
 var config = require('config'),
-	settingsManager = require(config.path.modules + '/settings/settingsManager')
+	frontendManager = require(config.path.modules + '/frontend/frontendManager')
 ;
 
 
 module.exports = function(req, res){
-    settingsManager.getFrontSettings().then(function(settings){
+    frontendManager.getFrontSettings().then(function(settings){
 		if(!settings)
 			settings = {};
 		res.render('main.html', {frontSettings: JSON.stringify(settings)});

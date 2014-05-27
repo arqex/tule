@@ -130,15 +130,15 @@ button:hover {
 	background-color: #4c7f7f;
 }
 
-#page {
+#pageRegion {
 	margin-left: 160px;
 	padding: 1px 20px 0;
 }
 
-#page h1,
-#page h2,
-#page h3,
-#page h4 {
+#pageRegion h1,
+#pageRegion h2,
+#pageRegion h3,
+#pageRegion h4 {
 	color: #2F4F4F;
 }
 
@@ -237,7 +237,7 @@ a.element-delete {
 	color: #454;
 	/* To allow hover the remove [fa-minus] icon */
 	margin-left: -18px;
-	padding-left: 18px;	
+	padding-left: 18px;
 }
 .element-key:hover .element-delete {
 	visibility: visible;
@@ -443,7 +443,7 @@ Alerter
 /******
 Add new form
 *******/
-form.form {  
+form.form {
 	display: none;
 	border: 1px solid #eafafa;
 	padding: 0 5px 5px 5px;
@@ -500,7 +500,7 @@ Add new search box
 }
 
 /************
-PAGINATION TAB 
+PAGINATION TAB
 *************/
 .current-page {
 	font-size: 20px;
@@ -533,7 +533,7 @@ PAGINATION TAB
 	position: relative;
     display:inline-block;
     width:0px;
-    margin-right: 10px;  
+    margin-right: 10px;
 }
 
 .label {

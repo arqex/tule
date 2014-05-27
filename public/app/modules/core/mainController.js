@@ -1,8 +1,8 @@
 var deps = [
-	'jquery', 'underscore', 'backbone', 
-	'modules/alerts/alerts', 
+	'jquery', 'underscore', 'backbone',
+	'modules/alerts/alerts',
 	'modules/navigation/navigationController',
-	'./region'
+	'region'
 ];
 
 define(deps, function($,_,Backbone, Alerts, Navigation, Region){
@@ -13,20 +13,18 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 			this.$('.pagetitle').after(Alerts.alerter.el);
 
 			this.navigation 		= opts.navigation;
-			this.navigationRegion 	= new Region({node: this.$('nav')});
-			this.viewRegion 		= new Region({node: this.$('.content')});
+			this.navigationRegion 	= new Region({el: this.$('#navigationRegion')});
+			this.pageRegion 		= new Region({el: this.$('#pageRegion')});
 
 			this.navigationRegion.show(this.navigation);
 			this.navigation.manager(location.pathname);
 		},
 
 		loadContent: function(file, args){
-			var me = this;			
-			require([file], function(Controller){				
+			var me = this;
+			require([file], function(Controller){
 				var controller = new Controller({args: args});
-				controller.querying.then(function(){
-					me.viewRegion.show(controller);
-				});
+				me.pageRegion.show(controller);
 			});
 		}
 	});

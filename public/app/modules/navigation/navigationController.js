@@ -2,15 +2,17 @@ define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 	function($, Backbone, NavModels, NavViews){
 
 		var NavigationController = Backbone.View.extend({
-			initialize: function(opts){	
+			initialize: function(opts){
 				this.navigation = new NavViews.NavCollectionView({
-					collection: new NavModels.NavCollection(opts.routes)				
-				});			
+					collection: new NavModels.NavCollection(opts.routes)
+				});
 			},
 
 			render: function(){
 				this.navigation.render();
-				this.el = this.navigation.el;			
+				this.$el
+					.html('')
+					.append(this.navigation.el);
 			},
 
 			openNavigation: function(target, stackedHeight){
@@ -37,4 +39,4 @@ define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 		});
 
 	return NavigationController;
-});	
+});

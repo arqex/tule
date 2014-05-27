@@ -26,7 +26,12 @@ require.config({
         'jquery.ui.tooltip':    '../bower_components/jqueryui/ui/jquery.ui.tooltip',
 
         /* jQuery UI i18n */
-        'jquery.ui.datepicker-en': '../bower_components/jqueryui/ui/i18n/jquery.ui.datepicker-en'
+        'jquery.ui.datepicker-en': '../bower_components/jqueryui/ui/i18n/jquery.ui.datepicker-en',
+
+        /* Controllers */
+        'baseController': 'modules/core/baseController',
+        'pageController': 'modules/core/pageController',
+        'region': 'modules/core/region'
     },
     shim: {
         /* Masters */

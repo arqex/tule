@@ -1,11 +1,11 @@
 var deps = [
 	'jquery', 'underscore', 'backbone', 'router', 'services',
-	'modules/settings/settingsModels', 'modules/core/mainController', 
+	'modules/settings/settingsModels', 'modules/core/mainController',
 	'modules/navigation/navigationController',
 	'modules/collection/collectionService', 'modules/settings/settingsService'
 ];
 
-define(deps, function($, _, Backbone, Router, Services, 
+define(deps, function($, _, Backbone, Router, Services,
 	Settings, Main, Navigation, CollectionService, SettingsService){
 
 	var init = function() {
@@ -26,7 +26,7 @@ define(deps, function($, _, Backbone, Router, Services,
 				main.loadContent(file, args);
 			});
 
-			Router.init();
+			Router.init({routes: settings.clientRoutes});
 			Backbone.history.on('route', function() {
 				navigation.manager("/" + this.fragment);
 			});
