@@ -2,13 +2,14 @@
 var deps = [
 	'jquery', 'underscore', 'backbone', 'services',
 	'modules/collection/collectionViews',
-	'modules/core/baseController',
+	'baseController',
+	'pageController',
 	'text!./tpls/settingsControllerTpl.html',
 	'modules/alerts/alerts'
 ];
 
 define(deps, function($,_, Backbone, Services, CollectionViews,
-	BaseController, tplController, Alerts){
+	BaseController, PageController, tplController, Alerts){
 
 	//Structure for the collection docs
 	var docOptions = {
@@ -94,22 +95,19 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 		itemsView.on('click:browse', function(docView){
 			var name = docView.model.get('name').split('_')[1];
 			Backbone.history.navigate('/collections/list/' + name, {trigger: true});
-		});	
+		});
 
 		return itemsView;
 	};
 
 	var SettingsController = BaseController.extend({
-		controllerTpl: $(tplController).find('#settingsControllerTpl').html(),		
+		template: $(tplController).find('#settingsControllerTpl').html(),
+		regionSelectors: {
+			adder: '.adderPlaceholder',
+			items: '.itemsPlaceholder'
+		},
 
-		initialize: function(opts){
-			this.subViews = {};
-			this.regions = {};
-			this.regionViews = {
-				'.adderPlaceholder': 'adder',
-				'.itemsPlaceholder': 'items'
-			};
-
+		init: function(opts){
 			var me 			= this,
 				deferred 	= $.Deferred()
 			;
@@ -123,13 +121,16 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 						results.splice(key, 1);
 				}
 
-				// Override
-				me.tpl = me.controllerTpl;
-				me.subViews['adder'] = createAdderView();
-				me.subViews['items'] = createItemsView(results);
+				me.subViews = {
+					adder: createAdderView(),
+					items: createItemsView(results)
+				};
 
-				if(me.subViews['adder'])
-					me.runAdderListeners();
+				me.runAdderListeners();
+
+				_.each(me.subViews, function(view, name){
+					me.regions[name].show(view);
+				})
 
 				deferred.resolve();
 			});
@@ -164,6 +165,11 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 				});
 			}); // End of createCollection
 		}
+	});
+
+	return PageController.extend({
+		title: 'Collection Settings',
+		contentView: SettingsController
 	});
 
 	return SettingsController;

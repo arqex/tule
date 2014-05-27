@@ -5,15 +5,16 @@ var deps = [
 
 	'./collectionViews',
 	'text!./tpls/collectionControllerTpl.html',
-	
+
 	'modules/core/coreTools',
-	'modules/core/baseController',
+	'baseController',
+	'pageController',
 
 	'modules/alerts/alerts'
 ];
 
-define(deps, function($,_,Backbone, Services, CollectionViews, tplController, 
-	Tools, BaseController, Alerts){
+define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
+	Tools, BaseController, PageController, Alerts){
 
 	var createPagination = function(current, limit, total){
 		var pagination = new CollectionViews.PaginationView({
@@ -40,7 +41,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 			settings: settings
 		});
 
-		return newDocView; 
+		return newDocView;
 	};
 
 	var createCollectionView = function(documents, fields, settings){
@@ -55,27 +56,25 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 	};
 
 	var CollectionController = BaseController.extend({
-		controllerTpl: $(tplController).find('#collectionControllerTpl').html(),
+		template: $(tplController).find('#collectionControllerTpl').html(),
 
-		initialize: function(opts){
+		regionSelectors: {
+			adder: '.adderPlaceholder',
+			search: '.searchPlaceholder',
+			pagination: '.paginationPlaceholder',
+			items: '.itemsPlaceholder'
+		},
+
+		init: function(opts){
 			this.subViews = {};
-			this.regions = {};
-			this.regionViews = {
-				'.adderPlaceholder': 'adder',
-				'.searchPlaceholder': 'search',
-				'.paginationPlaceholder': 'pagination',
-				'.itemsPlaceholder': 'items'
-			};
 
-			var me 	= this,
-				deferred = $.Deferred()
-			;	
+			var me 	= this;
 
 			this.type 				= opts.args[0];
 			this.params				= opts.args[2] || {};
 			this.settingsService 	= Services.get('settings');
 			this.collectionService 	= Services.get('collection').collection(this.type);
-			this.querying 			= deferred.promise();
+
 
 			this.settingsService.get(this.type).then(function(metadata){
 				// If there are conditions in the url execute the query
@@ -86,35 +85,35 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 					// Primitive vars
 					var settings 	= metadata.attributes,
 						fields 		= settings.tableFields || [],
-						documents 	= results.get('documents'),
-						pagination 	= []
+						documents 	= results.get('documents')
 					;
-
-					pagination.push(results.get('current'));
-					pagination.push(results.get('limit'));
-					pagination.push(results.get('total'));
 
 					// Set up fields
 					fields.push({action: 'edit', href: "#", icon: 'pencil'});
 					fields.push({action: 'remove', href: "#", icon: 'times'});
 
-					// Override
-					me.tpl = me.controllerTpl;
-					me.subViews['adder'] 		= createAdderView(me.type, settings);
-					me.subViews['search'] 		= createSearchTools(me.type);
-					me.subViews['pagination'] 	= createPagination(pagination[0], pagination[1], pagination[2]);
-					me.subViews['items'] 		= createCollectionView(documents, fields, settings, me.type);
-							
-					if(me.subViews['adder'])
+					me.subViews = {
+						adder: createAdderView(me.type, settings),
+						search: createSearchTools(me.type),
+						pagination: createPagination(results.get('current'), results.get('limit'), results.get('total')),
+						items: createCollectionView(documents, fields, settings, me.type)
+					}
+
+					if(me.subViews.adder)
 						me.runAdderListeners();
-					if(me.subViews['search'])
+					if(me.subViews.search)
 						me.runSearchListeners();
-					if(me.subViews['pagination'])
+					if(me.subViews.pagination)
 						me.runPaginationListeners();
-					if(me.subViews['items'])
+					if(me.subViews.items)
 						me.runItemsListeners();
 
-					deferred.resolve();
+					//Update page title
+					me.trigger('page:title:update', 'Collection ' + me.type);
+
+					_.each(me.subViews, function(view, name){
+						me.regions[name].show(view);
+					});
 				});
 			});
 		},
@@ -130,7 +129,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 				});
 
 				this.collectionService.save(doc).then(function(){
-					Alerts.add({message:'Document saved correctly', autoclose:6000});	
+					Alerts.add({message:'Document saved correctly', autoclose:6000});
 					doc.url = encodeURI('/api/docs/' + me.type + '/' + doc.id);
 
 					// Reset the form on DOM
@@ -164,7 +163,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 					for(var i in clauses){
 						paramValue = encodeURI(clauses[i]);
 						customUrl += (paramName + "=" + paramValue);
-						if(i < clauses.length - 1) 
+						if(i < clauses.length - 1)
 							customUrl += "&";
 					}
 
@@ -185,11 +184,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 					me 			= this
 				;
 
-				page = (page > this.subViews['pagination'].lastPage) 
+				page = (page > this.subViews['pagination'].lastPage)
 					? this.subViews['pagination'].lastPage
 					: page
 				;
-				
+
 				conditions.skip  = (page * limit) - limit;
 				conditions.limit = limit;
 
@@ -205,12 +204,12 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 					if(query.clause){
 						_.each(query.clause, function(clause){
 							customUrl = customUrl + "&clause[]=" + clause;
-						});						
+						});
 					}
 
 					customUrl = encodeURI(customUrl);
 					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
-					
+
 					me.subViews['items'].update(results.get('documents'));
 					me.subViews['items'].render();
 				});
@@ -253,5 +252,8 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 	});
 
 
-	return CollectionController;
+	return PageController.extend({
+		title: 'Collection',
+		contentView: CollectionController
+	});
 });

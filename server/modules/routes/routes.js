@@ -13,13 +13,12 @@ module.exports = {
 	'post::/api/docs/:type': 'apiDocument::create',
 	'get::/api/docs/:type/:id': 'apiDocument::get',
 	'put::/api/docs/:type/:id': 'apiDocument::update',
-	'delete::/api/docs/:type/:id': 'apiDocument::remove',	
+	'delete::/api/docs/:type/:id': 'apiDocument::remove',
 
 	'get::/api/plugins': 'pluginController::list',
 	'get::/api/plugins/activate/:id': 'pluginController::activate',
 	'get::/api/plugins/deactivate/:id': 'pluginController::deactivate',
 
-	'get::/mongoreset': 'mongoReset::main',
+	'get::/mongoreset': 'mongoReset::main'
 
-	'*': 'main'
 };

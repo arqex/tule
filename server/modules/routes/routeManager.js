@@ -26,7 +26,8 @@ RouteManager.prototype = {
 			routeOpts = routeData.split('::'),
 			route = routeOpts.length == 2 ? routeOpts[1] : routeOpts[0],
 			method = routeOpts.length == 2 ? routeOpts[0] : 'get',
-			file = require(config.path.controllers + '/' + opts[0]),
+			//If the file starts with / is a plugin route
+			file = opts[0].length && opts[0][0] == '/' ? require(config.path.plugins + opts[0]) :require(config.path.controllers + '/' + opts[0]),
 			func = opts[1],
 			controller = func ? file[func] : file
 		;
@@ -34,7 +35,7 @@ RouteManager.prototype = {
 		if(baseUrl[baseUrl.length - 1] == '/')
 			baseUrl = baseUrl.substring(0, baseUrl.length -1);
 
-		console.log('Added route: ' + method + ' ' + opts[0] + ' ' + opts[1]);
+		console.log('Added route: ' + method + ' ' + route + ' ' + controller);
 		app[method](baseUrl + route, controller);
 	},
 	addStaticDirectory: function(route){
@@ -79,6 +80,7 @@ RouteManager.prototype = {
 		var me = this;
 		console.log('Here we are: ROUTING');
 		hooks.filter('routes:server', routes).then(function(allRoutes){
+			allRoutes['*'] = 'main';
 			_.each(allRoutes, me.addRoute);
 		});
 

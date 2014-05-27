@@ -3,10 +3,10 @@ var nofunction = function(){},
 	Router = Backbone.Router.extend({
 		//Routes are loaded automatically in the initialize method.
 		routes: {},
-		initialize: function(){
+		initialize: function(options){
 			var me = this;
-			_.each(_.keys(config.routes).reverse(), function(route){
-				var controllerData = config.routes[route];
+			_.each(_.keys(options.routeData).reverse(), function(route){
+				var controllerData = options.routeData[route];
 
 				me.route(route, controllerData, function(){
 					var args = arguments;
@@ -22,8 +22,8 @@ var nofunction = function(){},
 
 		}
 	}),
-	init = function(){
-		var router = new Router();
+	init = function(options){
+		var router = new Router({routeData: options.routes});
 		Backbone.history.start({pushState: true});
 		// Capture the links requests
 		$(document).on("click", "a:not([data-bypass])", function(evt) {

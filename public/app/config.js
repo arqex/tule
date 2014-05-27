@@ -5,7 +5,7 @@ define(['jquery', 'underscore', 'backbone'], function($,_,Backbone){
 			'collections/list/:id(/page/:page)': 'modules/collection/collectionController',
 			'config': 'modules/settings/settingsController',
 			'plugins': 'modules/plugins/pluginController',
-			'*path': 'modules/core/homeController'
+			'*path': 'modules/core/404Controller'
 		}
 	};
 });
