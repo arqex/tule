@@ -20,6 +20,7 @@ module.exports = {
 				function(driver){
 					console.log("Driver resolved");
 					deferred.resolve(driver);
+					//me.checkSettings();
 					hooks.trigger('db:ready');
 				},
 				function(error){
@@ -56,5 +57,38 @@ module.exports = {
 
 		console.log('Requesting instance');
 		return driverInstance;
+	},
+	checkSettings: function(){
+
+		console.log('Checking settings');
+		driverInstance.collection(config.mon.settingsCollection).find({}, function(err, settings){
+			if(err || settings.length === 0){
+				console.log("Database doesn't exists. Creating an empty new one.");
+				driverInstance.collection(config.mon.settingsCollection).insert([
+					{
+						name: 'navData',
+						routes: [
+							{text: 'Collection', url: '/collection/list/test'},
+							{text: 'Settings', url: '/settings/general', subItems: [
+								{text: 'General', url: '/settings/general'},
+								{text: 'Navigation', url: '/settings/navigation'},
+								{text: 'Collections', url: '/settings/collections'}
+							]}
+						]
+					},
+					{
+						name: 'globals',
+						settingsCollection: 'monSettings',
+						datatypes: ['string', 'array', 'boolean', 'float', 'integer', 'object', 'field', 'select'],
+						datatypesPath: 'modules/datatypes/'
+					}
+				], function(err, clbk){
+					if(err)
+						console.log("Error creating new settings.");
+					else
+						console.log("New settings setted correctly.");
+				});
+			}
+		});
 	}
 }

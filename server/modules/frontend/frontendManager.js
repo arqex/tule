@@ -1,5 +1,5 @@
 var config 	= require('config'),
-	hooks 	= require(config.path.modules + '/hooks/hooksManager'),
+	//hooks 	= require(config.path.modules + '/hooks/hooksManager'),
 	_ 		= require('underscore'),
 	db 		= require(config.path.modules + '/db/dbManager').getInstance(),
 	navData = 0

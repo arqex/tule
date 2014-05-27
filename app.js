@@ -53,7 +53,7 @@ pluginManager.init(app).then(function(){
 		var frontendManager = require(config.path.modules + '/frontend/frontendManager.js');
 		frontendManager.init(app);
 		console.log('FRONTEND OK!');
-
+		
 		server.listen(3000);
 		console.log('Listening on port 3000');
 	});
