@@ -51,6 +51,7 @@ pluginManager.init(app).then(function(){
 		//Init frontend settings
 		console.log('Pre frontend');
 		var frontendManager = require(config.path.modules + '/frontend/frontendManager.js');
+		console.log('Init frontend');
 		frontendManager.init(app);
 		console.log('FRONTEND OK!');
 

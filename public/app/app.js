@@ -10,6 +10,7 @@ define(deps, function($, _, Backbone, Router, Services,
 
 	var init = function() {
 		var settings = window.tuleSettings;
+		window.routes = window.tuleSettings.routes;
 		window.tuleSettings = undefined;
 
 		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){

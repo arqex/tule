@@ -1,3 +1,5 @@
+'use strict';
+
 var config = require('config'),
 	_ = require('underscore'),
 	when = require('when')
@@ -23,6 +25,7 @@ var defaultClientRoutes = {
 
 module.exports = {
 	init: function(app){
+		console.log(app);
 		hooks = app.hooks;
 	},
 	getFrontSettings: function(){
@@ -38,7 +41,7 @@ module.exports = {
 
 				deferred.resolve(settings);
 			});
-		})
+		});
 
 		return deferred.promise;
 	}

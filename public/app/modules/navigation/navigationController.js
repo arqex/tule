@@ -15,20 +15,23 @@ define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 					.append(this.navigation.el);
 			},
 
+			openNavigation: function(target, stackedHeight){
+				target.children().each(function(){
+					$(this).children('a').removeClass('navcurrent');
+				});
+				stackedHeight += target.children().length * 37;
+				target.css('max-height',  stackedHeight + 'px');
+				var parent = target.parent().closest('.navsubitem');
+				if(parent.length > 0)
+					this.openNavigation(parent, stackedHeight);
+			},
+
 			manager: function(route) {
-				var target 		= $('.navlink[href="' + route + '"]'),
-					parent 		= false,
-					maxHeight 	= 0
-				;
+				var target 	= $('.navlink[href="' + route + '"]');
 
-				target.length > 0
-					? parent = target.closest('.navsubitem')
-					: parent = this.$el.children();
-
-				maxHeight = parent.children().length * 38
-
-				parent.find('.navcurrent').removeClass('navcurrent');
-				parent.css('max-height', maxHeight + 'px');
+				target.next().length > 0
+					? this.openNavigation(target.next(), 0)
+					: this.openNavigation(target.closest('.navsubitem'), 0);
 
 				if(target)
 					target.addClass('navcurrent');

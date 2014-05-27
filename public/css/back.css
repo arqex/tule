@@ -592,3 +592,51 @@ PAGINATION TAB
 @-moz-keyframes spin-back { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin-back { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin-back { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+
+/************
+SETTINGS: NAVIGATION
+*************/
+.preview,
+.toolsbox {
+	width: 47%;
+	height: auto;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.toolsbox {
+	margin-left: 5%;
+}
+
+.preview {
+	padding: 10px;
+	background-color: rgba(47,79,79, 0.2);
+}
+
+.toolsbox-inner {
+	padding: 10px;
+}
+
+.box {
+	width: 100%;
+	padding: 5px;
+	background-color: rgba(47,79,79, 0.1);
+}
+
+.ui-sortable{
+	text-decoration: none;
+	list-style-type: none;
+	padding: 5px 0 5px 0;
+	margin: 0.5em 0 0.5em 0;
+}
+.marginable h4 { 
+	margin: 5px; 
+}
+.marginable li {
+	margin-left: 20px;
+}
+
+.preview .preview-controls {
+	text-align: right;
+}

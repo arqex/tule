@@ -35,7 +35,7 @@ RouteManager.prototype = {
 		if(baseUrl[baseUrl.length - 1] == '/')
 			baseUrl = baseUrl.substring(0, baseUrl.length -1);
 
-		console.log('Added route: ' + method + ' ' + route + ' ' + controller);
+		//console.log('Added route: ' + method + ' ' + route + ' ' + controller);
 		app[method](baseUrl + route, controller);
 	},
 	addStaticDirectory: function(route){
