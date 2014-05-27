@@ -2,11 +2,11 @@
 
 var deps = [
 	'jquery', 'underscore', 'backbone', 'services',
-	'modules/core/baseController', 'text!./tpls/settingsNavigationTpl.html',
+	'baseController', 'pageController', 'text!./tpls/settingsNavigationTpl.html',
 	'./settingsViews'
 ];
 
-define(deps, function($, _, Backbone, Services, BaseController, tplSource, SettingsViews){
+define(deps, function($, _, Backbone, Services, BaseController, PageController, tplSource, SettingsViews){
 	var createPreview = function(){
 		var preview = new SettingsViews.NavigationPreviewView({});
 		return preview;
@@ -18,15 +18,14 @@ define(deps, function($, _, Backbone, Services, BaseController, tplSource, Setti
 	};
 
 	var SettingsController = BaseController.extend({
-		controllerTpl: $(tplSource).find('#settingsNavigationTpl').html(),		
+		template: $(tplSource).find('#settingsNavigationTpl').html(),
+		regionSelectors: {
+			'preview': '.preview',
+			'toolsbox': '.toolsbox'
+		},
 
-		initialize: function(opts){
+		init: function(opts){
 			this.subViews = {};
-			this.regions = {};
-			this.regionViews = {
-				'.preview': 'preview',
-				'.toolsbox': 'toolsbox'
-			};
 
 			var me 			= this,
 				deferred 	= $.Deferred()
@@ -39,10 +38,15 @@ define(deps, function($, _, Backbone, Services, BaseController, tplSource, Setti
 			this.subViews['preview'] = createPreview();
 			this.subViews['toolsbox'] = createToolsbox();
 
+			this.regions.preview.show(this.subViews.preview);
+			this.regions.toolsbox.show(this.subViews.toolsbox);
+
 			deferred.resolve();
 		}
 	});
 
-
-	return SettingsController;
+	return PageController.extend({
+		title: 'Settings nav',
+		contentView: SettingsController
+	});
 });

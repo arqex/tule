@@ -10,7 +10,7 @@ define(deps, function($, _, Backbone, Router, Services,
 
 	var init = function() {
 		var settings = window.tuleSettings;
-		window.routes = window.tuleSettings.routes;
+		window.routes = window.tuleSettings.navigation;
 		window.tuleSettings = undefined;
 
 		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){
@@ -18,7 +18,7 @@ define(deps, function($, _, Backbone, Router, Services,
 			Services.add('settings', SettingsService);
 
 			// App's init point
-			var navigation 	= new Navigation({routes: settings.routes, el: $('nav')}),
+			var navigation 	= new Navigation({routes: settings.navigation, el: $('nav')}),
 				main 		= new Main({navigation: navigation, el: $(document)})
 			;
 
