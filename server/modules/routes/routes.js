@@ -1,24 +1,24 @@
-module.exports = {
-	'get::/api/settings/:name': 'apiSettings::getConfig',
-	'put::/api/settings/:name': 'apiSettings::updateConfig',
-	'post::/api/settings/:name': 'apiSettings::createConfig',
-	'delete::/api/settings/:name': 'apiSettings::removeConfig',
+module.exports = [
+	{route: 'get::/api/settings/:name', controller: 'apiSettings::getConfig'},
+	{route: 'put::/api/settings/:name', controller: 'apiSettings::updateConfig'},
+	{route: 'post::/api/settings/:name', controller: 'apiSettings::createConfig'},
+	{route: 'delete::/api/settings/:name', controller: 'apiSettings::removeConfig'},
 
-	'get::/api/collections': 'apiCollection::list',
-	'get::/api/collectionstatus/:name': 'apiCollection::getStatus',
-	'post::/api/collection': 'apiCollection::createCollection',
-	'post::/api/collection/:type': 'apiCollection::updateCollection',
+	{route: 'get::/api/collections', controller: 'apiCollection::list'},
+	{route: 'get::/api/collectionstatus/:name', controller: 'apiCollection::getStatus'},
+	{route: 'post::/api/collection', controller: 'apiCollection::createCollection'},
 
-	'get::/api/docs/:type': 'apiDocument::collection',
-	'post::/api/docs/:type': 'apiDocument::create',
-	'get::/api/docs/:type/:id': 'apiDocument::get',
-	'put::/api/docs/:type/:id': 'apiDocument::update',
-	'delete::/api/docs/:type/:id': 'apiDocument::remove',
+	{route: 'get::/api/docs/:type', controller: 'apiDocument::collection'},
+	{route: 'post::/api/docs/:type', controller: 'apiDocument::create'},
+	{route: 'get::/api/docs/:type/:id', controller: 'apiDocument::get'},
+	{route: 'put::/api/docs/:type/:id', controller: 'apiDocument::update'},
+	{route: 'delete::/api/docs/:type/:id', controller: 'apiDocument::remove'},
 
-	'get::/api/plugins': 'pluginController::list',
-	'get::/api/plugins/activate/:id': 'pluginController::activate',
-	'get::/api/plugins/deactivate/:id': 'pluginController::deactivate',
+	{route: 'get::/api/plugins', controller: 'pluginController::list'},
+	{route: 'get::/api/plugins/activate/:id', controller: 'pluginController::activate'},
+	{route: 'get::/api/plugins/deactivate/:id', controller: 'pluginController::deactivate'},
 
-	'get::/mongoreset': 'mongoReset::main'
+	{route: 'get::/mongoreset', controller: 'mongoReset::main'},
 
-};
+	{route: '*', controller: 'main'}
+];

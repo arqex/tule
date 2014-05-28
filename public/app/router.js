@@ -5,13 +5,12 @@ var nofunction = function(){},
 		routes: {},
 		initialize: function(options){
 			var me = this;
-			_.each(_.keys(options.routeData).reverse(), function(route){
-				var controllerData = options.routeData[route];
-
-				me.route(route, controllerData, function(){
-					var args = arguments;
-					Backbone.Events.trigger('tuleRoute', controllerData, args);
-				});
+			_.each(options.routeData.reverse(), function(routeData){
+				if(routeData.route && routeData.controller)
+					me.route(routeData.route, routeData.controller, function(){
+						var args = arguments;
+						Backbone.Events.trigger('tuleRoute', routeData.controller, args);
+					});
 			});
 		},
 		nofunction: function(){},

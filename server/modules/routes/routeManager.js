@@ -20,10 +20,11 @@ RouteManager.prototype = {
 		hooks.on('plugin:activated', this.resetRoutes.bind(this));
 		hooks.on('plugin:deactivated', this.resetRoutes.bind(this));
 	},
-	addRoute: function(controllerData, routeData){
+	addRoute: function(routeData){
+		debugger;
 		var baseUrl = config.mon.baseUrl,
-			opts = controllerData.split('::'),
-			routeOpts = routeData.split('::'),
+			opts = routeData.controller.split('::'),
+			routeOpts = routeData.route.split('::'),
 			route = routeOpts.length == 2 ? routeOpts[1] : routeOpts[0],
 			method = routeOpts.length == 2 ? routeOpts[0] : 'get',
 			//If the file starts with / is a plugin route
@@ -80,7 +81,6 @@ RouteManager.prototype = {
 		var me = this;
 		console.log('Here we are: ROUTING');
 		hooks.filter('routes:server', routes).then(function(allRoutes){
-			allRoutes['*'] = 'main';
 			_.each(allRoutes, me.addRoute);
 		});
 

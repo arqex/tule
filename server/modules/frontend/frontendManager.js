@@ -6,15 +6,16 @@ var config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance()
 ;
 
-var defaultClientRoutes = {
-		'(/)': 'modules/core/homeController',
-		'collections/list/:id(/page/:page)': 'modules/collection/collectionController',
-		'settings': 'modules/settings/settingsController',
-		'settings/navigation': 'modules/settings/settingsNavigation',
-		'settings/collections': 'modules/settings/settingsController',
-		'settings/general': 'modules/settings/settingsGeneral',
-		'plugins': 'modules/plugins/pluginController'
-	},
+var defaultClientRoutes = [
+		{route: '(/)', controller: 'modules/core/homeController'},
+		{route: 'collections/list/:id(/page/:page)', controller: 'modules/collection/collectionController'},
+		{route: 'settings', controller: 'modules/settings/settingsController'},
+		{route: 'settings/navigation', controller: 'modules/settings/settingsNavigation'},
+		{route: 'settings/collections', controller: 'modules/settings/settingsController'},
+		{route: 'settings/general', controller: 'modules/settings/settingsGeneral'},
+		{route: 'plugins', controller: 'modules/plugins/pluginController'},
+		{route: '*path', controller:'modules/core/404Controller'}
+	],
 	defaultFrontendSettings = {
 		settingsCollection: 'monSettings',
 		datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field', 'select'],
@@ -34,14 +35,11 @@ var defaultClientRoutes = {
 
 module.exports = {
 	init: function(app){
-		console.log(app);
 		hooks = app.hooks;
-
 	},
 	getFrontSettings: function(){
-		console.log("+++++++++++++++++++++++++++HIJO DE FRUTA+++++++++++++++++++");
 		settings.findOne({name: 'navData'}, function(err, navRoutes){
-			if(!err && navRoutes.lengt !== 0)
+			if(!err && navRoutes && navRoutes.length !== 0)
 				defaultFrontendSettings.navigation = navRoutes.routes;
 		});
 
@@ -53,9 +51,7 @@ module.exports = {
 
 		settingsPromise.then(function(settings){
 			routesPromise.then(function(routes){
-				routes['*path'] = 'modules/core/404Controller';
 				settings.clientRoutes = routes;
-
 				deferred.resolve(settings);
 			});
 		});
