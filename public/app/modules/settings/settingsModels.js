@@ -60,7 +60,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 			query.fetch({
 				data: opts,
 				success: function(){
-					query.set('documents', new DocCollection(query.get('documents'), {type: me.name})); 
+					query.set('documents', new DocCollection(query.get('documents'), {type: me.name}));
 					deferred.resolve(query, opts);
 				}
 			});
@@ -82,7 +82,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 
 	var getSettings = function(name) {
 		var deferred = $.Deferred(),
-			settings = new SettingsDoc({name: name})
+			settings = new Settings({name: name})
 		;
 
 		settings.fetch({}).always(function(){
@@ -91,7 +91,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 
 		return deferred.promise();
 	};
-	
+
 
 	return {
 		Settings: Settings,

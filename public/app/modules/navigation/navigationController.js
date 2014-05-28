@@ -19,7 +19,7 @@ define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 				target.children().each(function(){
 					$(this).children('a').removeClass('navcurrent');
 				});
-				stackedHeight += target.children().length * 37;
+				stackedHeight += target.children().length * 34;
 				target.css('max-height',  stackedHeight + 'px');
 				var parent = target.parent().closest('.navsubitem');
 				if(parent.length > 0)

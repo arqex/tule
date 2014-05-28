@@ -3,15 +3,15 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',
 	'text!./tpls/navItem.html',
-	'./navigationModels'	
+	'./navigationModels'
 ];
 
 define(deps, function($, _, Backbone, tplSource, NavModels){
-	
+
 	var NavItemView = Backbone.View.extend({
 		className: 'navitem',
 		tpl: _.template(tplSource),
-		
+
 		render: function(){
 			this.$el.html(this.tpl(this.model.toJSON()));
 			if (this.model.get('subItems').length > 0) {
@@ -39,6 +39,9 @@ define(deps, function($, _, Backbone, tplSource, NavModels){
 			var me = this;
 			this.$el.html();
 			this.collection.each(function(navItem){
+				if(navItem.get('url') == '0')
+					return
+					
 				var subView = me.subViews[navItem.get('text')];
 				if(!subView){
 					subView = new NavItemView({model: navItem});

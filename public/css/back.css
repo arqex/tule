@@ -604,39 +604,51 @@ SETTINGS: NAVIGATION
 	display: inline-block;
 	vertical-align: top;
 }
-
 .toolsbox {
 	margin-left: 5%;
 }
-
 .preview {
 	padding: 10px;
 	background-color: rgba(47,79,79, 0.2);
 }
-
 .toolsbox-inner {
 	padding: 10px;
 }
-
 .box {
 	width: 100%;
 	padding: 5px;
 	background-color: rgba(47,79,79, 0.1);
 }
-
 .ui-sortable{
 	text-decoration: none;
 	list-style-type: none;
 	padding: 5px 0 5px 0;
 	margin: 0.5em 0 0.5em 0;
 }
-.marginable h4 { 
-	margin: 5px; 
+.marginable h4 {
+	margin: 5px;
 }
 .marginable li {
 	margin-left: 20px;
 }
-
 .preview .preview-controls {
 	text-align: right;
+}
+.item-text {
+    margin: 0;
+}
+.item-url {
+    margin-left: 8px;
+    color: #676767;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+.item-left {
+    width: 80%;
+    margin: 0;
+    display: inline-block;
+}
+.item-right {
+    display: inline-block;
+    margin: 0;
 }

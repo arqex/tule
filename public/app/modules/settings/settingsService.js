@@ -45,6 +45,18 @@ define(deps, function($, _, Backbone, SettingsModels){
 				return deferred.resolve();
 			}});
 			return deferred.promise();
+		},
+
+		/* Save the new navigation settings */
+		saveNavigation: function(routes){
+			var deferred = $.Deferred();
+			SettingsModels.getSettings('navData').then(function(navData){
+				navData.set('routes', routes);
+				navData.save(null, {success: function(){
+					return deferred.resolve();
+				}});
+			});
+			return deferred.promise();
 		}
 	};
 

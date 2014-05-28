@@ -70,9 +70,9 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 
 		events: {
 			'click .js-add-box': 'onClickAdd',
-			'click .js-box-edit': 'onClickBoxEdit',
-			'click .js-box-remove': 'onClickBoxRemove',
-			'click .js-box-ok': 'onClickBoxOk',
+			'click .js-upper-edit': 'onClickUpperEdit',
+			'click .js-upper-remove': 'onClickUpperRemove',
+			'click .js-upper-ok': 'onClickUpperOk',
 			'click .js-item-edit': 'onClickItemEdit',
 			'click .js-item-remove': 'onClickItemRemove',
 			'click .js-item-ok': 'onClickItemOk',
@@ -84,23 +84,25 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 			this.upperElements = [];
 
 			_.each(window.routes, function(route){
-				var subRoutes = [];
+				if(route.subItems){
+					var subRoutes = [];
 
-				_.each(route.subItems, function(subRoute){
-					var lowerElement = new ElementView({
-						text: subRoute.text,
-						url: subRoute.url,
-						type: 'lower'
+					_.each(route.subItems, function(subRoute){
+						var lowerElement = new ElementView({
+							text: subRoute.text,
+							url: subRoute.url,
+							type: 'lower'
+						});
+
+						subRoutes.push(lowerElement);
 					});
-
-					subRoutes.push(lowerElement);
-				});
+				}
 
 				var upperElement = new ElementView({
 					text: route.text,
 					url: route.url,
 					subItems: subRoutes,
-					type: subRoutes.length > 0 ? 'box' : 'upper'
+					type: subRoutes ? 'box' : 'upper'
 				});
 
 				me.upperElements.push(upperElement);
@@ -137,7 +139,31 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 						return ui.sender.sortable('cancel');
 					ui.sender.data('copied', true);
 
-					//me.render();
+					// Create new model and insert it into the elements data
+					if(ui.item.data('origin') == 'outside'){
+						var type = 'upper';
+						if(!$(this).hasClass('js-main')){
+							type = 'lower';
+							var cid = $(this).data('cid');
+							for(var i=0; i < me.upperElements.length; i++){
+								if(me.upperElements[i].cid == cid)
+									var upperKey = i;
+							}
+						}
+
+						var element = new ElementView({
+							text: ui.item.data('text'),
+							type: type,
+							url: ui.item.data('url'),
+							mode: 'display'
+						});
+
+						type == 'upper'
+							? me.upperElements.splice(ui.item.index(), 0, element)
+							: me.upperElements[upperKey].subItems.splice(ui.item.index() - 1, 0, element);
+					}
+
+					me.render();
 				}
 			}).disableSelection();
 		},
@@ -148,27 +174,37 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 					upperKey = keys[0],
 					lowerKey = keys[1]
 				;
-				console.log("Is SUBITEM and goes to " + destiny.toUpperCase());
-				console.log("Upperkey: " + upperKey + " | LowerKey: " + lowerKey);
 			}else if(item.hasClass('js-item')){
-				var upperKey = this.getBoxByNode(item),
+				var upperKey = this.getUpperByNode(item),
 					lowerKey = null
 				;
-				console.log("Is ITEM and goes to " + destiny.toUpperCase());
-				console.log("Upperkey: " + upperKey + " | LowerKey: " + lowerKey);
 			}else{
-				var upperKey = this.getBoxByNode(item.children()),
+				var upperKey = this.getUpperByNode(item.children()),
 					lowerKey = null
 				;
-				console.log("Is BOX and goes to " + destiny.toUpperCase());
-				console.log("Upperkey: " + upperKey + " | LowerKey: " + lowerKey);
 			}
 
-			var element = this.upperElements.splice(upperKey, 1)[0];
+			// Substract the current element
+			if(lowerKey === null)
+				var element = this.upperElements.splice(upperKey, 1)[0];
+			else
+				var element = this.upperElements[upperKey].subItems.splice(lowerKey, 1)[0];
+
+			// Adding at its new position
 			if(destiny == 'main'){
+				if(element.type == 'lower')
+					element.type = 'upper';
+				element.updateTpls();
 				this.upperElements.splice(item.index(), 0, element);
 			}else{
-
+				element.type = 'lower';
+				element.updateTpls();
+				var cid = item.closest('ul').data('cid');
+				for(var i=0; i < this.upperElements.length; i++){
+					if(this.upperElements[i].cid == cid)
+						upperKey = i;
+				}
+				this.upperElements[upperKey].subItems.splice(item.index() - 1, 0, element);
 			}
 		},
 
@@ -182,43 +218,44 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 			this.render();
 		},
 
-		getBoxByNode: function(node){
+		// Upper nodes
+		getUpperByNode: function(node){
 			var cid = $(node).closest('.js-item').data('cid'),
-				me = this,
 				key = this.upperElements.length
 			;
 			while (key--) {
-				if(me.upperElements[key].cid == cid)
+				if(this.upperElements[key].cid == cid)
 					return key;
 			}
 		},
-		onClickBoxEdit: function(e){
-			var key = this.getBoxByNode(e.target);
+		onClickUpperEdit: function(e){
+			var key = this.getUpperByNode(e.target);
 			this.upperElements[key].mode = 'edit';
 			this.render();
 		},
-		onClickBoxRemove: function(e){
-			var key = this.getBoxByNode(e.target);
-			this.boxRemove(key);
+		onClickUpperRemove: function(e){
+			var key = this.getUpperByNode(e.target);
+			this.upperRemove(key);
 			this.render();
 		},
-		boxRemove: function(key){
+		upperRemove: function(key){
 			this.upperElements.splice(key, 1);
 		},
-		onClickBoxOk: function(e){
+		onClickUpperOk: function(e){
 			var text 	= $(e.target).siblings('#text').val(),
-				key 	= this.getBoxByNode(e.target)
+				key 	= this.getUpperByNode(e.target)
 			;
 			this.upperElements[key].text = text;
 			this.upperElements[key].mode = 'display';
 			this.render();
 		},
 
+		// Lower nodes
 		getItemByNode: function(node){
 			var cid 	= $(node).closest('.js-subItem').data('cid'),
 				me 		= this
 			;
-			
+
 			var key = this.upperElements.length;
 			while (key--) {
 				var subKey = me.upperElements[key].subItems.length;
@@ -226,7 +263,7 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 					if(me.upperElements[key].subItems[subKey].cid == cid)
 						return [key, subKey];
 				}
-			}			
+			}
 		},
 		onClickItemEdit: function(e){
 			var keys = this.getItemByNode(e.target);
@@ -242,8 +279,8 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 			this.upperElements[keys[0]].subItems.splice(keys[1], 1);
 		},
 		onClickItemOk: function(e){
-			var text 	= $(e.target).siblings('#text').val(),
-				keys 	= this.getItemByNode(e.target)
+			var text = $(e.target).siblings('#text').val(),
+				keys = this.getItemByNode(e.target)
 			;
 			this.upperElements[keys[0]].subItems[keys[1]].text = text;
 			this.upperElements[keys[0]].subItems[keys[1]].mode = 'display';
@@ -251,28 +288,37 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 		},
 
 		onClickSave: function(e){
-			var routes = [];
-			_.each(this.$('.js-item'), function(box){
-				var node = {};
+			var routes = [],
+				me = this
+			;
 
-				node['text'] = $(box).data('text');
-				node['url']	 = $(box).data('url') || "0";
+			_.each(this.upperElements, function(element){
+				var route = {};
+				route['text'] = element.text;
+				route['url']  = element.subItems.length > 0 ? element.subItems[0].url : element.url;
 
-				_.each($(box).children('li'), function(subnode){
-					if(node['url'] == "0"){
-						node['url']		 = $(subnode).data('url');
-						node['subItems'] = [];
-					}
-					node['subItems'].push({
-						text: $(subnode).data('text'),
-						url: $(subnode).data('url')
+				if(route.url == "0")
+					route['subItems'] = [];
+
+				if(element.subItems.length > 0){
+					route['subItems'] = [];
+				 	_.each(element.subItems, function(subElement){
+						var subRoute = {};
+						subRoute['text'] = subElement.text;
+						subRoute['url']  = subElement.url;
+
+						route['subItems'].push(subRoute);
 					});
-				});
+				}
 
-				routes.push(node);
+				routes.push(route);
 			});
-			console.log(routes);
+
 			// Throw save new navigation: Services
+			Services.get('settings').saveNavigation(routes).then(function(result){
+				Alerts.add({message:'Navigation settings saved correctly', autoclose:6000});
+				me.trigger('saved');
+			});
 		}
 	});
 
@@ -309,7 +355,7 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 			});
 		}
 	});
-	
+
 
 	return {
 		NavigationPreviewView: NavigationPreviewView,

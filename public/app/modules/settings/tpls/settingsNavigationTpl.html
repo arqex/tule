@@ -22,25 +22,16 @@
 		<ul class="js-collections">
 			<h4>Collections: </h4>
 			<% _.each(collections, function(collection){ %>
-				<li data-text="<%= collection %>" data-url="/collections/list/<%= collection %>"><%= collection %></li>
+				<li data-text="<%= collection %>" data-url="/collections/list/<%= collection %>" data-origin="outside"><%= collection %></li>
 			<% }) %>
 		</ul>
 		<ul class="js-settings marginable">
 			<h4>Settings: </h4>
-			<li data-text="General" data-url="/settings/general">General</li>
-			<li data-text="Navigation" data-url="/settings/navigation">Navigation</li>
-			<li data-text="Collections" data-url="/settings/collections">Collections</li>
+			<li data-text="General" data-url="/settings/general" data-origin="outside">General</li>
+			<li data-text="Navigation" data-url="/settings/navigation" data-origin="outside">Navigation</li>
+			<li data-text="Collections" data-url="/settings/collections" data-origin="outside">Collections</li>
 		</ul>
 	</div>
-</script>
-
-<script type="text/template" id="singleButtonsTpl">
-	<span class="js-buttons marginable">
-		<a href="#" data-bypass="true" class="js-item-remove">
-			<span class="fa fa-times"></span></a>
-		<a href="#" data-bypass="true" class="js-item-edit">
-	 		<span class="fa fa-pencil"></span></a>
-	 </span>
 </script>
 
 <script type="text/template" id="boxTpl">
@@ -49,9 +40,9 @@
 			<h4 class="js-editable-name" data-text="<%= text %>">
 				<%= text %>
 				<span class="js-buttons">
-					<a href="#" data-bypass="true" class="js-box-remove">
+					<a href="#" data-bypass="true" class="js-upper-remove">
 						<span class="fa fa-times"></span></a>
-					<a href="#" data-bypass="true" class="js-box-edit">
+					<a href="#" data-bypass="true" class="js-upper-edit">
 						<span class="fa fa-pencil"></span></a>
 				</span>
 			</h4>
@@ -64,7 +55,7 @@
 		<ul class="js-container js-item box marginable" data-text="<%= text %>" data-cid="<%= cid %>">
 			<h4 class="js-editable-name" data-text="<%= text %>">
 				<input type="text" id="text" value="<%= text %>"/>
-				<button class="js-box-ok">Ok</button>	
+				<button class="js-upper-ok">Ok</button>
 			</h4>
 		</ul>
 	</li>
@@ -72,44 +63,54 @@
 
 <script type="text/template" id="itemTpl">
 	<li class="js-subItem" data-text="<%= text %>" data-url="<%= url %>" data-cid="<%= cid %>">
-		<%= text %> 
-		<span class="js-buttons">
-			<a href="#" data-bypass="true" class="js-item-remove">
-				<span class="fa fa-times"></span></a>
-			<a href="#" data-bypass="true" class="js-item-edit">
-				<span class="fa fa-pencil"></span></a>
-		</span>
-	</li>	
+		<div class="item-left">
+			<div class="item-text"><%= text %></div>
+			<div class="item-url"><%= url %></div>
+		</div>
+		<div class="item-right">
+			<span class="js-buttons">
+				<a href="#" data-bypass="true" class="js-item-remove">
+					<span class="fa fa-times"></span></a>
+				<a href="#" data-bypass="true" class="js-item-edit">
+					<span class="fa fa-pencil"></span></a>
+			</span>
+		</div>
+	</li>
 </script>
 
 <script type="text/template" id="itemEditTpl">
 	<li class="js-subItem" data-text="<%= text %>" data-url="<%= url %>" data-cid="<%= cid %>">
 		<input type="text" id="text" value="<%= text %>"/>
 		<button class="js-item-ok">Ok</button>
-	</li>	
+	</li>
 </script>
 
 <script type="text/template" id="singleTpl">
 	<li class="js-item js-output marginable" data-text="<%= text %>" data-url="<%= url %>" data-cid="<%= cid %>">
-		<h4 class="js-editable-name" data-text="<%= text %>">
-			<%= text %>
+		<div class="item-left">
+			<h4 class="js-editable-name" data-text="<%= text %>">
+				<%= text %>
+			</h4>
+			<div class="item-url"><%= url %></div>
+		</div>
+		<div class="item-right">
 			<span class="js-buttons">
-				<a href="#" data-bypass="true" class="js-single-remove">
+				<a href="#" data-bypass="true" class="js-upper-remove">
 					<span class="fa fa-times"></span></a>
-				<a href="#" data-bypass="true" class="js-single-edit">
+				<a href="#" data-bypass="true" class="js-upper-edit">
 					<span class="fa fa-pencil"></span></a>
 			</span>
-		</h4>
+		</div>
 	</li>
 </script>
 
 <script type="text/template" id="singleEditTpl">
-	<ul class="js-item marginable" data-text="<%= text %>" data-url="<%= url %>" data-cid="<%= cid %>">
+	<li class="js-item js-output marginable" data-text="<%= text %>" data-url="<%= url %>" data-cid="<%= cid %>">
 		<h4 class="js-editable-name" data-text="<%= text %>">
 			<input type="text" id="text" value="<%= text %>"/>
-			<button class="js-single-ok">Ok</button>
+			<button class="js-upper-ok">Ok</button>
 		</h4>
-	</ul>
+	</li>
 </script>
 
 

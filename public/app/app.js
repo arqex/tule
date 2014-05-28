@@ -9,8 +9,8 @@ define(deps, function($, _, Backbone, Router, Services,
 	Settings, Main, Navigation, CollectionService, SettingsService){
 
 	var init = function() {
-		var settings = window.tuleSettings;
-		window.routes = window.tuleSettings.navigation;
+		var settings	 = window.tuleSettings;
+		window.routes	= window.tuleSettings.navigation;
 		window.tuleSettings = undefined;
 
 		registerDataTypes(settings.datatypes, settings.datatypesPath, function(){
@@ -18,8 +18,8 @@ define(deps, function($, _, Backbone, Router, Services,
 			Services.add('settings', SettingsService);
 
 			// App's init point
-			var navigation 	= new Navigation({routes: settings.navigation, el: $('nav')}),
-				main 		= new Main({navigation: navigation, el: $(document)})
+			var navigation = new Navigation({routes: settings.navigation, el: $('nav')}),
+				main	   = new Main({navigation: navigation, el: $(document)})
 			;
 
 			Backbone.Events.on('tuleRoute', function(file, args){
