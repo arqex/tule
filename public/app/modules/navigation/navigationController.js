@@ -1,6 +1,5 @@
 define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 	function($, Backbone, NavModels, NavViews){
-
 		var NavigationController = Backbone.View.extend({
 			initialize: function(opts){
 				this.navigation = new NavViews.NavCollectionView({

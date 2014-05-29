@@ -11,7 +11,6 @@ module.exports = {
 	},
 	dbName: dbName,
 	mongo: 'mongodb://localhost:27017/' + dbName,
-	routes: require('./routes')(baseUrl),
 	navigation: '',
 	path: {
 		base: basepath,
