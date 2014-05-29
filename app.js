@@ -42,19 +42,19 @@ pluginManager.init(app).then(function(){
 		app.set('views', config.path.views);
 		app.engine('html', templates.forExpress());
 
-		//Init routes
-		console.log('Pre routes');
-		var routeManager = require(config.path.modules + '/routes/routeManager.js');
-		routeManager.init(app);
-		console.log('ROUTES OK!');
-
 		//Init frontend settings
 		console.log('Pre frontend');
 		var frontendManager = require(config.path.modules + '/frontend/frontendManager.js');
 		console.log('Init frontend');
 		frontendManager.init(app);
 		console.log('FRONTEND OK!');
-		
+
+		//Init routes
+		console.log('Pre routes');
+		var routeManager = require(config.path.modules + '/routes/routeManager.js');
+		routeManager.init(app);
+		console.log('ROUTES OK!');
+
 		server.listen(3000);
 		console.log('Listening on port 3000');
 	});
