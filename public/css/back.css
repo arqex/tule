@@ -103,9 +103,14 @@ button:hover {
 	border-bottom: 2px solid #4f6f6f;
 }
 
+.navitem {
+	margin: 0;
+}
+
 .navlink {
 	display: block;
 	padding: 4px 10px;
+	margin-bottom: 10px;
 	color: #dee;
 	text-decoration: none;
 }
@@ -116,7 +121,7 @@ button:hover {
 }
 
 .navsubitem {
-	margin-left: 15px;
+	margin: 0 0 0 15px;
 	max-height: 0;
 	overflow: hidden;
 	-webkit-transition: max-height 0.5s;

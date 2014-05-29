@@ -34,12 +34,12 @@ define(deps, function($,_,Backbone, tplSource){
 	});
 
 	var AlertView = Backbone.View.extend({
-		className: 'mon-alerts',
+		className: 'tule-alert',
 		tpl: _.template(tplSource),
 		events: {
-			'click .mon-alert-close': 'alertClosed',
-			'click .mon-alert-cancel': 'alertCancel',
-			'click .mon-alert-ok': 'alertOk'
+			'click .tule-alert-close': 'alertClosed',
+			'click .tule-alert-cancel': 'alertCancel',
+			'click .tule-alert-ok': 'alertOk'
 		},
 		initialize: function(options){
 			if(!options || !options.collection)
@@ -60,21 +60,21 @@ define(deps, function($,_,Backbone, tplSource){
 			return alert;
 		},
 		addToView: function(alert){
-			var alertHTML = $(this.tpl(alert.toJSON())).addClass('mon-alert-hidden');
+			var alertHTML = $(this.tpl(alert.toJSON())).addClass('tule-alert-hidden');
 			this.$el.prepend(alertHTML);
 			setTimeout(function(){
-				alertHTML.removeClass('mon-alert-hidden');
+				alertHTML.removeClass('tule-alert-hidden');
 			},50);
 		},
 		removeFromView: function(alert){
-			var alertHtml = this.$('#' + alert.cid).addClass('mon-alert-hidden');
+			var alertHtml = this.$('#' + alert.cid).addClass('tule-alert-hidden');
 			setTimeout(function(){
 				alertHtml.remove();
 			}, 1000);
 		},
 		alertAction: function(e, eventName){
 			e.preventDefault();
-			var alert = this.collection.get($(e.target).closest('.mon-alert').attr('id'));
+			var alert = this.collection.get($(e.target).closest('.tule-alert').attr('id'));
 			if(alert){
 				alert.trigger(eventName);
 				alert.trigger('destroy', alert);
@@ -94,7 +94,7 @@ define(deps, function($,_,Backbone, tplSource){
 	var singletonAlert  = new AlertView();
 	var singletonAdd	= function(alertOptions) {
 		return singletonAlert.add(alertOptions);
-	} 
+	}
 
 	return {
 		AlertView: AlertView,

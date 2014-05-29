@@ -316,7 +316,7 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 
 			// Throw save new navigation: Services
 			Services.get('settings').saveNavigation(routes).then(function(result){
-				Alerts.add({message:'Navigation settings saved correctly', autoclose:6000});
+				Alerts.alerter.add({message:'Navigation settings saved correctly', autoclose:6000});
 				me.trigger('saved');
 			});
 		}

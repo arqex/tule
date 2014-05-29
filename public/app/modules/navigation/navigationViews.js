@@ -38,6 +38,8 @@ define(deps, function($, _, Backbone, tplSource, NavModels){
 		render: function(){
 			var me = this;
 			this.$el.html();
+			if(this.$el.parent().length == 0)
+				this.$el.addClass('first-sub');
 			this.collection.each(function(navItem){
 				if(navItem.get('url') == '0')
 					return

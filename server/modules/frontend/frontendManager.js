@@ -39,7 +39,6 @@ module.exports = {
 
 	},
 	getFrontSettings: function(){
-		console.log("+++++++++++++++++++++++++++HIJO DE FRUTA+++++++++++++++++++");
 		settings.findOne({name: 'navData'}, function(err, navRoutes){
 			if(!err && navRoutes.lengt !== 0)
 				defaultFrontendSettings.navigation = navRoutes.routes;

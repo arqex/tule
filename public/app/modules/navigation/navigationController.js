@@ -19,7 +19,7 @@ define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 				target.children().each(function(){
 					$(this).children('a').removeClass('navcurrent');
 				});
-				stackedHeight += target.children().length * 34;
+				stackedHeight += target.children().length * ($(target.children()[0]).height() + 10);
 				target.css('max-height',  stackedHeight + 'px');
 				var parent = target.parent().closest('.navsubitem');
 				if(parent.length > 0)
@@ -27,14 +27,18 @@ define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 			},
 
 			manager: function(route) {
-				var target 	= $('.navlink[href="' + route + '"]');
+				$('.navsubitem:not(.first-sub)').css('max-height', '0px');
+				var me = this;
+				setTimeout(function(){
+					var target 	= $('.navlink[href="' + route + '"]');
 
-				target.next().length > 0
-					? this.openNavigation(target.next(), 0)
-					: this.openNavigation(target.closest('.navsubitem'), 0);
+					target.next().length > 0
+						? me.openNavigation(target.next(), 0)
+						: me.openNavigation(target.closest('.navsubitem'), 0);
 
-				if(target)
-					target.addClass('navcurrent');
+					if(target)
+						target.addClass('navcurrent');
+				}, 500);
 			}
 		});
 

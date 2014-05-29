@@ -2,7 +2,7 @@
 
 var deps = [
 	'jquery', 'underscore', 'backbone', 'services',
-	'modules/core/baseController', 'text!./tpls/settingsGeneralTpl.html',
+	'baseController', 'text!./tpls/settingsGeneralTpl.html',
 	'./settingsViews'
 ];
 
@@ -21,7 +21,7 @@ define(deps, function($, _, Backbone, Services, BaseController, tplSource, Setti
 	};
 
 	var SettingsController = BaseController.extend({
-		controllerTpl: $(tplSource).find('#settingsNavigationTpl').html(),		
+		controllerTpl: $(tplSource).find('#settingsNavigationTpl').html(),
 
 		initialize: function(opts){
 			this.subViews = {};
@@ -55,7 +55,7 @@ define(deps, function($, _, Backbone, Services, BaseController, tplSource, Setti
 		},
 
 		runToolsboxListeners: function(){
-			
+
 		}
 	});
 
