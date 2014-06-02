@@ -34,24 +34,19 @@ define(deps, function($, _, Backbone, tplSource, NavModels){
 
 	var NavCollectionView = Backbone.View.extend({
 		className: 'navsubitem',
-		subViews: {},
 		render: function(){
 			var me = this;
-			this.$el.html();
-			if(this.$el.parent().length == 0)
-				this.$el.addClass('first-sub');
+			this.$el.html('');
 			this.collection.each(function(navItem){
 				if(navItem.get('url') == '0')
 					return
-					
-				var subView = me.subViews[navItem.get('text')];
-				if(!subView){
-					subView = new NavItemView({model: navItem});
-					subView.render();
-					me.subViews[navItem.get('text')] = subView;
-				}
+
+				var subView = new NavItemView({model: navItem});
+				subView.render();
 				me.$el.append(subView.$el);
 			});
+			if(this.$el.parent().length == 0)
+				this.$el.addClass('first-sub');
 		}
 	});
 

@@ -15,6 +15,11 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 				.append(this.view.el)
 			;
 			this.render();
+
+			this.listenTo(this.view, 'save', function(routes){
+				this.trigger('save', routes);
+			});
+
 		},
 		render: function(){
 			if(this.view)

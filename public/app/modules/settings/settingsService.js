@@ -47,14 +47,36 @@ define(deps, function($, _, Backbone, SettingsModels){
 			return deferred.promise();
 		},
 
+		/* Get the current navigation config */
+		getNavigation: function(){
+			var deferred = $.Deferred();
+			SettingsModels.getSettings('navData').then(function(navData){
+				return deferred.resolve(navData);
+			});
+			return deferred.promise();
+		},
+
 		/* Save the new navigation settings */
 		saveNavigation: function(routes){
 			var deferred = $.Deferred();
-			SettingsModels.getSettings('navData').then(function(navData){
+			this.getNavigation().then(function(navData){
 				navData.set('routes', routes);
 				navData.save(null, {success: function(){
 					return deferred.resolve();
 				}});
+			});
+			return deferred.promise();
+		},
+
+		/* Get the navigation routes */
+		getNavigationItems: function(){
+			var deferred = $.Deferred();
+			$.ajax({
+				type: 'GET',
+				url: '/api/navigationitems',
+				success: function(result){
+					deferred.resolve(result);
+				}
 			});
 			return deferred.promise();
 		}

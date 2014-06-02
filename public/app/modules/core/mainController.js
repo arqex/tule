@@ -1,11 +1,11 @@
 var deps = [
-	'jquery', 'underscore', 'backbone',
+	'jquery', 'underscore', 'backbone', 'services',
 	'modules/alerts/alerts',
 	'modules/navigation/navigationController',
 	'region'
 ];
 
-define(deps, function($,_,Backbone, Alerts, Navigation, Region){
+define(deps, function($,_,Backbone, Services, Alerts, Navigation, Region){
 
 	var MainController = Backbone.View.extend({
 		initialize: function(opts){
@@ -18,6 +18,11 @@ define(deps, function($,_,Backbone, Alerts, Navigation, Region){
 
 			this.navigationRegion.show(this.navigation);
 			this.navigation.manager(location.pathname);
+
+			this.listenTo(this.pageRegion, 'save', function(routes){
+				this.navigation.update(routes);
+				this.navigation.manager(location.pathname);
+			});
 		},
 
 		loadContent: function(file, args){

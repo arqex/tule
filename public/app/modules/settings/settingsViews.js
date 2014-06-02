@@ -83,7 +83,7 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 			var me = this;
 			this.upperElements = [];
 
-			_.each(window.routes, function(route){
+			_.each(opts.routes, function(route){
 				if(route.subItems){
 					var subRoutes = [];
 
@@ -317,42 +317,36 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 			// Throw save new navigation: Services
 			Services.get('settings').saveNavigation(routes).then(function(result){
 				Alerts.alerter.add({message:'Navigation settings saved correctly', autoclose:6000});
-				me.trigger('saved');
+				me.trigger('save', routes);
 			});
 		}
 	});
 
 	var NavigationToolsboxView = Backbone.View.extend({
 		tpl: _.template($(tplNavigation).find('#toolsboxTpl').html()),
-
+		initialize: function(opts){
+			this.collections = opts.collections;
+		},
 		render: function(){
-			var me = this;
-			Services.get('collection').getCollectionList().then(function(results){
-				results.splice(results.indexOf('system.indexes'), 1);
-				results.splice(results.indexOf('monSettings'), 1);
-				me.$el.html(me.tpl({collections: results}));
+			this.$el.html(this.tpl({collections: this.collections}));
 
-				me.$('.js-collections, .js-settings').sortable({
-					cancel: 'h4',
-					items: 'li',
-					connectWith: '.js-container',
-					cursor: 'move',
-					change: function(e, ui){
-						//console.log(e.currentTarget);
-					},
-					helper: function(e, li){
-						this.copyHelper = li.clone().insertAfter(li);
-						$(this).data('copied', false);
-						return li.clone();
-					},
-					stop: function(){
-						var copied = $(this).data('copied');
-						if (!copied)
-							this.copyHelper.remove();
-						this.copyHelper = null;
-					}
-				}).disableSelection();
-			});
+			this.$('.js-collection').sortable({
+				cancel: 'h4',
+				items: 'li',
+				connectWith: '.js-container',
+				cursor: 'move',
+				helper: function(e, li){
+					this.copyHelper = li.clone().insertAfter(li);
+					$(this).data('copied', false);
+					return li.clone();
+				},
+				stop: function(){
+					var copied = $(this).data('copied');
+					if (!copied)
+						this.copyHelper.remove();
+					this.copyHelper = null;
+				}
+			}).disableSelection();
 		}
 	});
 

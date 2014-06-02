@@ -14,26 +14,41 @@ define(['jquery', 'backbone', './navigationModels', './navigationViews'],
 					.append(this.navigation.el);
 			},
 
+			update: function(routes){
+				var collection = new NavModels.NavCollection(routes);
+				this.navigation.collection = collection;
+				this.render();
+			},
+
 			openNavigation: function(target, stackedHeight){
 				target.children().each(function(){
 					$(this).children('a').removeClass('navcurrent');
 				});
 				stackedHeight += target.children().length * ($(target.children()[0]).height() + 10);
 				target.css('max-height',  stackedHeight + 'px');
+				//target.removeClass('opened-sub');
 				var parent = target.parent().closest('.navsubitem');
 				if(parent.length > 0)
 					this.openNavigation(parent, stackedHeight);
 			},
 
 			manager: function(route) {
-				$('.navsubitem:not(.first-sub)').css('max-height', '0px');
-				var me = this;
+				var target 	= $('.navlink[href="' + route + '"]'),
+					me 		= this
+				;
+				if(target.closest('.navsubitem').hasClass('opened-sub'))
+					target.closest('.navsubitem').removeClass('opened-sub');
+				
+				$('.opened-sub:not(.first-sub)').css('max-height', '0px');
+				
 				setTimeout(function(){
-					var target 	= $('.navlink[href="' + route + '"]');
-
-					target.next().length > 0
-						? me.openNavigation(target.next(), 0)
-						: me.openNavigation(target.closest('.navsubitem'), 0);
+					target.closest('.navsubitem').addClass('opened-sub');
+					if(target.length == 0)
+						me.openNavigation($('.first-sub'), 0);
+					else
+						target.next().length > 0
+							? me.openNavigation(target.next(), 0)
+							: me.openNavigation(target.closest('.navsubitem'), 0);
 
 					if(target)
 						target.addClass('navcurrent');

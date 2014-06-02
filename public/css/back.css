@@ -654,6 +654,9 @@ SETTINGS: NAVIGATION
     display: inline-block;
 }
 .item-right {
+	width: 18%;
+	text-align: right;
+	padding-right: 4px;
     display: inline-block;
     margin: 0;
 }

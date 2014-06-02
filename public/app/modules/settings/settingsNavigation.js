@@ -7,16 +7,6 @@ var deps = [
 ];
 
 define(deps, function($, _, Backbone, Services, BaseController, PageController, tplSource, SettingsViews){
-	var createPreview = function(){
-		var preview = new SettingsViews.NavigationPreviewView({});
-		return preview;
-	};
-
-	var createToolsbox = function(){
-		var toolsbox = new SettingsViews.NavigationToolsboxView();
-		return toolsbox;
-	};
-
 	var SettingsController = BaseController.extend({
 		template: $(tplSource).find('#settingsNavigationTpl').html(),
 		regionSelectors: {
@@ -35,13 +25,28 @@ define(deps, function($, _, Backbone, Services, BaseController, PageController, 
 
 			// Override
 			this.tpl = this.controllerTpl;
-			this.subViews['preview'] = createPreview();
-			this.subViews['toolsbox'] = createToolsbox();
+			var promise = Services.get('settings').getNavigationItems();
 
-			this.regions.preview.show(this.subViews.preview);
-			this.regions.toolsbox.show(this.subViews.toolsbox);
+			Services.get('settings').getNavigation().then(function(navData){
+				promise.then(function(navigationItems){
+					me.subViews['preview'] = new SettingsViews.NavigationPreviewView({
+						routes: navData.get('routes')
+					});
 
-			deferred.resolve();
+					me.subViews['toolsbox'] = new SettingsViews.NavigationToolsboxView({
+						collections: navigationItems
+					});
+
+					me.regions.preview.show(me.subViews.preview);
+					me.regions.toolsbox.show(me.subViews.toolsbox);
+
+					me.listenTo(me.subViews['preview'], 'save', function(routes){
+						me.trigger('save', routes);
+					});
+
+					deferred.resolve();
+				});
+			});
 		}
 	});
 

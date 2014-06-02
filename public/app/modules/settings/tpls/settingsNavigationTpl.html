@@ -19,18 +19,14 @@
 <script type="text/template" id="toolsboxTpl">
 	<div class="toolsbox-inner marginable">
 		<h3>Navigation Elements</h3>
-		<ul class="js-collections">
-			<h4>Collections: </h4>
-			<% _.each(collections, function(collection){ %>
-				<li data-text="<%= collection %>" data-url="/collections/list/<%= collection %>" data-origin="outside"><%= collection %></li>
-			<% }) %>
-		</ul>
-		<ul class="js-settings marginable">
-			<h4>Settings: </h4>
-			<li data-text="General" data-url="/settings/general" data-origin="outside">General</li>
-			<li data-text="Navigation" data-url="/settings/navigation" data-origin="outside">Navigation</li>
-			<li data-text="Collections" data-url="/settings/collections" data-origin="outside">Collections</li>
-		</ul>
+		<% _.each(collections, function(collection, key){ %>
+			<ul class="js-collection">
+				<h4><%= key %>: </h4>
+				<% _.each(collection, function(item){ %>
+					<li data-text="<%= item.text %>" data-url="<%= item.url %>" data-origin="outside"><%= item.text %></li>
+				<% }) %>
+			</ul>
+		<% }) %>		
 	</div>
 </script>
 

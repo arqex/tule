@@ -18,7 +18,10 @@ define(['jquery', 'underscore', 'backbone', 'baseController'], function($, _, Ba
 				this.listenTo(this.content, 'page:title:update', function(title){
 					this.titleView.title = title;
 					this.titleView.render();
-				})
+				});
+				this.listenTo(this.content, 'save', function(routes){					
+					this.trigger('save', routes);
+				});
 				this.regions.content.show(this.content);
 			}
 			if(!this.title)
