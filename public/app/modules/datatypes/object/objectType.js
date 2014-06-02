@@ -97,9 +97,6 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 			if(this.mode == 'display')
 				tpl = this.displayTpl;
 
-			if(this.model.isNew() && this.isCustom == undefined || this.isPropsDefinition == true)
-				this.typeOptions.customProperties = true;
-
 			this.$el
 				.html(tpl({
 					cid: this.cid,
