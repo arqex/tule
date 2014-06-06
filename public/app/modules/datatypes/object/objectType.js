@@ -101,7 +101,7 @@ define(deps, function($,_,Backbone, tplSource, dispatcher, Alerts){
 				.html(tpl({
 					cid: this.cid,
 					value: this.modelValue.toJSON(),
-					customProperties: this.typeOptions.customProperties
+					customProperties: this.typeOptions.allowCustom
 				}))
 				.attr('class', this.className + ' field-mode-' + this.mode)
 			;

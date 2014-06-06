@@ -23,7 +23,12 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			this.hidden = opts.hidden || [];
 		},
 		render: function(){
-			this.$el.html(this.tpl({id: this.model.id, editing: this.editing, fields: this.fields, doc: this.model.toJSON()}));
+			this.$el.html(this.tpl({
+				id: this.model.id, 
+				editing: this.editing, 
+				fields: this.fields, 
+				doc: this.model.toJSON()
+			}));
 
 			if(this.editing){
 				this.objectView = dispatcher.getView('object', this.docOptions, dispatcher.createModel(this.model.toJSON()));

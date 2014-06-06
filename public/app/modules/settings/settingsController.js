@@ -38,9 +38,11 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 			},
 			{key: 'tableFields', label: 'Table header fields', datatype: {id: 'array', options: {elementsType: {id:'string'}}}},
 			{key: 'mandatoryProperties', label: 'Mandatory Fields', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}},
-			{key: 'hiddenProperties', label: 'Hidden Properties', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}}
+			{key: 'hiddenProperties', label: 'Hidden Properties', datatype: {id: 'array', options: {elementsType: {id: 'string'}}}},
+			{key: 'allowCustom', label: 'Allow Custom Properties', datatype: {id: 'bool', options: {}}}
+
 		],
-		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'hiddenProperties', 'tableFields'],
+		mandatoryProperties: ['propertyDefinitions', 'mandatoryProperties', 'hiddenProperties', 'tableFields', 'allowCustom'],
 		hiddenProperties: ['name', '_id']
 	};
 
