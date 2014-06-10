@@ -97,6 +97,10 @@ RouteManager.prototype = {
 		;
 
 		console.log('Here we are: ROUTING');
+		//Reset all the routes;
+		['get', 'post', 'put', 'delete'].forEach(function(method){
+			app.routes[method] = [];
+		});
 		hooks.filter('routes:server', routesClone).then(function(allRoutes){
 			console.log('Adding routes:');
 			console.log(allRoutes);
