@@ -381,13 +381,13 @@ i.fa-plus {
 /******
 Alerter
 *******/
-.mon-alerts {
+.tule-alerts {
 	position: fixed;
 	width: 90%;
 	top: 0;
 	left: 5%;
 }
-.mon-alert {
+.tule-alert {
 	background: #f9fff9;
 	border-left: 3px solid;
 	border-right: 3px solid;
@@ -398,50 +398,50 @@ Alerter
     margin-bottom: 10px;
 }
 
-.mon-alert-hidden {
+.tule-alert-hidden {
 	opacity: 0;
 	max-height: 0;
 	margin: 0;
 }
 
-.mon-alert-info {
+.tule-alert-info {
 	border-color: #0c0;
 	box-shadow: 0 0 5px rgba(0,200,0,.7);
 }
 
-.mon-alert-warn {
+.tule-alert-warn {
 	border-color: #c90;
 	box-shadow: 0 0 5px rgba(200,150,0,.8);
 }
 
-.mon-alert-error {
+.tule-alert-error {
 	border-color: #c00;
 	box-shadow: 0 0 5px rgba(200,0,0,.7);
 }
 
 
-.mon-alert-close {
+.tule-alert-close {
 	float:right;
 	color: #ccc;
 	text-decoration: none;
 	margin: 3px 3px 0 10px;
 }
 
-.mon-alert-close:hover {
+.tule-alert-close:hover {
 	color: #aaa;
 }
 
-.mon-alert-content {
+.tule-alert-content {
 	margin: 0;
 	padding: 5px 5px 5px 10px;
 }
 
-.mon-alert-confirm {
+.tule-alert-confirm {
 	float: right;
 	margin-right: 10px;
 }
 
-.mon-alert-confirm button {
+.tule-alert-confirm button {
 	max-width: 150px;
 }
 

@@ -10,7 +10,6 @@ define(deps, function($,_,Backbone, Services, Alerts, Navigation, Region){
 	var MainController = Backbone.View.extend({
 		initialize: function(opts){
 			window.alerter = Alerts.alerter;
-			this.$('.pagetitle').after(Alerts.alerter.el);
 
 			this.navigation 		= opts.navigation;
 			this.navigationRegion 	= new Region({el: this.$('#navigationRegion')});
@@ -30,6 +29,7 @@ define(deps, function($,_,Backbone, Services, Alerts, Navigation, Region){
 			require([file], function(Controller){
 				var controller = new Controller({args: args});
 				me.pageRegion.show(controller);
+				controller.$('.pagetitle').after(Alerts.alerter.el);
 			});
 		}
 	});

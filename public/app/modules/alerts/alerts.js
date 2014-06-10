@@ -34,7 +34,7 @@ define(deps, function($,_,Backbone, tplSource){
 	});
 
 	var AlertView = Backbone.View.extend({
-		className: 'tule-alert',
+		className: 'tule-alerts',
 		tpl: _.template(tplSource),
 		events: {
 			'click .tule-alert-close': 'alertClosed',
