@@ -160,14 +160,13 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 					collection.url = oldurl;
 
 					// Reset the form on DOM
-					me.subViews.adder.objectView = false;
-					me.subViews.adder.$el.find('.form').remove();
 					me.subViews.adder.close();
 
 					// Render collection view
 					me.subViews.items.collection.add(collection);
 					me.subViews.items.update(me.subViews.items.collection);
 					me.render();
+					me.subViews.items.docViews[collection.id].open();
 				});
 			}); // End of createCollection
 		},

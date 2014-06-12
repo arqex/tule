@@ -247,8 +247,10 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			if(e)
 				e.preventDefault();
 
-			this.objectView.remove();
-			this.objectView = false;
+			if(this.objectView){
+				this.objectView.remove();
+				this.objectView = false;
+			}
 			this.trigger('closed');
 		},
 
