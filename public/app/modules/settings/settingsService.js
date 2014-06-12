@@ -17,6 +17,9 @@ define(deps, function($, _, Backbone, SettingsModels){
 			settings.fetch({
 				success: function(){
 					deferred.resolve(settings);
+				},
+				error: function(model, response){
+					deferred.reject(response.responseText);
 				}
 			});
 

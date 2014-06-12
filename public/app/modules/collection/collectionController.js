@@ -80,45 +80,57 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 			this.settingsService 	= Services.get('settings');
 			this.collectionService 	= Services.get('collection').collection(this.type);
 
+			this.settingsService.get(this.type)
+				.then(function(metadata){
+					me.collectionSettings = metadata.toJSON();
+					me.initViews();
+				})
+				.fail(function(error){
+					me.collectionSettings = {allowCustom: true};
+					me.initViews();
+				})
+			;
+		},
 
-			this.settingsService.get(this.type).then(function(metadata){
-				// If there are conditions in the url execute the query
-				if(me.params != undefined)
-					me.params = Tools.createQuery(me.type, me.params);
+		initViews: function(){
+			var me = this;
 
-				me.collectionService.find(me.params).then(function(results, options){
-					// Primitive vars
-					var settings 	= metadata.attributes,
-						fields 		= settings.tableFields || [],
-						documents 	= results.get('documents')
-					;
+			// If there are conditions in the url execute the query
+			if(typeof me.params !== 'undefined')
+				me.params = Tools.createQuery(me.type, me.params);
 
-					// Set up fields
-					fields.push({action: 'edit', href: "#", icon: 'pencil'});
-					fields.push({action: 'remove', href: "#", icon: 'times'});
+			me.collectionService.find(me.params).then(function(results, options){
+				// Primitive vars
+				var settings 	= me.collectionSettings,
+					fields 		= settings.tableFields || [],
+					documents 	= results.get('documents')
+				;
 
-					me.subViews = {
-						adder: createAdderView(me.type, settings),
-						search: createSearchTools(me.type),
-						pagination: createPagination(results.get('current'), results.get('limit'), results.get('total')),
-						items: createCollectionView(documents, fields, settings, me.type)
-					}
+				// Set up fields
+				fields.push({action: 'edit', href: "#", icon: 'pencil'});
+				fields.push({action: 'remove', href: "#", icon: 'times'});
 
-					if(me.subViews.adder)
-						me.runAdderListeners();
-					if(me.subViews.search)
-						me.runSearchListeners();
-					if(me.subViews.pagination)
-						me.runPaginationListeners();
-					if(me.subViews.items)
-						me.runItemsListeners();
+				me.subViews = {
+					adder: createAdderView(me.type, settings),
+					search: createSearchTools(me.type),
+					pagination: createPagination(results.get('current'), results.get('limit'), results.get('total')),
+					items: createCollectionView(documents, fields, settings, me.type)
+				};
 
-					//Update page title
-					me.trigger('page:title:update', 'Collection ' + me.type);
+				if(me.subViews.adder)
+					me.runAdderListeners();
+				if(me.subViews.search)
+					me.runSearchListeners();
+				if(me.subViews.pagination)
+					me.runPaginationListeners();
+				if(me.subViews.items)
+					me.runItemsListeners();
 
-					_.each(me.subViews, function(view, name){
-						me.regions[name].show(view);
-					});
+				//Update page title
+				me.trigger('page:title:update', 'Collection ' + me.type);
+
+				_.each(me.subViews, function(view, name){
+					me.regions[name].show(view);
 				});
 			});
 		},

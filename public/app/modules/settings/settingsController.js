@@ -13,6 +13,7 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 
 	//Structure for the collection docs
 	var docOptions = {
+		allowCustom: true,
 		customProperties: false,
 		propertyDefinitions: [
 			{
@@ -89,9 +90,17 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 		});
 
 		itemsView.on('click:function1', function(docView){
-			docView.model.getSettings().then(function(){
-				docView.open();
-			});
+			Services.get('settings').get(docView.model.name)
+				.then(function(settings){
+					docView.model.set(settings.toJSON());
+					docView.open();
+				})
+				.fail(function(error){
+					docView.model.set({allowCustom: true});
+					docView.open();
+					console.log('No settings');
+				})
+			;
 		});
 
 		itemsView.on('click:browse', function(docView){
