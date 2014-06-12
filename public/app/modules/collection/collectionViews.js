@@ -24,9 +24,9 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 		},
 		render: function(){
 			this.$el.html(this.tpl({
-				id: this.model.id, 
-				editing: this.editing, 
-				fields: this.fields, 
+				id: this.model.id,
+				editing: this.editing,
+				fields: this.fields,
 				doc: this.model.toJSON()
 			}));
 
@@ -67,15 +67,13 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 		}
 
 	});
-	
+
 	var SearchTools = Backbone.View.extend({
 		findBoxTpl: $(tplSearchTools).find('#findBoxTpl').html(),
-		buttonSearchTpl: $(tplSearchTools).find('#buttonSearchTpl').html(),
 		searchFormTpl: _.template($(tplSearchTools).find('#searchFormTpl').html()),
 		queryClauseTpl: _.template($(tplSearchTools).find('#queryClauseTpl').html()),
 
 		events: {
-			'click .search-new': 'onClickSearchForm',
 			'click .cancel-query': 'onClose',
 			'click .select-clause-join': 'onClickAddClause',
 			'click .search-query': 'onClickSearch',
@@ -89,8 +87,8 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 		},
 
 		render: function(){
-			this.$el.html(this.buttonSearchTpl);
-			//this.$el.html(this.findBoxTpl);
+			this.$el.html(this.searchFormTpl({type: this.type}));
+			this.renderClauses();
 		},
 
 		renderClauses: function(operator){
@@ -98,7 +96,7 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 				me = this
 			;
 
-			clauses.empty(); 
+			clauses.empty();
 
 			_.each(this.query, function(clause){
 				clauses.append(me.queryClauseTpl({
@@ -113,29 +111,27 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 
 			if(operator != "delete") {
 				clauses.append(this.queryClauseTpl({
-					position: Object.keys(this.query).length,				
+					position: Object.keys(this.query).length,
 					key: false,
 					comparison: false,
 					value: false,
 					operator: operator,
 					length: Object.keys(this.query).length
-				}));	
+				}));
 			}
 		},
 
-		onClickSearchForm: function(e){
-			e.preventDefault();
-			
-			this.$el.find(".search-form-placeholder").append(this.searchFormTpl({type: this.type}));
-			this.renderClauses();
-			$('.button-search-form').hide();
+		open: function(){
+			this.$('.search-form').show();
+			this.trigger('open');
 		},
 
 		onClose: function(e){
 			e.preventDefault();
 
-			this.$el.find('.button-search-form').show();
-			$(e.target).closest('.search-form').remove();
+			this.$('.search-form').hide();
+
+			this.trigger('closed');
 		},
 
 		onClickAddClause:function(e){
@@ -201,7 +197,7 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			this.saveQuery();
 
 			var nearClause = $(e.target).closest('.query-clause'),
-				key = nearClause.find('#key').val(),				
+				key = nearClause.find('#key').val(),
 				value = nearClause.find('#value').val(),
 				me = this
 			;
@@ -218,49 +214,42 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 	});
 
 	var NewDocView = Backbone.View.extend({
-		tpl: _.template($(tplSource).find('#addNewTpl').html()),
 		tplForm: $(tplSource).find('#newFormTpl').html(),
 		events: {
-			'click .document-new': 'onClickNew',
 			'click .document-cancel': 'onClickCancel',
 			'click .document-create': 'onClickCreate'
 		},
-		initialize: function(opts){			
+		initialize: function(opts){
 			this.type = opts.type;
 			this.settings = opts.settings;
 		},
 
 		render: function(){
-			this.el = this.$el.html(this.tpl({type: this.type}));
+			this.$el.html(this.tplForm);
 		},
 
-		onClickNew: function(e){
-			e.preventDefault();
-
+		open: function(){
 			this.objectView = dispatcher.getView('object', this.settings, undefined);
 
-			this.el.find(".form-placeholder").append(this.tplForm);
-			this.el.find(".object-form").append(this.objectView.$el);
+			this.$(".object-form").html(this.objectView.$el);
 			this.objectView.mode = 'edit';
 			this.objectView.typeOptions.editAllProperties = true;
 			this.objectView.render();
 
-			var section = $(e.target).parentsUntil( '.content' );
-			section.find('.new-document-form').css('display', 'none');
-			section.find('.form').css('display', 'block');
+			this.trigger('open');
 		},
 
 		onClickCancel: function(e){
-			e.preventDefault();
-			this.objectView = false;
-			this.$el.find('.form').remove();
-			this.close();
+			this.close(e);
 		},
 
-		close: function(){
-			var section = this.$el;
-			section.find('.form').css('display', 'none');
-			section.find('.new-document-form').css('display', 'block');
+		close: function(e){
+			if(e)
+				e.preventDefault();
+
+			this.objectView.remove();
+			this.objectView = false;
+			this.trigger('closed');
 		},
 
 		onClickCreate: function(e){
@@ -269,7 +258,7 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 
 			_.each(this.objectView.subViews, function(subView){
 				if(subView.key === '_id'){
-					Alerts.add({message:'Cannot use reserved name _id as property', level: 'error', autoclose:10000});	
+					Alerts.add({message:'Cannot use reserved name _id as property', level: 'error', autoclose:10000});
 					return false;
 				}
 				subView.typeView.save();
@@ -287,7 +276,7 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 	});
 
 	var NewCollectionView = NewDocView.extend({
-		
+
 		onClickCreate: function(e){
 			e.preventDefault();
 			var stack = {};
@@ -337,7 +326,7 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			this.currentPage = current;
 			this.lastPage = Math.ceil(total / this.limit);
 			this.distance = this.lastPage - this.currentPage;
-			this.render();			
+			this.render();
 		},
 
 		onClickBefore: function(e){
@@ -366,12 +355,12 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 				tab.css('width', '285px');
 				tab.css('margin-right', '12px');
 				inner.css('left', 0);
-				inner.css('width', '100%');	
+				inner.css('width', '100%');
 			} else {
 				panel.css('width', '0px');
 				tab.css('width', '140px');
 				tab.css('margin-right', '-2px');
-				inner.css('width', 0);				
+				inner.css('width', 0);
 				inner.css('left', '-100px');
 			}
 		}
@@ -387,7 +376,7 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 		},
 		initialize: function(opts) {
 			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
-			this.docViews = {};			
+			this.docViews = {};
 			this.docOptions = opts.docOptions || {};
 			this.update(this.collection);
 
@@ -401,16 +390,16 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 
 			if(this.collection != currentCollection)
 				this.collection.reset();
-			
+
 			currentCollection.each(function(doc){
 				var docId = doc.id;
 				if(doc.newborn){
 					var editing = doc.newborn ? true : false;
-					doc.newborn = false;	
+					doc.newborn = false;
 				} else {
 					var editing = me.docViews[docId] ? me.docViews[docId].editing : false;
 				}
-				
+
 				docViews[docId] = new DocumentView({
 					model: doc,
 					fields: me.fields,
@@ -427,13 +416,13 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			this.docViews = docViews;
 		},
 
-		render: function(){			
+		render: function(){
 			this.$el.html(this.tpl);
 
 			var table = this.$('table');
 
 			_.each(this.docViews, function(view){
-				view.render();				
+				view.render();
 				table.append(view.el.children);
 				view.delegateEvents();
 			});

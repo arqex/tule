@@ -1,14 +1,7 @@
 <div> <!--	Wrapper to easily access to all the templates -->
 
-<script type="text/template" id="addNewTpl">
-	<div class="new-document-form">
-		<button class="document-new">Add new <%= type %></button>
-	</div>
-	<div class="form-placeholder"></div>
-</script>
-
 <script type="text/template" id="newFormTpl">
-	<form class="form">
+	<form class="newdoc-form">
 		<h4>Create a new one</h4>
 		<div class="object-form"></div>
 		<div class="document-options">
@@ -23,7 +16,7 @@
 		<% if(lastPage > 1) { %>
 			<div class="js-tab-results">
 
-			<% if(currentPage == 1) { %> 
+			<% if(currentPage == 1) { %>
 				<a class="js-goto current-page" data-page="1">1</a>
 			<% } else if (currentPage == 2) { %>
 				<a class="js-before"><i class="fa fa-chevron-left"></i></a>
@@ -45,10 +38,10 @@
 				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
 				<a class="js-goto" data-page="<%= currentPage + 2 %>"><%= currentPage + 2 %></a>
 				<a class="js-goto" data-page="<%= currentPage + 3 %>"><%= currentPage + 3 %></a>
-				 ... 
+				 ...
 			<% } %>
 
-			<% if(distance != 0) { %> 
+			<% if(distance != 0) { %>
 				<a class="js-goto" data-page="<%= lastPage %>"><%= lastPage %></a>
 				<a class="js-next"><i class="fa fa-chevron-right"></i></a>
 			<% } %>
@@ -102,7 +95,7 @@
 <tr class="document-content" data-id="<%= id %>" id="document-editing-<%= id %>">
 	<td colspan="<%= fields.length %>">
 		<div class="document-options">
-			<a href="#" data-bypass="true" class="document-cancel">Cancel</a> 
+			<a href="#" data-bypass="true" class="document-cancel">Cancel</a>
 			<button class="document-ok">Save</button>
 		</div>
 	</td>

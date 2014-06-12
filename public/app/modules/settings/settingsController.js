@@ -109,6 +109,10 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 			items: '.itemsPlaceholder'
 		},
 
+		events: {
+			'click .js-collection-new': 'openNewCollectionForm'
+		},
+
 		init: function(opts){
 			var me 			= this,
 				deferred 	= $.Deferred()
@@ -156,16 +160,32 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 					collection.url = oldurl;
 
 					// Reset the form on DOM
-					me.subViews['adder'].objectView = false;
-					me.subViews['adder'].$el.find('.form').remove();
-					me.subViews['adder'].close();
+					me.subViews.adder.objectView = false;
+					me.subViews.adder.$el.find('.form').remove();
+					me.subViews.adder.close();
 
 					// Render collection view
-					me.subViews['items'].collection.add(collection);
-					me.subViews['items'].update(me.subViews['items'].collection);
+					me.subViews.items.collection.add(collection);
+					me.subViews.items.update(me.subViews.items.collection);
 					me.render();
 				});
 			}); // End of createCollection
+		},
+
+		openNewCollectionForm: function(e){
+			e.preventDefault();
+
+			var me = this,
+				controls = this.$('.collectionControls')
+			;
+
+			this.subViews.adder.open();
+			this.listenToOnce(this.subViews.adder, 'closed', function(){
+				controls.show();
+				me.regions.adder.$el.hide();
+			});
+			controls.hide();
+			this.regions.adder.$el.show();
 		}
 	});
 
