@@ -65,6 +65,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 			items: '.itemsPlaceholder'
 		},
 
+		events: {
+			'click .js-document-new': 'openNewDocumentForm',
+			'click .js-collection-search': 'openSearchTools'
+		},
+
 		init: function(opts){
 			this.subViews = {};
 
@@ -75,47 +80,89 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 			this.settingsService 	= Services.get('settings');
 			this.collectionService 	= Services.get('collection').collection(this.type);
 
+			this.settingsService.get(this.type)
+				.then(function(metadata){
+					me.collectionSettings = metadata.toJSON();
+					me.initViews();
+				})
+				.fail(function(error){
+					me.collectionSettings = {allowCustom: true};
+					me.initViews();
+				})
+			;
+		},
 
-			this.settingsService.get(this.type).then(function(metadata){
-				// If there are conditions in the url execute the query
-				if(me.params != undefined)
-					me.params = Tools.createQuery(me.type, me.params);
+		initViews: function(){
+			var me = this;
 
-				me.collectionService.find(me.params).then(function(results, options){
-					// Primitive vars
-					var settings 	= metadata.attributes,
-						fields 		= settings.tableFields || [],
-						documents 	= results.get('documents')
-					;
+			// If there are conditions in the url execute the query
+			if(typeof me.params !== 'undefined')
+				me.params = Tools.createQuery(me.type, me.params);
 
-					// Set up fields
-					fields.push({action: 'edit', href: "#", icon: 'pencil'});
-					fields.push({action: 'remove', href: "#", icon: 'times'});
+			me.collectionService.find(me.params).then(function(results, options){
+				// Primitive vars
+				var settings 	= me.collectionSettings,
+					fields 		= settings.tableFields || [],
+					documents 	= results.get('documents')
+				;
 
-					me.subViews = {
-						adder: createAdderView(me.type, settings),
-						search: createSearchTools(me.type),
-						pagination: createPagination(results.get('current'), results.get('limit'), results.get('total')),
-						items: createCollectionView(documents, fields, settings, me.type)
-					}
+				// Set up fields
+				fields.push({action: 'edit', href: "#", icon: 'pencil'});
+				fields.push({action: 'remove', href: "#", icon: 'times'});
 
-					if(me.subViews.adder)
-						me.runAdderListeners();
-					if(me.subViews.search)
-						me.runSearchListeners();
-					if(me.subViews.pagination)
-						me.runPaginationListeners();
-					if(me.subViews.items)
-						me.runItemsListeners();
+				me.subViews = {
+					adder: createAdderView(me.type, settings),
+					search: createSearchTools(me.type),
+					pagination: createPagination(results.get('current'), results.get('limit'), results.get('total')),
+					items: createCollectionView(documents, fields, settings, me.type)
+				};
 
-					//Update page title
-					me.trigger('page:title:update', 'Collection ' + me.type);
+				if(me.subViews.adder)
+					me.runAdderListeners();
+				if(me.subViews.search)
+					me.runSearchListeners();
+				if(me.subViews.pagination)
+					me.runPaginationListeners();
+				if(me.subViews.items)
+					me.runItemsListeners();
 
-					_.each(me.subViews, function(view, name){
-						me.regions[name].show(view);
-					});
+				//Update page title
+				me.trigger('page:title:update', 'Collection ' + me.type);
+
+				_.each(me.subViews, function(view, name){
+					me.regions[name].show(view);
 				});
 			});
+		},
+
+		openNewDocumentForm: function(e){
+			e.preventDefault();
+			var me = this,
+				controls = this.$('.collectionControls')
+			;
+
+			this.subViews.adder.open();
+			this.listenToOnce(this.subViews.adder, 'closed', function(){
+				controls.show();
+				me.regions.adder.$el.hide();
+			});
+			controls.hide();
+			this.regions.adder.$el.show();
+		},
+
+		openSearchTools: function(e){
+			e.preventDefault();
+			var me = this,
+				controls = this.$('.collectionControls')
+			;
+
+			this.subViews.search.open();
+			this.listenToOnce(this.subViews.search, 'closed', function(){
+				controls.show();
+				me.regions.search.$el.show();
+			});
+			controls.hide();
+			this.regions.search.$el.show();
 		},
 
 		runAdderListeners: function(){
@@ -133,9 +180,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 					doc.url = encodeURI('/api/docs/' + me.type + '/' + doc.id);
 
 					// Reset the form on DOM
-					me.subViews['adder'].objectView = false;
-					me.subViews['adder'].$el.find('.form').remove();
-					me.subViews['adder'].close();
+					me.subViews.adder.close();
 
 					// Add possible new property definitions
 					$.post('/api/collection/' + me.type, {
@@ -143,8 +188,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 						data: data
 					});
 
-					// Render collection view
-					me.subViews['pagination'].trigger('navigate', me.subViews['pagination'].lastPage);
+					//Navigate to the last page
+					me.navigate(me.subViews.pagination.lastPage);
+					me.once('navigationEnd', function(){
+						me.subViews.items.docViews[doc.id].open();
+					});
 				});
 			}); // End of createDoc
 		},
@@ -177,43 +225,45 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 		},
 
 		runPaginationListeners: function(){
-			this.listenTo(this.subViews['pagination'], 'navigate', function(page){
-				var	limit 		= this.subViews['pagination'].limit,
-					conditions 	= this.params || {},
-					query 		= {},
-					me 			= this
-				;
+			this.listenTo(this.subViews.pagination, 'navigate', this.navigate);
+		},
 
-				page = (page > this.subViews['pagination'].lastPage)
-					? this.subViews['pagination'].lastPage
-					: page
-				;
+		navigate: function(page){
+			var pagination = this.subViews.pagination,
+				limit 		= pagination.limit,
+				conditions 	= this.params || {},
+				query 		= {},
+				me 			= this
+			;
 
-				conditions.skip  = (page * limit) - limit;
-				conditions.limit = limit;
+			page = (page > pagination.lastPage) ? pagination.lastPage	: page;
 
-				query = Tools.createQuery(this.type, conditions);
+			conditions.skip  = (page * limit) - limit;
+			conditions.limit = limit;
 
-				this.collectionService.find(this.params).then(function(results, options){
-					me.subViews['pagination'].currentPage 	= page;
-					me.subViews['pagination'].distance 		= me.subViews['pagination'].lastPage - page;
-					me.subViews['pagination'].lastPage 		= Math.ceil(results.get('total') / limit);
-					me.subViews['pagination'].render();
+			query = Tools.createQuery(this.type, conditions);
 
-					var customUrl = "skip=" + conditions.skip + "&limit=" + conditions.limit;
-					if(query.clause){
-						_.each(query.clause, function(clause){
-							customUrl = customUrl + "&clause[]=" + clause;
-						});
-					}
+			this.collectionService.find(this.params).then(function(results, options){
+				pagination.currentPage 	= page;
+				pagination.distance 		= pagination.lastPage - page;
+				pagination.lastPage 		= Math.ceil(results.get('total') / limit);
+				pagination.render();
 
-					customUrl = encodeURI(customUrl);
-					Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
+				var customUrl = "skip=" + conditions.skip + "&limit=" + conditions.limit;
+				if(query.clause){
+					_.each(query.clause, function(clause){
+						customUrl = customUrl + "&clause[]=" + clause;
+					});
+				}
 
-					me.subViews['items'].update(results.get('documents'));
-					me.subViews['items'].render();
-				});
-			}); // Enf of navigate
+				customUrl = encodeURI(customUrl);
+				Backbone.history.navigate("/collections/list/" + me.type + "?" + customUrl);
+
+				me.subViews.items.update(results.get('documents'));
+				me.subViews.items.render();
+
+				me.trigger('navigationEnd');
+			});
 		},
 
 		runItemsListeners: function(){

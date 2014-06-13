@@ -205,6 +205,17 @@ button:hover {
 	float: right;
 }
 
+/****
+Collection search
+*****/
+
+.tule_newdoc_open,
+.tule_searchdoc_open,
+.form-placeholder {
+	width: 100%;
+}
+
+
 /***********
 Documents
 *******/
@@ -446,20 +457,38 @@ Alerter
 }
 
 /******
+Collection controls
+******/
+.collectionControls {
+	float: left;
+}
+
+button.document-new {
+	margin-right: 10px;
+}
+
+.collection-search {
+	color: #2F4F4F;
+}
+
+.collection-search:hover {
+	color: #3f5f5f;
+}
+
+/******
 Add new form
 *******/
-form.form {
-	display: none;
+form.newdoc-form {
 	border: 1px solid #eafafa;
 	padding: 0 5px 5px 5px;
 	background-color: #e5f5f5;
 }
 
-form.form h4 {
+form.newdoc-form h4 {
 	margin: 0 0 15px 10px;
 }
 
-form.form .field-mode-edit:before {
+form.newdoc-form .field-mode-edit:before {
 	border: 0px;
 }
 

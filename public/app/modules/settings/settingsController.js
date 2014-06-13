@@ -13,6 +13,7 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 
 	//Structure for the collection docs
 	var docOptions = {
+		allowCustom: true,
 		customProperties: false,
 		propertyDefinitions: [
 			{
@@ -89,9 +90,17 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 		});
 
 		itemsView.on('click:function1', function(docView){
-			docView.model.getSettings().then(function(){
-				docView.open();
-			});
+			Services.get('settings').get(docView.model.name)
+				.then(function(settings){
+					docView.model.set(settings.toJSON());
+					docView.open();
+				})
+				.fail(function(error){
+					docView.model.set({allowCustom: true});
+					docView.open();
+					console.log('No settings');
+				})
+			;
 		});
 
 		itemsView.on('click:browse', function(docView){
@@ -107,6 +116,10 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 		regionSelectors: {
 			adder: '.adderPlaceholder',
 			items: '.itemsPlaceholder'
+		},
+
+		events: {
+			'click .js-collection-new': 'openNewCollectionForm'
 		},
 
 		init: function(opts){
@@ -156,16 +169,31 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 					collection.url = oldurl;
 
 					// Reset the form on DOM
-					me.subViews['adder'].objectView = false;
-					me.subViews['adder'].$el.find('.form').remove();
-					me.subViews['adder'].close();
+					me.subViews.adder.close();
 
 					// Render collection view
-					me.subViews['items'].collection.add(collection);
-					me.subViews['items'].update(me.subViews['items'].collection);
+					me.subViews.items.collection.add(collection);
+					me.subViews.items.update(me.subViews.items.collection);
 					me.render();
+					me.subViews.items.docViews[collection.id].open();
 				});
 			}); // End of createCollection
+		},
+
+		openNewCollectionForm: function(e){
+			e.preventDefault();
+
+			var me = this,
+				controls = this.$('.collectionControls')
+			;
+
+			this.subViews.adder.open();
+			this.listenToOnce(this.subViews.adder, 'closed', function(){
+				controls.show();
+				me.regions.adder.$el.hide();
+			});
+			controls.hide();
+			this.regions.adder.$el.show();
 		}
 	});
 

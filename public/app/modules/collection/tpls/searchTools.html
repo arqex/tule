@@ -7,18 +7,11 @@
 	</div>
 </script>
 
-<script type="text/template" id="buttonSearchTpl">
-	<div class="button-search-form">
-		<div class="search-new"><i class="fa fa-search"></i></div>
-	</div>
-	<div class="search-form-placeholder"></div>
-</script>
-
 <script type="text/template" id="searchFormTpl">
-	<div class="search-form">
+	<div class="search-form" style="display:none;">
 		<h4>Search in <%= type %> collection</h4>
 		<div class="query-clauses"></div>
-		<div class="add-clause">			
+		<div class="add-clause">
 			<div class="select-clause-join">
 				<button value="and">And . . .</button>
 				<button value="or">Or . . .</button>
@@ -36,7 +29,7 @@
 		<% if(position > 0) { %>
 			<select class="operator">
 				<option value="and" <% if(operator === "and"){ %> selected <% } %>>And</option>
-				<option value="or" <% if(operator === "or"){ %> selected <% } %>>Or</option>		
+				<option value="or" <% if(operator === "or"){ %> selected <% } %>>Or</option>
 			</select>
 		<% } %>
 		<input id="key" type="text" placeholder="Key [Ex.: Name]" <% if(key){ %> value="<%= key %>" <% } %> />
@@ -49,7 +42,7 @@
 			<option value="lte" <% if(comparison === "lte"){ %>  selected <% } %>> <=  </option>
 		</select>
 		<input id="value" type="text" placeholder="Value [Ex.: TuleCMJS]" <% if(value){ %> value="<%= value %>" <% } %> />
-		<% if(length > 0) { %> 
+		<% if(length > 0) { %>
 			<a href="#" class="clause-delete" data-bypass="true" title="Delete clause">
 				<i class="fa fa-minus-circle"></i>
 			</a>
