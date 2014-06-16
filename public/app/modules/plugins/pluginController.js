@@ -31,7 +31,7 @@ function($,_,Backbone, PageController, Plugins){
 					window.location.reload(true);
 				})
 				.fail(function(){
-					alert.add('There was an error trying to ' + action + ' the plugin. Please, try again', 'error');
+					alerter.add('There was an error trying to ' + action + ' the plugin. Please, try again', 'error');
 				})
 			;
 		}

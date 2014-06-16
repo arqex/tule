@@ -20,3 +20,4 @@ batch
 public/bower_components
 
 server/plugins/*
+server/modules/plugins/activePlugins.json
