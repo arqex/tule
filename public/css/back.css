@@ -17,6 +17,13 @@ article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,su
   -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
  }
 
+ /* clearfix */
+ .clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 /*********************************
 START
 ***********************************/

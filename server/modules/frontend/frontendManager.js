@@ -18,7 +18,7 @@ var defaultClientRoutes = [
 	],
 	defaultFrontendSettings = {
 		settingsCollection: 'monSettings',
-		datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field', 'select'],
+		datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field', 'select', 'relation'],
 		datatypesPath: 'modules/datatypes/',
 		navigation:[
 			{text: 'Collection', url: '/collections/list/test'},
@@ -61,7 +61,7 @@ var getNavigationItems = function(req, res){
 		itemsPromise.then(function(items){
 				var collectionsLinks = [];
 				collections.forEach(function(collectionName){
-					collectionsLinks.push({text: collectionName, url: '/collection/list/' + collectionName});
+					collectionsLinks.push({text: collectionName, url: '/collections/list/' + collectionName});
 				});
 				items.Collections = collectionsLinks;
 				res.json(items);

@@ -184,7 +184,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				if(!this.datatype)
 					this.datatype = {id:this.model.get('type'), options: {}};
 			}
-			
+
 			if(!this.model && options.datatype)
 				this.createModel();
 
@@ -279,7 +279,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 			var cid = $(e.target).closest('.element').data('cid');
 			if(this.cid == cid) {
 				this.remove();
-				this.model.trigger('destroy', this.key);				
+				this.model.trigger('destroy', this.key);
 			}
 		},
 
@@ -349,7 +349,6 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		onElementCancel: function(e){
 			e.preventDefault();
 			if(this.typeView){
-				this.typeView.cancel();
 				this.changeMode('display');
 			}
 			this.trigger('elementCancel');
@@ -390,8 +389,8 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 						inputs[inputs.index(e.target)+1].focus();
 					} else if (this.keyring[27]){
 						this.onElementCancel(e);
-					}	
-				} 
+					}
+				}
 				// Apply to all
 				if(this.keyring[16] && this.keyring[18] && this.keyring[56]){
 					this.onElementOk(e);

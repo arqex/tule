@@ -6,6 +6,7 @@ module.exports = [
 
 	{route: 'get::collections', controller: 'apiCollection::list'},
 	{route: 'get::collectionstatus/:name', controller: 'apiCollection::getStatus'},
+	{route: 'post::collection/fields/:name', controller: 'apiCollection::updateCollection'},
 	{route: 'post::collection', controller: 'apiCollection::createCollection'},
 
 	{route: 'get::docs/:type', controller: 'apiDocument::collection'},

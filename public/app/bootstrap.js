@@ -9,6 +9,8 @@ require.config({
         'backbone-query-params': '../bower_components/backbone-query-parameters/backbone.queryparams',
         'services':     './modules/services/services',
 
+        'events': './eventsHub',
+
         /* jQuery UI */
         'jquery.ui.core':       '../bower_components/jqueryui/ui/jquery.ui.core',
         'jquery.ui.mouse':      '../bower_components/jqueryui/ui/jquery.ui.mouse',

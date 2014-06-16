@@ -2,11 +2,12 @@ var deps = [
 	'jquery', 'underscore', 'backbone', 'router', 'services',
 	'modules/settings/settingsModels', 'modules/core/mainController',
 	'modules/navigation/navigationController',
-	'modules/collection/collectionService', 'modules/settings/settingsService'
+	'modules/collection/collectionService', 'modules/settings/settingsService',
+	'./eventsHub'
 ];
 
 define(deps, function($, _, Backbone, Router, Services,
-	Settings, Main, Navigation, CollectionService, SettingsService){
+	Settings, Main, Navigation, CollectionService, SettingsService, Events){
 
 	var init = function() {
 		var settings	 = window.tuleSettings;
@@ -33,21 +34,12 @@ define(deps, function($, _, Backbone, Router, Services,
 	};
 
 	var registerDataTypes = function(datatypes, path, clbk) {
-		var globals = new Settings.Settings({name: 'globals'});
-		var promise = globals.fetch();
+		_.each(datatypes, function(type){
+			deps.push(path + type + '/' + type + 'Type');
+		});
 
-		promise.then(function(){
-			var deps = [],
-				path = globals.attributes.datatypesPath
-			;
-
-			_.each(globals.attributes.datatypes, function(type){
-				deps.push(path + type + '/' + type + 'Type');
-			});
-
-			require(deps, function(){
-				clbk();
-			});
+		require(deps, function(){
+			clbk();
 		});
 	};
 

@@ -93,6 +93,7 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 			Services.get('settings').get(docView.model.name)
 				.then(function(settings){
 					docView.model.set(settings.toJSON());
+					docView.model.isFetched = true;
 					docView.open();
 				})
 				.fail(function(error){
@@ -145,7 +146,9 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 
 				_.each(me.subViews, function(view, name){
 					me.regions[name].show(view);
-				})
+				});
+
+				me.listenTo(me.subViews.items, 'saveDoc', me.saveSettings);
 
 				deferred.resolve();
 			});
@@ -178,6 +181,13 @@ define(deps, function($,_, Backbone, Services, CollectionViews,
 					me.subViews.items.docViews[collection.id].open();
 				});
 			}); // End of createCollection
+		},
+
+		saveSettings: function(doc, docView){
+			Services.get('settings').save(doc).then(function(){
+				Alerts.add({message:'Settings saved correctly'});
+				docView.render();
+			});
 		},
 
 		openNewCollectionForm: function(e){

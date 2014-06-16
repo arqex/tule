@@ -82,6 +82,10 @@ define(deps, function($, _, Backbone, SettingsModels){
 				}
 			});
 			return deferred.promise();
+		},
+
+		updateCollectionFields: function(collection, fields) {
+			return $.post('/api/collection/fields/' + collection, {data: fields});
 		}
 	};
 

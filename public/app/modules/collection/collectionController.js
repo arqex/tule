@@ -183,7 +183,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 					me.subViews.adder.close();
 
 					// Add possible new property definitions
-					$.post('/api/collection/' + me.type, {
+					$.post('/api/collection/', {
 						type: me.type,
 						data: data
 					});
@@ -292,12 +292,42 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplController,
 				docView.open();
 			}); // End of click fields[0]
 
-			this.listenTo(this.subViews['items'], 'saveDoc', function(data){
-				$.post('/api/collection/'+this.type, {
-					type: this.type,
-					data: data
-				});
-			}); // End of saveDoc
+			this.listenTo(this.subViews['items'], 'saveDoc', _.bind(this.saveDoc, this)); // End of saveDoc
+		},
+
+		deleteDoc: function(docId){
+
+		},
+		saveDoc: function(doc, docView){
+			var me = this;
+			//Save the doc
+			this.collectionService.save(doc).then(function(){
+				Alerts.add({message:'Document saved correctly'});
+				//Refresh
+				docView.render();
+
+				me.updateCollectionFields(docView);
+			});
+		},
+
+		/**
+		 * Get the fields data to update the field definitions.
+		 * @param  {Object} docView The document view
+		 * @return {undefined{}
+		 */
+		updateCollectionFields: function(docView){
+			var fieldData = {};
+			_.each(docView.objectView.subViews, function(field){
+				fieldData[field.key] = {
+					key: field.key,
+					label: field.label || field.key,
+					datatype: field.datatype
+				};
+			});
+
+			Services.get('settings').updateCollectionFields(this.type, fieldData);
+
+			console.log(docView);
 		}
 	});
 
