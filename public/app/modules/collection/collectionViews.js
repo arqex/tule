@@ -459,19 +459,11 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			e.preventDefault();
 			var	docId = $(e.target).closest('tr').data('id'),
 				doc = this.collection.get(docId),
-				view = this.docViews[docId],
-				me = this,
-				docData = {}
+				view = this.docViews[docId]
 			;
 
 			_.each(view.objectView.subViews, function(subView){
-				var values = {};
-				values['key'] = subView.key;
-				values['label'] = subView.label || subView.key;
-				values['datatype'] = subView.datatype;
-				values['value'] = subView.typeView.getValue();
-				docData[subView.key] = values;
-				doc.set(values['key'], values['value'], {silent:true});
+				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
 			});
 
 			this.trigger('saveDoc', doc, view);
