@@ -145,6 +145,7 @@ button:hover {
 #pageRegion {
 	margin-left: 160px;
 	padding: 1px 20px 0;
+	overflow: hidden;
 }
 
 #pageRegion h1,
