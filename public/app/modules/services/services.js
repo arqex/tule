@@ -1,6 +1,6 @@
 "use strict";
 
-define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
+define(['jquery', 'underscore', 'backbone', 'events'], function($, _, Backbone, Events){
 
 var services = {};
 
@@ -10,8 +10,11 @@ var dispenser = function(){
 	};
 
 	var add = function(type, service){
-		if(!services[type])
-			return services[type] = service;
+		if(!services[type]){
+			services[type] = service;
+			Events.resolve('service:ready:' + type);
+			return service;
+		}
 		return false;
 	};
 

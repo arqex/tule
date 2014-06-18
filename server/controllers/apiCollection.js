@@ -44,10 +44,12 @@ module.exports = {
 		var name = req.body.name,
 			doc	= req.body,
 			properties = {
-				"name" : "collection_" + name,
-				"propertyDefinitions" : [ ],
-				"mandatoryProperties" : [ ],
-				"tableFields" : [ ]
+				name : "collection_" + name,
+				propertyDefinitions : [ ],
+				mandatoryProperties : [ ],
+				tableFields : [ ],
+				hiddenProperties: [],
+				allowCustom: true
 			}
 		;
 
@@ -69,22 +71,22 @@ module.exports = {
 				console.log(err);
 				return res.send(400, {error: 'Internal error while creating new collection'});
 			}
-			res.json(newDoc[0]);
+
+			db.collection(config.mon.settingsCollection).insert(properties, function(err, props){
+				if(err){
+					console.log(err);
+					return res.send(400, {error: 'Internal error while setting properties'});
+				}
+				res.json(props[0]);
+			});
 		});
 
-		db.collection(config.mon.settingsCollection).insert(properties, function(err, props){
-			if(err){
-				console.log(err);
-				return res.send(400, {error: 'Internal error while setting properties'});
-			}
-			res.json(props[0]);
-		});
 
 	},
 
 	updateCollection: function(req, res){
 		var data = req.body.data,
-			type = req.body.type,
+			type = req.params.name,
 			definitionsKeys = {}
 		;
 
@@ -107,9 +109,9 @@ module.exports = {
 				};
 
 				db.collection(config.mon.settingsCollection).save(collection, function(err, saved) {
-					if( err || !saved ) 
+					if( err || !saved )
 						return res.send(400, {error: 'Internal error while saving definitions'});
-					return res.send(200, {});
+					return res.send(200, collection);
 				});
 		});
 	}

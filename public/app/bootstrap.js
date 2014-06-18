@@ -9,6 +9,8 @@ require.config({
         'backbone-query-params': '../bower_components/backbone-query-parameters/backbone.queryparams',
         'services':     './modules/services/services',
 
+        'events': './eventsHub',
+
         /* jQuery UI */
         'jquery.ui.core':       '../bower_components/jqueryui/ui/jquery.ui.core',
         'jquery.ui.mouse':      '../bower_components/jqueryui/ui/jquery.ui.mouse',
@@ -24,6 +26,7 @@ require.config({
         'jquery.ui.datepicker': '../bower_components/jqueryui/ui/jquery.ui.datepicker',
         'jquery.ui.slider':     '../bower_components/jqueryui/ui/jquery.ui.slider',
         'jquery.ui.tooltip':    '../bower_components/jqueryui/ui/jquery.ui.tooltip',
+        'autocomplete':    '../js/jquery.autocomplete',
 
         /* jQuery UI i18n */
         'jquery.ui.datepicker-en': '../bower_components/jqueryui/ui/i18n/jquery.ui.datepicker-en',

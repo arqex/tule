@@ -17,6 +17,13 @@ article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,su
   -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
  }
 
+ /* clearfix */
+ .clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 /*********************************
 START
 ***********************************/
@@ -138,6 +145,7 @@ button:hover {
 #pageRegion {
 	margin-left: 160px;
 	padding: 1px 20px 0;
+	overflow: hidden;
 }
 
 #pageRegion h1,
@@ -388,6 +396,14 @@ i.fa-plus {
 	font-size: 0.9em;
 }
 
+/****
+Relation
+*****/
+
+.relation-display i {
+	font-size: 14px;
+	padding-bottom: 2px;
+}
 
 /******
 Alerter

@@ -36,6 +36,9 @@ module.exports = {
 
         db.collection(config.mon.settingsCollection).save(doc, function(err, saved) {
           if( err || !saved ) return res.send(400, {error: 'Internal error'});
+          db.collection(config.mon.settingsCollection).findOne({name:name}, function(err, settings){
+            console.log(settings);
+          });
           return res.json(doc);
       });
 

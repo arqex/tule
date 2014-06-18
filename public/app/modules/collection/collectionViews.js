@@ -421,6 +421,9 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 		render: function(){
 			this.$el.html(this.tpl);
 
+			if(!this.collection.length)
+				return this.$('table').replaceWith('<div class="collection-noresults">No documents to show.</div>');
+
 			var table = this.$('table');
 
 			_.each(this.docViews, function(view){
@@ -456,27 +459,14 @@ define(deps, function($, _, Backbone, tplSource, tplSearchTools, dispatcher, Ale
 			e.preventDefault();
 			var	docId = $(e.target).closest('tr').data('id'),
 				doc = this.collection.get(docId),
-				view = this.docViews[docId],
-				me = this,
-				stack = {}
+				view = this.docViews[docId]
 			;
 
 			_.each(view.objectView.subViews, function(subView){
-
-				var values = {};
-				values['key'] = subView.key;
-				values['label'] = subView.label || subView.key;
-				values['datatype'] = subView.datatype;
-				values['value'] = subView.typeView.getValue();
-				stack[subView.key] = values;
-				doc.set(values['key'], values['value'], {silent:true});
+				doc.set(subView.key, subView.typeView.getValue(), {silent:true});
 			});
 
-			doc.save(null, {success: function(){
-				Alerts.add({message:'Document saved correctly', autoclose:6000});
-				view.render();
-				me.trigger('saveDoc', stack);
-			}});
+			this.trigger('saveDoc', doc, view);
 		},
 
 		onClickCancel: function(e){
