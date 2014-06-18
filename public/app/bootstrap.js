@@ -26,6 +26,7 @@ require.config({
         'jquery.ui.datepicker': '../bower_components/jqueryui/ui/jquery.ui.datepicker',
         'jquery.ui.slider':     '../bower_components/jqueryui/ui/jquery.ui.slider',
         'jquery.ui.tooltip':    '../bower_components/jqueryui/ui/jquery.ui.tooltip',
+        'autocomplete':    '../js/jquery.autocomplete',
 
         /* jQuery UI i18n */
         'jquery.ui.datepicker-en': '../bower_components/jqueryui/ui/i18n/jquery.ui.datepicker-en',

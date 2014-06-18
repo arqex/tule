@@ -396,6 +396,14 @@ i.fa-plus {
 	font-size: 0.9em;
 }
 
+/****
+Relation
+*****/
+
+.relation-display i {
+	font-size: 14px;
+	padding-bottom: 2px;
+}
 
 /******
 Alerter
