@@ -17,7 +17,7 @@ function checkPropertiesKeys(res, doc){
 }
 
 function setHolder(comparison, holder, key, value){
-	if(comparison == '$eq')				
+	if(comparison == '$eq')
 		holder[key] = value;
 	else{
 		holder[key] = {};
@@ -26,7 +26,7 @@ function setHolder(comparison, holder, key, value){
 	return holder;
 };
 
-function getDatatype(kindOf, value){	
+function getDatatype(kindOf, value){
 	if(kindOf === 'string')
 		return value;
 	if(kindOf === 'integer' || kindOf === 'float')
@@ -35,6 +35,12 @@ function getDatatype(kindOf, value){
 		return Boolean(value);
 };
 
+/**
+ * Create a query for Tule db from a query string
+ * @param  {String|Array} clauses String clauses in format "[or|and]|field|comparisonType|value
+ * @param  {String} type    The collection name
+ * @return {Object}         Query object ready to give to Tule's DB driver
+ */
 function createQuery(clauses, type){
 	var query = {},
 		holder = {},
@@ -42,7 +48,7 @@ function createQuery(clauses, type){
 		deferred = when.defer()
 	;
 
-	if(clauses === undefined)
+	if(!clauses || !clauses.length)
 		return deferred.resolve(query);
 
 	db.collection(config.mon.settingsCollection).findOne(
@@ -66,13 +72,17 @@ function createQuery(clauses, type){
 				if(properties[key])
 					value = getDatatype(properties[key].datatype.id, value);
 
+				//if value starts and ends with /, consider regex:
+				if(typeof value === 'string' && value.length > 2 && value[0] == '/' && value[value.length - 1] == '/')
+					value = new RegExp(value.slice(1,-1));
+
 				if(operator != '$or')
 					holder = setHolder(comparison, holder, key, value);
 				else {
 					if(!query['$or'])
 						query[operator] = [];
 					query[operator].push(holder);
-					holder = {}; 
+					holder = {};
 					holder = setHolder(comparison, holder, key, value);
 				}
 			}
@@ -179,7 +189,9 @@ module.exports = {
 
 	collection: function(req, res){
 		var type = req.params.type,
-			promise = createQuery(req.query.clause, type)
+			//Let's be sure clauses are an array
+			clauses = req.query && req.query.clause ? (typeof req.query.clause === 'string' ? [req.query.clause]: req.query.clause) : [],
+			promise = createQuery(clauses, type)
 		;
 
 		if(!type)
@@ -195,23 +207,23 @@ module.exports = {
 				return res.send(400, {error: 'Unknown collection type.'});
 
 			var pageSize = req.query.limit || 10, // default value
-				skip = req.query.skip || 0, 
+				skip = req.query.skip || 0,
 				collection = db.collection(type)
-			;			
+			;
 
-			promise.then(function(query){		
+			promise.then(function(query){
 				collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
 					collection.count(query, function(err, size){
 						res.json({
-							documents: docs, 
+							documents: docs,
 							total: size,
 							skip: skip,
-							limit: pageSize, 
+							limit: pageSize,
 							current: Math.floor(skip/pageSize) + 1
 						});
-					});		
-				});	
-			});						
+					});
+				});
+			});
 		});
 	}
 }

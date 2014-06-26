@@ -24,6 +24,9 @@ define(deps, function($, _, Backbone, CollectionModels, SettingsModels){
 				data: id,
 				success: function(){
 					deferred.resolve(query, id);
+				},
+				error: function(error){
+					deferred.reject(error);
 				}
 			});
 
