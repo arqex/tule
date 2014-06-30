@@ -325,7 +325,8 @@ define(deps, function($, _, Backbone, Services, tplNavigation, dispatcher, Alert
 	var NavigationToolsboxView = Backbone.View.extend({
 		tpl: _.template($(tplNavigation).find('#toolsboxTpl').html()),
 		initialize: function(opts){
-			this.collections = opts.collections;
+			if(opts)
+				this.collections = opts.collections;
 		},
 		render: function(){
 			this.$el.html(this.tpl({collections: this.collections}));

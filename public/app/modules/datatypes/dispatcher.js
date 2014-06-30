@@ -329,6 +329,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 				elementData = {key: key, datatype: this.typeView.getValue()};
 			}
 			else {
+				this.typeView.trigger('elementOk');
 				if(this.typeView.typeOptions.editAllProperties == true){
 					_.each(this.typeView.subViews, function(subView){
 						subView.editAllProperties = false;
@@ -349,6 +350,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts){
 		onElementCancel: function(e){
 			e.preventDefault();
 			if(this.typeView){
+				this.typeView.trigger('elementCancel');
 				this.changeMode('display');
 			}
 			this.trigger('elementCancel');

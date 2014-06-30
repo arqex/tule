@@ -70,8 +70,9 @@ var callbackIndex = function(args){
 	deepToObjectID = function(query){
 		var keys = Object.getOwnPropertyNames(query);
 		keys.forEach(function(key){
-			if(key == '_id' && typeof query._id == 'string')
+			if(key == '_id' && typeof query._id == 'string' && query._id.length == 24){
 				query._id = new mongo.ObjectID(query._id);
+			}
 			else if (typeof query[key] == 'object')
 				query[key] = deepToObjectID(query[key]);
 		});
