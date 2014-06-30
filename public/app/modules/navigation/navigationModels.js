@@ -9,7 +9,7 @@ define(['jquery', 'underscore', 'backbone'], function($,_,Backbone) {
 	});
 
 	var NavCollection = Backbone.Collection.extend({
-		model: NavItem,
+		model: NavItem
 	});
 
 	return {

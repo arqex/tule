@@ -33,6 +33,8 @@ function getDatatype(kindOf, value){
 		return Number(value);
 	if(kindOf === 'bool')
 		return Boolean(value);
+	if(kindOf === 'relation')
+		return mongojs.ObjectId(value);
 };
 
 function createQuery(clauses, type){
@@ -51,9 +53,9 @@ function createQuery(clauses, type){
 			if(err)
 				return res.send(400, {error: 'Internal error while fetching definitions'});
 
-			for(var definition in collection.propertyDefinitions){
-				properties[collection.propertyDefinitions[definition].key] = collection.propertyDefinitions[definition];
-			}
+			if(collection != undefined)
+				for(var definition in collection.propertyDefinitions)
+					properties[collection.propertyDefinitions[definition].key] = collection.propertyDefinitions[definition];			
 
 			for(var i in clauses){
 				var clause 		= clauses[i].split('|'),
@@ -61,7 +63,7 @@ function createQuery(clauses, type){
 					key 		= decodeURI(clause[1]),
 					comparison 	= "$"+clause[2],
 					value		= decodeURI(clause[3])
-				;
+				;	
 
 				if(properties[key])
 					value = getDatatype(properties[key].datatype.id, value);

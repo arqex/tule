@@ -96,15 +96,17 @@ module.exports = {
 				if(err)
 					return res.send(400, {error: 'Internal error while fetching definitions'});
 
-				for(var definition in collection.propertyDefinitions){
-					definitionsKeys[collection.propertyDefinitions[definition].key] = true;
-				};
+				if(collection != undefined)
+					for(var definition in collection.propertyDefinitions)
+						definitionsKeys[collection.propertyDefinitions[definition].key] = true;
+				
 
 				for(var key in data){
 					if(!definitionsKeys[key] && key != '_id'){
 						var definition = data[key];
 						delete definition['value'];
-						collection.propertyDefinitions.push(definition);
+						if(collection != undefined)
+							collection.propertyDefinitions.push(definition);
 					}
 				};
 

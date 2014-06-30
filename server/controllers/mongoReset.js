@@ -29,7 +29,7 @@ module.exports = {
 	main: function(req, res) {
 		for(var year = 1928; year <= 2013; year++){
 			collections.dataSources.push({
-				controller: 'fetch',
+				controller: 'seasons',
 				url: 'http://www.transfermarkt.es/primera-division/gesamtspielplan/wettbewerb/ES1/saison_id/' + year,
 				source: 'transfermarkt'
 			});
