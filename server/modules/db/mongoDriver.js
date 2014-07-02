@@ -6,6 +6,7 @@ var mongo = require('mongodb'),
 
 var MongoDriver = function(nativeDriver){
 	this.db = nativeDriver;
+	this.mongo = mongo;
 };
 
 
@@ -128,7 +129,8 @@ var TuleCollection = {
 
 
 
-var driver = new MongoDriver();
+var driver;
+
 module.exports = {
 	init: function(){
 		var me = this,
