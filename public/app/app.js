@@ -1,5 +1,5 @@
 var deps = ['jquery', 'underscore', 'backbone', 'router', 'services',
-	'modules/collection/collectionService', 'modules/settings/settingsService',
+	'modules/collections/collectionService', 'modules/settings/settingsService',
 	'modules/core/mainController'
 ];
 
@@ -10,7 +10,7 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 		var settings	 = window.tuleSettings;
 		window.tuleSettings = undefined;
 
-		//initServices();
+		initServices();
 
 		//Start the main controller
 		new MainController({el: $('html'), initSettings: settings});
@@ -21,7 +21,7 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 	var initServices = function(){
 		//TODO: Services should be fetched from the server
 		Services.add('collection', CollectionService);
-		Services.add('settings', SettingsService);
+		//Services.add('settings', SettingsService);
 	};
 
 	var initRouter = function(settings) {
