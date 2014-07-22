@@ -38,6 +38,13 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 		}
 	});
 
+	var CollectionSettings = Setting.extend({
+		initialize: function(attrs, options){
+			this.collectionName = options.collectionName;
+			this.set('name', 'collection_' + this.collectionName);
+		}
+	})
+
 	var getSettings = function(name) {
 		var deferred = $.Deferred(),
 			settings = new Settings({name: name})
@@ -52,6 +59,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 
 
 	return {
-		Setting: Setting
+		Setting: Setting,
+		CollectionSettings: CollectionSettings
 	};
 });

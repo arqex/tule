@@ -1,0 +1,111 @@
+
+/* Datatypes */
+.tuleDE {
+	margin-bottom: @margin-narrow;
+}
+.tuleDEKey {
+	display: inline-block;
+	font-weight: bold;
+	padding-left: @margin-wide;
+	position: relative;
+}
+
+.tuleDEDelete {
+	display: none;
+	color: #ccc;
+	position: absolute;
+	left: 5px;
+}
+
+.tuleDEKey:hover .tuleDEDelete {
+	display: inline;
+}
+
+.tuleDEDisplay {
+	display: inline-block;
+	cursor: pointer;
+
+	&:hover {
+		color: @color-alt-1;
+	}
+}
+
+.tuleDEEdit {
+	display: block;
+	padding: 0 0 @margin-narrow @margin-narrow;
+	position: relative;
+	margin: 0 0 @margin-narrow @margin-wide;
+
+	&:before {
+		content: '';
+		position:absolute;
+		width: 5px;
+		left: 0;
+		top: 0;
+		height: 100%;
+		border-left: 1px solid #ddd;
+		border-bottom: 2px solid #ddd;
+	}
+}
+
+.tuleDEC {
+	padding: @margin;
+	box-shadow: @shadow;
+	background: #fafafa;
+	border: 1px solid #ddd;
+}
+
+.tuleDECKey, .tuleDECType {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.tuleDECControls {
+	text-align: right;
+}
+
+.tuleElementsControls {
+	margin-top: 5px;
+}
+
+.tule-add-element {
+	margin: 0 @margin-narrow 0 @margin-wide;
+}
+
+.tuleObjectProperties{
+}
+
+.tule-array-placeholder {
+	display: block;
+	border: 1px dashed #ddd;
+	background: rgba(0,0,0,.05);
+}
+
+.tule-array-sorting {
+	box-shadow: @shadow;
+	background: #fff;
+	outline: 2px solid #ddd;
+	padding: 2px;
+}
+
+.tuleArrayElements .tuleDEKey {
+	cursor: move;
+}
+
+/* Inline fields */
+.tule-inline-field {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+
+	&:before {
+		display: none;
+	}
+}
+.tuleDE-bool .tuleDEEdit {
+	.tule-inline-field()
+}
+
+.tuleDE-bool .tuleDEValue {
+	vertical-align: middle;
+}

@@ -4,17 +4,24 @@ define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, 
 	var BaseView = Backbone.View.extend({
 		constructor: function(options){
 
-			//Create the status model
-			var status = options.status || this.defaultStatus || {};
-			this.currentStatus = new Backbone.Model(status);
+			//Create the state model
+			var state = options.state || this.defaultState || {};
+			this.currentState = new Backbone.Model(state);
 
 			Backbone.View.prototype.constructor.apply(this, arguments);
 		},
-		status: function(name, value, options){
+		state: function(name, value, options){
 			if(typeof value == 'undefined')
-				return this.currentStatus.get(name);
+				return this.currentState.get(name);
 
-			return this.currentStatus.set(name, value, options);
+			return this.currentState.set(name, value, options);
+		},
+
+		getTemplateData: function(){
+			var data = {state: this.currentState.toJSON()};
+			if(this.model)
+				_.extend(data, this.model.toJSON());
+			return data;
 		}
 	});
 

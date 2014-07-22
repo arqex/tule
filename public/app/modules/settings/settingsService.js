@@ -83,7 +83,7 @@ define(deps, function($, _, Backbone, Models){
 				}
 			});
 
-			deferred.promise();
+			return deferred.promise();
 		},
 
 		getNewCollectionSettings: function(collectionName) {

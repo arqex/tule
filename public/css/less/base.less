@@ -1,0 +1,77 @@
+html {
+	height: 100%;
+}
+
+body {
+	min-height: 100%;
+	font-family: 'PT Sans', sans-serif;
+	background: #faffff;
+}
+
+a {
+	text-decoration: none;
+	color: @color-main-1;
+}
+
+a:hover {
+	color: @color-alt-1;
+}
+
+.fa {
+	text-shadow: @shadow;
+}
+
+.button {
+	background: @color-main-1;
+	color: #fff;
+	border: 2px solid @color-main-1;
+	border-left: 2px solid @color-main-2;
+	border-bottom: 2px solid @color-main-2;
+	box-shadow: @shadow;
+	padding: 1px 5px;
+
+	&:focus {
+		border: 2px solid rgba(0,0,0,.2);
+		background: @color-main-2;
+		outline: none;
+	}
+
+	&:hover {
+		background: @color-alt-1;
+		color: #fff;
+		border: 2px solid @color-alt-1;
+		border-left: 2px solid @color-alt-1;
+		border-bottom: 2px solid @color-alt-1;
+	}
+
+	&:active {
+		box-shadow: none;
+		border-left: 2px solid transparent;
+		border-bottom: 2px solid transparent;
+	}
+
+	.fa {
+		text-shadow: none;
+	}
+}
+
+button, input[type=submit] {
+	.button();
+}
+
+input[type=text], input[type=number], textarea, select {
+	box-shadow: @shadow;
+	border: 2px solid #ddd;
+	padding: 1px 5px;
+}
+
+select {
+	box-shadow: @shadow;
+	border: 2px solid #ddd;
+	padding: 0 5px;
+}
+
+input[type=text]:focus, input[type=number]:focus, textarea:focus, select:focus {
+	border: 2px solid @color-main-1;
+	outline: none;
+}

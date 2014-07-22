@@ -1,0 +1,21 @@
+<div>
+<script type="text/template" id="arrayTpl">
+	<div class="element-data">
+		<%= value.length  %> <%= value.length == 1 ? 'element' : 'elements' %>
+	</div>
+</script>
+
+<script type="text/template" id="arrayEditTpl">
+	<div class="js-array-elements tuleArrayElements"></div>
+	<div class="js-array-controls tuleElementsControls" data-cid="<%= cid %>"></div>
+</script>
+
+<script type="text/template" id="addElement">
+	<a class="js-array-add-element tule-add-element" data-cid="<%= cid %>" href="#" data-bypass="1"><i class="fa fa-plus"></i> Add an element</a>
+</script>
+
+<script type="text/template" id="closeElements">
+	<a href="#" class="js-array-close tule-elements-close"><i class="fa fa-arrow-up"></i> Close</a>
+</script>
+
+</div>

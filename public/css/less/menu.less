@@ -1,0 +1,99 @@
+#menuRegion {
+	min-height: 100%;
+	width: 200px;
+	position: absolute;
+	background: #102019;
+	color: #ddd;
+	box-shadow: inset -10px 0 rgba(0,0,0,.1);
+}
+
+.tuleTitle{
+	margin: 20px 10px;
+	text-align: center;
+}
+
+.tuleTitle a {
+	color: #c0cccc;
+}
+
+.tuleTitle a:hover {
+	color: #f9ffff;
+}
+
+.tuleNav, .tuleNav ul {
+	padding: 0;
+	list-style: none;
+}
+
+.tuleNav a {
+	color: #faffff;
+	display: block;
+	padding: 5px 10px;
+	line-height: 25px;
+	position: relative;
+}
+
+.tuleNav a:hover {
+	background: #091910;
+	color: #fff;
+}
+
+li.tuleNavCurrent a,
+li.tuleNavCurrent a:hover{
+	background: #000;
+}
+
+.tuleNavCurrent a:after{
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width:10px;
+	height: 35px;
+	border-right: 10px solid #faffff;
+	border-bottom: 18px solid transparent;
+	border-top: 18px solid transparent;
+}
+
+.tuleNavSubItems {
+	margin: 0;
+	background: #203029;
+	position: relative;
+	box-shadow: inset -13px 3px rgba(0,0,0,.1);
+	display: none;
+}
+
+.tuleNavOpen .tuleNavSubItems {
+	display: block;
+}
+
+.tuleNavOpen > a {
+
+}
+
+.tuleNav ul.tuleNavSubItems {
+	padding: 8px 0;
+}
+
+.tuleNavSubItems:before {
+	content: '';
+	display: block;
+	width: 16px;
+	height: 8px;
+	position: absolute;
+	top:0;
+	left: 3px;
+	border-top: 8px solid #102019;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+}
+
+.tuleNavSubItems a {
+	padding: 5px 10px 5px 20px;
+	color: #c0cccc;
+}
+
+.tuleNavSubItems a:hover {
+	background: transparent;
+}

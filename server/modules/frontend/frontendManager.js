@@ -8,7 +8,7 @@ var config = require('config'),
 
 var defaultClientRoutes = [
 		{route: '(/)', controller: 'modules/core/homeController'},
-		{route: 'collections/list/:id(/page/:page)', controller: 'modules/collection/collectionController'},
+		{route: 'collections/list/:id(/page/:page)', controller: 'modules/collections/collectionController'},
 		{route: 'settings', controller: 'modules/settings/settingsController'},
 		{route: 'settings/navigation', controller: 'modules/settings/settingsNavigation'},
 		{route: 'settings/collections', controller: 'modules/settings/settingsController'},
@@ -18,7 +18,7 @@ var defaultClientRoutes = [
 	],
 	defaultFrontendSettings = {
 		settingsCollection: 'monSettings',
-		datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field', 'select', 'relation'],
+		datatypes: ['string', 'object', 'field', 'boolean', 'integer', 'float', 'array', 'select'], //['relation'],
 		datatypesPath: 'modules/datatypes/',
 		navigation:[
 			{text: 'Collection', url: '/collections/list/test'},

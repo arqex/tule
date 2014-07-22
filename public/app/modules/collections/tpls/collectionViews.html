@@ -1,0 +1,122 @@
+<div> <!--	Wrapper to easily access to all the templates -->
+
+<script type="text/template" id="main">
+	<div class="collectionTools clearfix">
+		<div class="collectionControls">
+			<button class="document-new js-document-new">Add new</button>
+			<a class="collection-search js-collection-search" href="#" data-bypass="true"><i class="fa fa-search"></i></a>
+		</div>
+		<div class="adderPlaceholder"></div>
+		<div class="searchPlaceholder" style="display:none"></div>
+		<div class="paginationPlaceholder"></div>
+
+	</div>
+	<div class="itemsPlaceholder"></div>
+</script>
+
+
+<script type="text/template" id="newDocForm">
+	<form class="newdoc-form">
+		<h4>Create a new one</h4>
+		<div class="object-form"></div>
+		<div class="document-options">
+			<a href="#" class="document-cancel" data-bypass="true">Cancel</a>
+			<button class="document-create" type="submit">Create</button>
+		</div>
+	</form>
+</script>
+
+<script type="text/template" id="pagination">
+	<div class="tab">
+		<% if(lastPage > 1) { %>
+			<div class="js-tab-results">
+
+			<% if(currentPage == 1) { %>
+				<a class="js-goto current-page" data-page="1">1</a>
+			<% } else if (currentPage == 2) { %>
+				<a class="js-before"><i class="fa fa-chevron-left"></i></a>
+				<a class="js-goto" data-page="1">1</a>
+				<a class="js-goto current-page" data-page="2">2</a>
+			<% } else if (currentPage > 2) { %>
+				<a class="js-before"><i class="fa fa-chevron-left"></i></a>
+				<a class="js-goto" data-page="<%= currentPage - 2 %>"><%= currentPage - 2 %></a>
+				<a class="js-goto" data-page="<%= currentPage - 1 %>"><%= currentPage - 1 %></a>
+				<a class="js-goto current-page" data-page="<%= currentPage %>"><%= currentPage %></a>
+			<% } %>
+
+			<% if(distance == 2) { %>
+				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
+			<% } else if(distance == 3) { %>
+				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
+				<a class="js-goto" data-page="<%= currentPage + 2 %>"><%= currentPage + 2 %></a>
+			<% } else if(distance > 3) { %>
+				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
+				<a class="js-goto" data-page="<%= currentPage + 2 %>"><%= currentPage + 2 %></a>
+				<a class="js-goto" data-page="<%= currentPage + 3 %>"><%= currentPage + 3 %></a>
+				 ...
+			<% } %>
+
+			<% if(distance != 0) { %>
+				<a class="js-goto" data-page="<%= lastPage %>"><%= lastPage %></a>
+				<a class="js-next"><i class="fa fa-chevron-right"></i></a>
+			<% } %>
+
+				<a class="js-goto-switcher">
+				<input type="checkbox" name="goto-switcher" id="button-goto-switcher" />
+				<label for="button-goto-switcher" class="fa fa-arrow-circle-right" name="arrow-right"></label>
+				</a>
+
+				<div class="goto-panel">
+				    <div class="contents">
+				        <div class="inner">
+				            Go to <input type="number" /> <button class="js-goto-ok">Go</button>
+				        </div>
+				    </div>
+				</div>
+			</div>
+		<% } else if (lastPage == 1) { %>
+			<div class="js-tab-result">
+				<span> All results </span>
+			</div>
+		<% } else if (lastPage == 0) { %>
+			<div class="js-tab-noresults">
+				<span> No results found </span>
+			</div>
+		<% } %>
+	</div>
+</script>
+
+<script type="text/template" id="list">
+	<table class="collection-table"></table>
+</script>
+
+<script type="text/template" id="doc">
+
+<tr data-id="<%= _id %>" title="<%= _id %>" class="document-header" id="document-<%= _id %>">
+<% var fcount = 0; _.each(fields, function(field){  %>
+	<% if (_.isFunction(field)){ %>// Doc field %>
+		<td class="document-field-function<%= ++fcount %>" data-action="function<%= fcount %>"><%= field(doc) %></td>
+	<% } else if(_.isObject(field)){ %>// icon control %>
+		<td class="document-control document-control-<%= field.action %>" data-action="<%= field.action %>">
+			<a href="<%= field.href %>" data-bypass="true">
+				<span class="fa fa-<%= field.icon %>"></span>
+			</a>
+		</td>
+	<% } else { %>
+		<td class="document-field-<%= field %>" data-action="<%= field %>"><%= doc[field] %></td>
+	<% } %>
+<%	}) %>
+</tr>
+<% if(editing){ %>
+<tr class="document-content" data-id="<%= _id %>" id="document-editing-<%= _id %>">
+	<td colspan="<%= fields.length %>">
+		<div class="document-options">
+			<a href="#" data-bypass="true" class="document-cancel">Cancel</a>
+			<button class="document-ok">Save</button>
+		</div>
+	</td>
+</tr>
+<% } //Endif editing %>
+</script>
+
+</div>

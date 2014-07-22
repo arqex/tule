@@ -107,8 +107,8 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 		initialize: function(options){
 			this.createItems(this.model.get('subItems'));
 
-			// Listen to change on the open status
-			this.listenTo(this.currentStatus, 'change:open', this.onOpenChange);
+			// Listen to change on the open state
+			this.listenTo(this.currentState, 'change:open', this.onOpenChange);
 		},
 
 		render: function(){
@@ -116,7 +116,7 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 				subList
 			;
 
-			this.el.innerHTML = this.tpl(_.extend(this.model.toJSON(), {status: this.currentStatus.toJSON()}));
+			this.el.innerHTML = this.tpl(_.extend(this.model.toJSON(), {state: this.currentState.toJSON()}));
 			subList = this.$('.js-nav-subitems');
 
 			//Append subitems
@@ -139,12 +139,12 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 				found = item.select(url) || found;
 			});
 
-			this.status('open', found);
+			this.state('open', found);
 			return found;
 		},
 
 		onOpenChange: function(){
-			if(this.status('open'))
+			if(this.state('open'))
 				this.$el.addClass('tuleNavOpen');
 			else
 				this.$el.removeClass('tuleNavOpen');
@@ -177,12 +177,12 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 		},
 
 		initialize: function(){
-			// Listen to change on the selected status
-			this.listenTo(this.currentStatus, 'change:selected', this.onSelectedChange);
+			// Listen to change on the selected state
+			this.listenTo(this.currentState, 'change:selected', this.onSelectedChange);
 		},
 
 		render: function(){
-			this.el.innerHTML = this.tpl(_.extend(this.model.toJSON(), {status: this.currentStatus.toJSON()}));
+			this.el.innerHTML = this.tpl(_.extend(this.model.toJSON(), {state: this.currentState.toJSON()}));
 
 			return this;
 		},
@@ -202,16 +202,16 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 			link.setAttribute('href', this.model.get('url'));
 
 			if(link.href == url){
-				this.status('selected', true);
+				this.state('selected', true);
 				return true;
 			}
 
-			this.status('selected', false);
+			this.state('selected', false);
 			return false;
 		},
 
 		onSelectedChange: function(){
-			if(this.status('selected'))
+			if(this.state('selected'))
 				this.$el.addClass('tuleNavCurrent');
 			else
 				this.$el.removeClass('tuleNavCurrent');
