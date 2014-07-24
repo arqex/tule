@@ -19,6 +19,8 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			'click input:checkbox': 'saveBoolean'
 		},
 
+		forceMode: 'edit',
+
 		render: function(){
 			var me = this,
 				tpl = this.editTpl
@@ -28,11 +30,9 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		},
 
 		saveBoolean: function(){
-			var value = this.$('input:checked').length == 1;
+			var value = this.$('input:checked').length;
 
-			this.model.set('value', true);
-
-			this.trigger('edit:ok', value);
+			this.model.set('value', value);
 		},
 
 		getValue: function(){

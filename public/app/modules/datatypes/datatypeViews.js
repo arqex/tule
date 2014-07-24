@@ -65,7 +65,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			return _.extend({
 					state: this.currentState.toJSON(),
 					options: this.datatype.options,
-					controls: this.getControlsTpl()
+					controls: this.getControlsTpl(),
+					viewOptions: this.viewOptions
 				}, this.model.toJSON())
 			;
 		},
@@ -128,6 +129,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			mode: 'display'
 		},
 
+		tagName: 'tr',
+
 		className: 'js-DE tuleDE',
 
 		defaults: {
@@ -170,6 +173,11 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			this.$el.addClass('tuleDE-' + this.typeView.datatype.id);
 
 			this.listenToEvents();
+
+			// Datatypes can force the working mode
+			var forceMode = this.typeView.forceMode
+			if(forceMode && forceMode != this.state('mode'))
+				this.state('mode', forceMode);
 		},
 
 		initModel: function(options){
@@ -191,10 +199,14 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 
 			// Update the mode of the type view on our mode updates.
 			this.listenTo(this.currentState, 'change:mode', function(){
-				me.typeView.state('mode', this.state('mode'));
-				me.render();
-			});
+				var mode = this.state('mode'),
+					forcedMode = this.typeView.forcedMode;
 
+				if(!forcedMode || mode == forcedMode){
+					me.typeView.state('mode', mode);
+					me.render();
+				}
+			});
 
 			this.listenTo(this.typeView, 'edit:ok', function(value){
 				me.state('mode', 'display');
@@ -263,6 +275,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 
 		tpl: templates.dataElementCreation,
 
+
+		tagName: 'tr',
 		className: 'tuleDEC',
 
 		events: {
@@ -293,6 +307,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 		},
 
 		render: function(){
+			var me = this;
+
 			this.$el.html(this.tpl(this.getTemplateData()));
 
 			this.$('.js-DEC-type').html(this.typeView.el);
@@ -300,6 +316,14 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			this.typeView.state('mode', 'edit');
 
 			this.typeView.render().delegateEvents();
+
+			setTimeout(function(){
+				var input = me.$('input');
+				if(input.length)
+					input.focus();
+				else
+					me.$('select').focus();
+			}, 50);
 
 			return this;
 		},

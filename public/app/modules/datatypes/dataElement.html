@@ -2,23 +2,40 @@
 
 
 <script type="text/template" id="dataElement">
-	<div class="tuleDEKey js-DEKey">
+	<td class="tuleDEKey js-DEKey">
 		<% if(deleteable) { %>
 		<a href="#" data-cid="<%= cid %>" class="tuleDEDelete js-DEDelete" title="Delete <%= key %>"><i class="fa fa-minus-circle"></i></a>
 		<% } %>
 		<%= label %>:
-	</div>
-	<div class="tuleDEValue js-DEValue <%= state.mode == 'edit' ? 'tuleDEEdit' : 'tuleDEDisplay' %>"></div>
+	</td>
+	<td class="tuleDEValue js-DEValue <%= state.mode == 'edit' ? 'tuleDEEdit' : 'tuleDEDisplay' %>"></td>
 </script>
 
 <script type="text/template" id="dataElementCreation">
+	<td class="tuleDECKey">
+		<% if(editKey) { %>
+			<input type="text" class="js-DECinput" value="<%= key %>" placeholder="Property name" tabindex="1">:
+		<% }else{ %>
+			<%= key %>:
+		<% } %>
+	</td>
+	<td class="tuleDECType">
+		<div class="js-DEC-type"></div>
+		<div class="tuleDECControls">
+			<a href="#" class="js-DEC-cancel" tabindex="4">Cancel</a>
+			<button class="js-DEC-ok" tabindex="3">Add</button>
+		</div>
+	</td>
+</script>
+
+<script type="text/template" id="dataElementCreationOld">
 	<div class="tuleDECTitle"><%= title %></div>
 	<div class="tuleDECKey">
 		<% if(editKey) { %>
 			<input type="text" class="js-DECinput" value="<%= key %>" placeholder="Property name">
 		<% }else{ %>
 			<strong><%= key %></strong>
-		<% } %>:
+		<% } %><strong>:</strong>
 	</div>
 	<div class="tuleDECType js-DEC-type"></div>
 	<div class="tuleDECControls">

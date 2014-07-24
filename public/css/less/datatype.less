@@ -1,13 +1,16 @@
 
 /* Datatypes */
-.tuleDE {
-	margin-bottom: @margin-narrow;
+.tuleDE td {
+	padding-bottom: 5px;
 }
 .tuleDEKey {
-	display: inline-block;
 	font-weight: bold;
 	padding-left: @margin-wide;
 	position: relative;
+	vertical-align: top;
+	text-align: right;
+	line-height: 1em;
+	max-width: 150px;
 }
 
 .tuleDEDelete {
@@ -20,10 +23,16 @@
 .tuleDEKey:hover .tuleDEDelete {
 	display: inline;
 }
+.tuleDEValue {
+	padding-left: @margin-narrow;
+	vertical-align: top;
+	line-height: 1em;
+}
 
-.tuleDEDisplay {
-	display: inline-block;
+.tuleDEDisplay,
+.tuleObjectCount {
 	cursor: pointer;
+	margin-bottom: 5px;
 
 	&:hover {
 		color: @color-alt-1;
@@ -31,33 +40,31 @@
 }
 
 .tuleDEEdit {
-	display: block;
-	padding: 0 0 @margin-narrow @margin-narrow;
+	padding: 0 0 0 @margin-narrow;
 	position: relative;
 	margin: 0 0 @margin-narrow @margin-wide;
-
-	&:before {
-		content: '';
-		position:absolute;
-		width: 5px;
-		left: 0;
-		top: 0;
-		height: 100%;
-		border-left: 1px solid #ddd;
-		border-bottom: 2px solid #ddd;
-	}
 }
 
 .tuleDEC {
-	padding: @margin;
-	box-shadow: @shadow;
-	background: #fafafa;
-	border: 1px solid #ddd;
 }
 
-.tuleDECKey, .tuleDECType {
-	display: inline-block;
+.tuleDECType {
 	vertical-align: top;
+	padding-left: @margin-narrow;
+}
+
+.tuleDECKey {
+	font-weight: bold;
+	font-style: italic;
+	vertical-align: top;
+	text-align: right;
+}
+
+.tuleDECKey input{
+	margin-left: @margin-narrow;
+	font-weight: normal;
+	font-style: normal;
+	width: 120px;
 }
 
 .tuleDECControls {
@@ -72,7 +79,25 @@
 	margin: 0 @margin-narrow 0 @margin-wide;
 }
 
-.tuleObjectProperties{
+.tuleObjectProperties,
+.tuleArrayElements {
+
+}
+
+.tuleObjectEdit {
+	margin-left: -@margin-narrow;
+	position: relative;
+
+	&:before {
+		content: '';
+		position:absolute;
+		width: 5px;
+		left: 0;
+		bottom: 0;
+		height: 100%;
+		border-left: 1px solid #ddd;
+		border-bottom: 2px solid #ddd;
+	}
 }
 
 .tule-array-placeholder {
@@ -103,9 +128,5 @@
 	}
 }
 .tuleDE-bool .tuleDEEdit {
-	.tule-inline-field()
-}
-
-.tuleDE-bool .tuleDEValue {
 	vertical-align: middle;
 }

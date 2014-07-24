@@ -28,6 +28,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 
 		defaultModelValue: [],
 
+
 		initialize: function(opts){
 			var me = this,
 				// Make sure our model value is an array
@@ -37,9 +38,14 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			// And re-set it
 			this.model.set('value', value, {silent: true});
 
-			this.createSubViews();
+			this.selector = {
+				controls: '.js-array-controls[data-cid=' + this.cid + ']',
+				els: '.js-array-elements[data-cid=' + this.cid + ']',
+				close: '.js-array-close[data-cid=' + this.cid + ']'
+			};
 
 			this.listenTo(this.model, 'change', this.render);
+
 		},
 
 		createSubViews: function() {
@@ -84,9 +90,14 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			this.delegateEvents();
 
 			if(this.state('mode') == 'edit'){
-				var $props = this.$('.js-array-elements');
+				var els = this.$(this.selector.els);
+
+				//On the first edit, create the property views
+				if(!this.subViews)
+					this.createSubViews();
+
 				_.each(this.subViews, function(subView){
-					$props.append(subView.el);
+					els.append(subView.el);
 					subView.render();
 					subView.delegateEvents();
 				});
@@ -104,12 +115,9 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		},
 
 		renderControls: function(){
-			var controls = this.$('.js-array-controls[data-cid=' + this.cid + ']').html('');
+			var controls = this.$(this.selector.controls).html('');
 
 			controls.append(templates.addElement({cid: this.cid}));
-
-			if(this.viewOptions.closeable)
-				controls.append(templates.closeElements());
 		},
 
 		reindex: function(index1, index2){
@@ -137,7 +145,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 				return this.addElement(elementType);
 			}
 
-			// TODO: Otherwise, render the new element dialog
+			// Otherwise, render the new element dialog
 			var me = this,
 				idx = this.subViews.length,
 				newElement = new DatatypeViews.DataElementCreationView({
@@ -145,30 +153,28 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 					label: idx,
 					editKey: false,
 					title: 'New element'
-				})
+				}),
+				controls = this.$(this.selector.controls)
 			;
 
 			newElement.render();
-			this.$el.children('.js-array-controls')
-				.html(newElement.el)
-			;
+			this.$(this.selector.els).append(newElement.el);
 
-			setTimeout(function(){
-				me.$('input').first().focus();
-			},50);
+			// Remove the controls
+			controls.html('');
 
 			this.listenTo(newElement, 'ok', function(elementData){
 
 				this.stopListening(newElement);
 				newElement.remove();
 
-				this.$el.children('.js-array-controls')
-					.html('')
-					.append(templates.addElement({cid: this.cid}))
-					.append(templates.closeElements())
-				;
+				// Restore the controls
+				controls.append(templates.addElement({cid: this.cid}));
 
 				this.addElement(elementData.datatype);
+
+				// Update the counter
+				this.$(this.selector.close).html(templates.elementCount({value: this.model.get('value')}));
 			});
 
 			this.listenTo(newElement, 'cancel', function(){
@@ -183,15 +189,15 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 				view = this.createSubView(index, datatype, value)
 			;
 
-			// Add the value to the model
-			this.updateElement(index, value);
-
 			// Render the subview
 			this.subViews.push(view);
-			this.$('.js-array-elements').append(view.el);
+			this.$(this.selector.els).append(view.el);
 			view.render();
 			view.delegateEvents();
 			view.state('mode', 'edit');
+
+			// Add the value to the model
+			this.updateElement(index, value);
 		},
 
 		deleteElement: function(idx){
@@ -207,11 +213,9 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		},
 
 		updateElement: function(index, value){
-			var modelValue = this.model.get('value');
+			var modelValue = this.model.get('value').splice(0);
 			modelValue[index] = value;
 			this.model.set('value', modelValue);
-
-			console.log(this.model.get('value'));
 		},
 
 		onClickClose: function(e){
@@ -237,7 +241,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 				oldidx, newidx
 			;
 
-			this.$('.js-array-elements').sortable({
+			this.$(this.selector.els).sortable({
 				placeholder: 'tule-array-placeholder',
 				helper: 'clone',
 				handle: '.tuleDEKey',

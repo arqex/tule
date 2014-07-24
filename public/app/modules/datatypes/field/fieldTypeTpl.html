@@ -6,10 +6,7 @@
 <script type="text/template" id="fieldEditTpl">
 	<form class="field-form" data-cid="<%= cid %>">
 		<div class="element-form-options">
-			<% if(label) { %>
-			<%= label %>:
-			<% } %>
-			<select class="element-form-type field-datatype-select">
+			<select class="element-form-type field-datatype-select" tabindex="2">
 				<% _.each(types, function(type){ %>
 				<option value="<%= type.id %>" <%= type.id == value.id ? 'selected' : '' %>><%= type.name %></option>
 				<% }) %>
@@ -17,7 +14,7 @@
 		</div>
 
 		<div class="element-form-advanced">
-			<a class="element-form-advanced-toggle" href="#" data-bypass="1">Advanced options</a>
+			<a class="element-form-advanced-toggle" href="#" tabindex="6">Advanced options</a>
 			<div class="element-form-advanced-options" style="display:none">
 			</div>
 		</div>

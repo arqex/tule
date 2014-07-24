@@ -6,16 +6,21 @@
 </script>
 
 <script type="text/template" id="arrayEditTpl">
-	<div class="js-array-elements tuleArrayElements"></div>
-	<div class="js-array-controls tuleElementsControls" data-cid="<%= cid %>"></div>
+	<% if(viewOptions.closeable) { %>
+	<div class="tuleObjectCount js-array-close" title="close" data-cid="<%= cid %>">
+		<%= value.length  %> <%= value.length == 1 ? 'element' : 'elements' %>
+	</div>
+	<% } %>
+	<div class="tuleObjectEdit">
+		<table class="tuleArrayElements"><tbody class="js-array-elements" data-cid="<%= cid %>"></table>
+		<div class="js-array-controls tuleElementsControls" data-cid="<%= cid %>"></div>
+	</div>
 </script>
 
 <script type="text/template" id="addElement">
 	<a class="js-array-add-element tule-add-element" data-cid="<%= cid %>" href="#" data-bypass="1"><i class="fa fa-plus"></i> Add an element</a>
 </script>
 
-<script type="text/template" id="closeElements">
-	<a href="#" class="js-array-close tule-elements-close"><i class="fa fa-arrow-up"></i> Close</a>
-</script>
-
+<script type="text/template" id="elementCount">
+	<%= value.length  %> <%= value.length == 1 ? 'element' : 'elements' %>
 </div>

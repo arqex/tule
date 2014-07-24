@@ -53,7 +53,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		save: function() {
 			var value = {
 				id: this.$('.field-datatype-select').val(),
-				options: this.advanced ? this.advanced.getValue() : {}
+				options: this.advanced ? this.advanced.model.get('value') : {}
 			};
 
 			this.model.set('value', value);

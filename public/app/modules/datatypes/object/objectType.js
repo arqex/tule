@@ -48,15 +48,19 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			// And re-set it
 			this.model.set('value', value, {silent: true});
 
+			this.selector = {
+				controls: '.js-object-controls[data-cid=' + this.cid + ']',
+				props: '.js-object-properties[data-cid=' + this.cid + ']',
+				close: '.js-object-close[data-cid=' + this.cid + ']'
+			};
+
 			//Let's make the property definitions quicky accesible
 			this.propertyDefinitions = {};
 			_.each(this.typeOptions.propertyDefinitions, function(definition){
 				me.propertyDefinitions[definition.key] = definition;
 			});
 
-			this.createSubViews();
-
-			this.listenTo(this.model, 'change', this.render);
+			// this.listenTo(this.model, 'change', this.render);
 		},
 
 		createSubViews: function() {
@@ -98,7 +102,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 		},
 
 		updateProperty: function(key, value){
-			var objectValue = this.model.get('value');
+			var objectValue = _.clone(this.model.get('value'));
 			objectValue[key] = value;
 			this.model.set('value', objectValue);
 		},
@@ -117,7 +121,12 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			this.delegateEvents();
 
 			if(mode == 'edit'){
-				var $props = this.$('.js-object-properties');
+				var $props = this.$(this.selector.props);
+
+				//On the first edit, create the property views
+				if(!this.subViews)
+					this.createSubViews();
+
 				_.each(this.subViews, function(subView){
 					$props.append(subView.el);
 					subView.render();
@@ -134,13 +143,10 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 		},
 
 		renderControls: function(){
-			var controls = this.$('.js-object-controls[data-cid=' + this.cid + ']').html('');
+			var controls = this.$(this.selector.controls).html('');
 
 			if(this.typeOptions.customProperties)
 				controls.append(templates.addProperty({cid: this.cid}));
-
-			if(this.viewOptions.closeable)
-				controls.append(templates.closeProperties());
 		},
 
 		deleteProperty: function(key){
@@ -150,53 +156,50 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			delete this.subViews[key];
 			delete value[key];
 
+			// If there is no elements change to display mode
+			if(!_.keys(value).length)
+				this.trigger('edit:cancel');
+
+			this.updateCount();
+
 			this.model.set('value', value);
 		},
 
 		onAddProperty: function(e){
 			if(e){
 				e.preventDefault();
-				var cid = $(e.target).data('cid');
-				if(this.cid != cid)
+				if(this.cid != $(e.target).data('cid'))
 					return;
 			}
 
 			var me = this,
-				newElement = new DatatypeViews.DataElementCreationView({
-					datatype: this.typeOptions.propertyType
-				})
+				newElement = this.createNewElementForm(),
+				controls = this.$(this.selector.controls)
 			;
 
-			newElement.render();
-			this.$el.children('.js-object-controls')
-				.html(newElement.el)
-			;
+			// Append the form
+			this.$(this.selector.props).append(newElement.el);
 
-			setTimeout(function(){
-				me.$('input').first().focus();
-			},50);
+			// Remove the controls
+			controls.html('');
 
 			this.listenTo(newElement, 'ok', function(elementData){
-				var key = $.trim(elementData.key),
-					value = elementData.datatype.defaultValue
-				;
+				var key = $.trim(elementData.key);
+				elementData.key = key;
 
 				if(this.subViews[key])
 					return Alerts.add({message: 'There is already a property called ' + key + '.', level: 'error'});
 
-				this.propertyDefinitions[elementData.key] = elementData;
-				var newPropertyView = this.createSubView(key, value);
-				this.subViews[elementData.key] = newPropertyView;
-
-				this.updateProperty(key, value);
-
-				this.$('.js-object-properties').append(newPropertyView.el);
-
 				this.stopListening(newElement);
+				newElement.remove();
 
-				this.render();
+				this.addProperty(elementData);
 
-				newPropertyView.state('mode', 'edit');
+				this.updateCount();
+
+				// Restore the controls
+				controls.append(templates.addProperty({cid: this.cid}));
+
 			});
 
 			this.listenTo(newElement, 'cancel', function(){
@@ -204,6 +207,42 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 				this.stopListening(newElement);
 				newElement.remove();
 			});
+		},
+
+		addProperty: function(elementData) {
+			var key = $.trim(elementData.key),
+				value = elementData.datatype.defaultValue
+			;
+
+			// Update property definitions
+			this.propertyDefinitions[key] = elementData;
+
+			// Create subview
+			var newPropertyView = this.createSubView(key, value);
+			this.subViews[key] = newPropertyView;
+
+			// Update model
+			this.updateProperty(key, value);
+
+			// Add the new view to the DOM
+			this.$(this.selector.props).append(newPropertyView.el);
+			newPropertyView.render();
+			newPropertyView.state('mode', 'edit');
+		},
+
+		createNewElementForm: function(){
+			var newElement = new DatatypeViews.DataElementCreationView({
+				datatype: this.typeOptions.propertyType
+			});
+
+			newElement.render();
+
+			return newElement;
+		},
+
+		updateCount: function() {
+			// Update the property count
+			this.$(this.selector.close).html(templates.objectCount({value: this.model.get('value')}));
 		},
 
 		onClickClose: function(e){
