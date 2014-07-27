@@ -41,6 +41,18 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts){
 		}
 	});
 
+	var CollectionView = BaseView.extend({
+		tagName: 'table',
+		initialize: function(options) {
+			this.setDocuments(options.docs);
+			this.settings = options.settings || {};
+		},
+
+		setDocuments: function(docs) {
+			this.collection =
+		}
+	});
+
 	return {
 		DocumentView: DocumentView
 	};

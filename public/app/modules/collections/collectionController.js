@@ -8,10 +8,12 @@ var deps = [
 	'pageController',
 
 	'alerts',
-	'events'
+	'events',
+
+	'./queryTranslator'
 ];
 
-define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseController, PageController, Alerts, Events){
+define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseController, PageController, Alerts, Events, translator){
 
 	"use strict";
 
@@ -24,10 +26,10 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		template: templates.main(),
 
 		regionSelectors: {
-			adder: '.adderPlaceholder',
-			search: '.searchPlaceholder',
-			pagination: '.paginationPlaceholder',
-			items: '.itemsPlaceholder'
+			create: '.createRegion',
+			search: '.searchRegion',
+			pagination: '.paginationRegion',
+			items: '.itemsRegion'
 		},
 
 		events: {
@@ -46,7 +48,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 					// Now we are sure the collection service is ready,
 					// store a shorcut in the collections object
-					collections = Services.get('collection');
+					me.service = Services.get('collection').collection(me.collectionName);
 
 					// init the views
 					me.initViews();
@@ -79,6 +81,9 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		},
 
 		initViews: function(){
+
+
+
 			var datatypes = Services.get('datatype'),
 				object = datatypes.get({
 					datatype: {id: 'object', options:{
@@ -116,7 +121,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 			window.model = object.model;
 
-			this.regions.adder.show(object);
+			this.regions.create.show(object);
 			this.regions.items.show(string);
 		}
 	});

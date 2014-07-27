@@ -13,7 +13,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 
 	var Collection = Backbone.Collection.extend({
 		model: Document,
-		initialize: function(options){
+		initialize: function(docs, options){
 			var me = this;
 			this.collectionName 	= options.collectionName;
 			this.url 	= '/api/docs/' + this.collectionName;

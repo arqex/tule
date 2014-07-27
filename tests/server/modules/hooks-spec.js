@@ -1,6 +1,6 @@
 var path = require('path'),
 	when = require('when'),
-	hookManager = require(path.join(__dirname, '../../..', 'server/modules/hooks/hooksManager'))
+	hookManager = require(path.join(__dirname, '../../..', 'server/modules/plugins/hooksManager'))
 ;
 
 
