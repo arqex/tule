@@ -4,7 +4,8 @@ var url = require('url'),
 	config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance(),
 	mongojs = require('mongojs'),
-	when = require('when')
+	when = require('when'),
+	queryTranslator = require(config.path.public + '/app/modules/collections/queryTranslator')
 ;
 
 function checkPropertiesKeys(res, doc){
@@ -37,6 +38,169 @@ function getDatatype(kindOf, value){
 		return mongojs.ObjectId(value);
 };
 
+function parseQuery(urlArguments, collectionName){
+	var query = {},
+		deferred = when.defer()
+	;
+
+	// Try to parse the query string
+	if(urlArguments.query){
+		try {
+			query = queryTranslator.toQuery(urlArguments.query)
+		}
+		catch (e) {
+			deferred.reject(e);
+			return deferred.promise;
+		}
+	}
+
+	// If the query is empty, resolve it quickly
+	if(!Object.keys(query).length){
+		deferred.resolve({query: query, modifiers: parseQueryModifiers(urlArguments)});
+		return deferred.promise;
+	}
+
+	// We have a query, update values depending on the datatype
+	getFieldDefinitions(collectionName)
+		.then(function(definitions){
+			deferred.resolve({
+				query: updateQueryDatatypes(query, definitions),
+				modifiers: parseQueryModifiers(urlArguments)
+			});
+		})
+		.catch(function(error){
+			deferred.reject(error);
+		})
+	;
+
+	return deferred.promise;
+}
+
+function parseQueryModifiers(urlArguments) {
+	var modifiers = {};
+
+	// Parse sort modifier
+	if(urlArguments.sort){
+		var fields = urlArguments.sort.split(','),
+			sort = {}
+		;
+		for (var i = 0; i < fields.length; i++) {
+			var field = fields[i];
+			if(field[0] === '-')
+				sort[decodeURIComponent(field.substring(1))] = -1;
+			else
+				sort[decodeURIComponent(field)] = 1;
+		};
+
+		modifiers.sort = sort;
+	}
+
+	// Parse limit modifier
+	if(typeof urlArguments.limit != 'undefined'){
+		modifiers.limit = parseInt(urlArguments.limit, 10);
+	}
+
+	// Parse skip modifier
+	if(typeof urlArguments.skip != 'undefined'){
+		modifiers.skip = parseInt(urlArguments.skip, 10);
+	}
+
+	return modifiers;
+}
+
+function getFieldDefinitions(collectionName) {
+	var me = this,
+		deferred = when.defer()
+	;
+
+	db.collection(config.mon.settingsCollection).findOne(
+		{name: 'collection_' + collectionName},
+		function(err, collection){
+			var properties = {};
+
+			if(err)
+				return deferred.reject('Internal error while fetching definitions');
+
+			if(collection != undefined)
+				for(var definition in collection.propertyDefinitions)
+					properties[collection.propertyDefinitions[definition].key] = collection.propertyDefinitions[definition];
+
+			deferred.resolve(properties);
+		}
+	);
+
+	return deferred.promise;
+}
+
+function updateQueryDatatypes(query, definitions) {
+	var updated = {},
+		value, newValue, keys, datatype, values
+	;
+	for(var field in query){
+		value = query[field];
+
+		// Logic clause, update all the inner clauses' datatypes
+		if(field[0] == '$'){
+			values = [];
+			for (var i = 0; i < value.length; i++) {
+				values.push(updateQueryDatatypes(value[i], definitions));
+			};
+			updated[field] = values;
+		}
+
+		// A real document field
+		else {
+
+			// Comparison operator?
+			if(value === Object(value)) {
+				keys = Object.keys(value);
+				newValue = {};
+
+				//Use the definition datatype or guess it
+				datatype = definitions[field] ? definitions[field].datatype.id : guessDatatype(value[keys[0]]);
+
+				newValue[keys[0]] = convertToDatatype(value[keys[0]], datatype);
+
+				updated[field] = newValue;
+			}
+
+			// Equals operator
+			else {
+				datatype = definitions[field] ? definitions[field].datatype.id : guessDatatype(value);
+				updated[field] = convertToDatatype(value, datatype);
+			}
+		}
+	}
+
+	return updated;
+}
+
+function convertToDatatype(value, datatype) {
+	if(datatype == 'integer')
+		return parseInt(value, 10);
+
+	if(datatype == 'float')
+		return parseFloat(value);
+
+	if(datatype == 'string')
+		return '' + value;
+
+	return value;
+}
+
+function guessDatatype(value) {
+	if(value == parseInt(value, 10))
+		return 'integer';
+	if(value == parseFloat(value))
+		return 'float';
+	if(value === Object(value))
+		return 'object';
+	if(value instanceof Array)
+		return 'array';
+
+	return 'string';
+}
+
 /**
  * Create a query for Tule db from a query string
  * @param  {String|Array} clauses String clauses in format "[or|and]|field|comparisonType|value
@@ -61,7 +225,7 @@ function createQuery(clauses, type){
 
 			if(collection != undefined)
 				for(var definition in collection.propertyDefinitions)
-					properties[collection.propertyDefinitions[definition].key] = collection.propertyDefinitions[definition];			
+					properties[collection.propertyDefinitions[definition].key] = collection.propertyDefinitions[definition];
 
 			for(var i in clauses){
 				var clause 		= clauses[i].split('|'),
@@ -69,7 +233,7 @@ function createQuery(clauses, type){
 					key 		= decodeURI(clause[1]),
 					comparison 	= "$"+clause[2],
 					value		= decodeURI(clause[3])
-				;	
+				;
 
 				if(properties[key])
 					value = getDatatype(properties[key].datatype.id, value);
@@ -189,14 +353,14 @@ module.exports = {
 	},
 
 	collection: function(req, res){
-		var type = req.params.type,
-			//Let's be sure clauses are an array
-			clauses = req.query && req.query.clause ? (typeof req.query.clause === 'string' ? [req.query.clause]: req.query.clause) : [],
-			promise = createQuery(clauses, type)
+		var collectionName = req.params.type,
+			queryPromise
 		;
 
-		if(!type)
-			return res.send(400, {error: 'No collection type given.'});
+		if(!collectionName)
+			return res.send(400, {error: 'No collection name given.'});
+
+		queryPromise = parseQuery(req.query);
 
 		db.getCollectionNames(function(err, names){
 			if(err){
@@ -204,23 +368,25 @@ module.exports = {
 				return res.send(400, {error: 'Internal error.'});
 			}
 
-			if(names.indexOf(type) == -1)
-				return res.send(400, {error: 'Unknown collection type.'});
+			if(names.indexOf(collectionName) == -1)
+				return res.send(400, {error: 'Unknown collection ' + collectionName + '.'});
 
-			var pageSize = req.query.limit || 10, // default value
-				skip = req.query.skip || 0,
-				collection = db.collection(type)
-			;
+			queryPromise.then(function(queryOptions){
+				var limit = queryOptions.modifiers.limit || 10, // default value
+					skip = queryOptions.modifiers.skip || 0,
+					sort = queryOptions.modifiers.sort || {},
+					collection = db.collection(collectionName)
+				;
 
-			promise.then(function(query){
-				collection.find(query, {limit: pageSize, skip: skip}, function(err, docs){
-					collection.count(query, function(err, size){
+				collection.find(queryOptions.query, {limit: limit, sort: sort, skip: skip}, function(err, docs){
+					collection.count(queryOptions.query, function(err, size){
 						res.json({
 							documents: docs,
 							total: size,
 							skip: skip,
-							limit: pageSize,
-							current: Math.floor(skip/pageSize) + 1
+							limit: limit,
+							sort: sort,
+							current: Math.floor(skip/limit) + 1
 						});
 					});
 				});

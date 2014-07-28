@@ -10,12 +10,14 @@ var deps = [
 	'alerts',
 	'events',
 
-	'./queryTranslator'
+	'./collectionModels'
 ];
 
-define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseController, PageController, Alerts, Events, translator){
+define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseController, PageController, Alerts, Events, Models){
 
 	"use strict";
+
+	window.service = Services.get('collection').collection('games');
 
 	var templates = BaseController.prototype.extractTemplates(tplSource),
 		// Here we will store the collection service when it is ready
@@ -50,8 +52,19 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 					// store a shorcut in the collections object
 					me.service = Services.get('collection').collection(me.collectionName);
 
-					// init the views
-					me.initViews();
+					// Use the current url parameters to fetch first items
+					me.service.find(location.search.replace('?', ''))
+						.then(function(query){
+							me.currentQuery = query;
+						})
+						.fail(function(error, emptyQuery){
+							me.currentQuery = emptyQuery;
+						})
+						.always(function(){
+
+							// init the views
+							me.initViews();
+						});
 				})
 			;
 		},
@@ -81,9 +94,6 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		},
 
 		initViews: function(){
-
-
-
 			var datatypes = Services.get('datatype'),
 				object = datatypes.get({
 					datatype: {id: 'object', options:{
