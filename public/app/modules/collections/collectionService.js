@@ -40,11 +40,12 @@ define(deps, function($, _, Backbone, CollectionModels){
 
 		/**
 		 * Get a blank document of the given the collectionName
-		 * @param  {String} collectionName The name of the collection.
+		 * @param  {Object} properties Document initial properties.
 		 * @return {Document} A new document model (not stored)
 		 */
-		getNew: function(collectionName){
-			return new CollectionModels.Document({}, {collectionName: this.collectionName});
+		getNew: function(properties){
+			properties = properties || {};
+			return new CollectionModels.Document(properties, {collectionName: this.collectionName});
 		},
 
 		/**

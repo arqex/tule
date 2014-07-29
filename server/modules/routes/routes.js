@@ -9,11 +9,11 @@ module.exports = [
 	{route: 'post::collection/fields/:name', controller: 'apiCollection::updateCollection'},
 	{route: 'post::collection', controller: 'apiCollection::createCollection'},
 
-	{route: 'get::docs/:type', controller: 'apiDocument::collection'},
-	{route: 'post::docs/:type', controller: 'apiDocument::create'},
-	{route: 'get::docs/:type/:id', controller: 'apiDocument::get'},
-	{route: 'put::docs/:type/:id', controller: 'apiDocument::update'},
-	{route: 'delete::docs/:type/:id', controller: 'apiDocument::remove'},
+	{route: 'get::docs/:collection', controller: 'apiDocument::collection'},
+	{route: 'post::docs/:collection', controller: 'apiDocument::create'},
+	{route: 'get::docs/:collection/:id', controller: 'apiDocument::get'},
+	{route: 'put::docs/:collection/:id', controller: 'apiDocument::update'},
+	{route: 'delete::docs/:collection/:id', controller: 'apiDocument::remove'},
 
 	{route: 'get::plugins', controller: 'pluginController::list'},
 	{route: 'get::plugins/activate/:id', controller: 'pluginController::activate'},

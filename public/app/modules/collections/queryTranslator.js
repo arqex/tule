@@ -238,6 +238,9 @@
 			buffer = current;
 			current = tokens.shift();
 
+			if(!current)
+				throw this.getError('Unexpected End');
+
 			if(current.type == 'logicOpen'){
 				return this.parseLogicClause(tokens, buffer.value);
 			}
