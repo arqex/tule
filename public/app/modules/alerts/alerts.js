@@ -1,10 +1,24 @@
-;"use strict";
-
+;
 var deps = [
 	'jquery', 'underscore', 'backbone',
-	'text!./tpls/alert.html'
+	'text!modules/alerts/tpls/alert.html'
 ];
 define(deps, function($,_,Backbone, tplSource){
+	"use strict";
+
+	/**
+	 * The alerts module allows to show messages to the user. It is alse possible to create
+	 * dialog using them.
+	 *
+	 * An alert has the following properties:
+	 * message: The text that will be shown by the alert.
+	 * level: 'info'|'warn'|'error' display the alert in different colors. Default 'info'.
+	 * confirmButtons: {ok: String, cancel: String} If set, confirm buttons will transform
+	 * 		the alert into a dialog, showing a cancel and a ok button. Clicking the buttons will
+	 *   	trigger the 'alertOk' and 'alertCancel' events in the alert.
+	 * autoclose: Milliseconds to close the alert automatically. 0 to not to close the alert
+	 * 		automatically. Default: 10000.
+	 */
 	var Alert = Backbone.Model.extend({
 		defaults: {
 			message: '',
@@ -32,14 +46,17 @@ define(deps, function($,_,Backbone, tplSource){
 			});
 		}
 	});
-
+	/**
+	 * The alert view has a collection of alerts that works like a queue. Alerts
+	 * are removed automatically when its timer is over.
+	 */
 	var AlertView = Backbone.View.extend({
 		className: 'tule-alerts',
 		tpl: _.template(tplSource),
 		events: {
-			'click .tule-alert-close': 'alertClosed',
-			'click .tule-alert-cancel': 'alertCancel',
-			'click .tule-alert-ok': 'alertOk'
+			'click .js-alert-close': 'alertClosed',
+			'click .js-alert-cancel': 'alertCancel',
+			'click .js-alert-ok': 'alertOk'
 		},
 		initialize: function(options){
 			if(!options || !options.collection)
@@ -91,7 +108,16 @@ define(deps, function($,_,Backbone, tplSource){
 		}
 	});
 
-	var singletonAlert  = new AlertView();
+	/**
+	 * The single alertView that is placed in the layout. It is possible to use it directly
+	 * as the main alerter to show messages to the user.
+	 */
+	var singletonAlert = new AlertView();
+
+	/**
+	 * Add alerts to the the main alerter in the layout just specifying the options.
+	 * @param {Object} alertOptions See the options in the Alert Model.
+	 */
 	var singletonAdd	= function(alertOptions) {
 		return singletonAlert.add(alertOptions);
 	}
@@ -101,6 +127,5 @@ define(deps, function($,_,Backbone, tplSource){
 		Alert: Alert,
 		alerter: singletonAlert,
 		add: singletonAdd
-
 	};
 });

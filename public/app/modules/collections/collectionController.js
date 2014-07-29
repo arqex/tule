@@ -18,6 +18,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 	"use strict";
 
 	window.service = Services.get('collection').collection('games');
+	window.Alerts = Alerts;
 
 	var templates = BaseController.prototype.extractTemplates(tplSource),
 		// Here we will store the collection service when it is ready
