@@ -39,7 +39,7 @@ define(deps, function($, _, Backbone, CollectionModels){
 		},
 
 		/**
-		 * Get a blank document of the given the collectionName
+		 * Get a new document, not stored in the server.
 		 * @param  {Object} properties Document initial properties.
 		 * @return {Document} A new document model (not stored)
 		 */
@@ -75,7 +75,7 @@ define(deps, function($, _, Backbone, CollectionModels){
 		},
 
 		/**
-		 * Save a document
+		 * Saves a document
 		 * @param  {Document} doc The document to be stored in the server
 		 * @return {Promise}     A promise to be resolved when the document is saved.
 		 */
@@ -87,6 +87,26 @@ define(deps, function($, _, Backbone, CollectionModels){
 				},
 				error: function() {
 					deferred.reject('There was a problem saving the document.');
+				}
+			});
+
+			return deferred.promise();
+		},
+
+		/**
+		 * Deletes a document.
+		 * @param  {Document} doc The document to be stored in the server
+		 * @return {Promise}     A promise to be resolved when the document is saved.
+		*/
+		remove: function(doc) {
+			var deferred = $.Deferred();
+
+			doc.destroy({
+				success: function(){
+					deferred.resolve(doc);
+				},
+				error: function() {
+					deferred.reject('There was a problem deleting the document.');
 				}
 			});
 

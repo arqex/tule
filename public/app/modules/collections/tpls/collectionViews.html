@@ -86,33 +86,28 @@
 	</div>
 </script>
 
-<script type="text/template" id="list">
-	<table class="collection-table"></table>
-</script>
-
 <script type="text/template" id="doc">
-
-<tr data-id="<%= _id %>" title="<%= _id %>" class="document-header" id="document-<%= _id %>">
+<tr data-id="<%= doc._id %>" class="tule-doc-header js-doc-header" id="document-<%= doc._id %>">
 <% var fcount = 0; _.each(fields, function(field){  %>
 	<% if (_.isFunction(field)){ %>// Doc field %>
-		<td class="document-field-function<%= ++fcount %>" data-action="function<%= fcount %>"><%= field(doc) %></td>
+		<td class="tule-doc-field tule-doc-field-function<%= ++fcount %>" data-action="function<%= fcount %>"><%= field(doc) %></td>
 	<% } else if(_.isObject(field)){ %>// icon control %>
-		<td class="document-control document-control-<%= field.action %>" data-action="<%= field.action %>">
+		<td class="tule-doc-control tule-doc-control-<%= field.action %> js-control-<%= field.action %>" data-action="<%= field.action %>">
 			<a href="<%= field.href %>" data-bypass="true">
 				<span class="fa fa-<%= field.icon %>"></span>
 			</a>
 		</td>
 	<% } else { %>
-		<td class="document-field-<%= field %>" data-action="<%= field %>"><%= doc[field] %></td>
+		<td class="tule-doc-field tule-doc-field-<%= field %>" data-action="<%= field %>"><%= doc[field] %></td>
 	<% } %>
 <%	}) %>
 </tr>
-<% if(editing){ %>
-<tr class="document-content" data-id="<%= _id %>" id="document-editing-<%= _id %>">
-	<td colspan="<%= fields.length %>">
-		<div class="document-options">
-			<a href="#" data-bypass="true" class="document-cancel">Cancel</a>
-			<button class="document-ok">Save</button>
+<% if(state.mode == 'edit'){ %>
+<tr class="tule-doc-content" data-id="<%= doc._id %>" id="tule-doc-editing-<%= doc._id %>">
+	<td colspan="<%= fields.length %>" class="tule-doc-edit js-doc-edit">
+		<div class="tule-doc-options">
+			<a href="#" data-bypass="true" class="tule-doc-cancel js-doc-cancel">Cancel</a>
+			<button class="tule-doc-ok js-doc-ok">Save</button>
 		</div>
 	</td>
 </tr>

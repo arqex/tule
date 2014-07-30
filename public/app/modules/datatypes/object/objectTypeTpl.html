@@ -12,7 +12,7 @@
 		<%= _.keys(value).length  %> <%= _.keys(value).length == 1 ? 'property' : 'properties' %>
 	</div>
 	<% } %>
-	<div class="tuleObjectEdit">
+	<div class="tuleObjectEdit <%= viewOptions.closeable ? 'tuleCloseable' : 'tuleNoCloseable' %>">
 		<table class="tuleObjectProperties"><tbody class="js-object-properties" data-cid="<%= cid %>"></tbody></table>
 		<div class="js-object-controls tuleElementsControls" data-cid="<%= cid %>"></div>
 	</div>

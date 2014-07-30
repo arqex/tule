@@ -26,7 +26,8 @@ define(deps, function($,_,Backbone){
 		 */
 		get: function(options) {
 			var datatype = options.datatype,
-				typeDefinition
+				typeDefinition,
+				viewOptions
 			;
 
 			if(!datatype || !datatype.id || !(typeDefinition = datatypes[datatype.id]))
@@ -36,13 +37,25 @@ define(deps, function($,_,Backbone){
 			if(!datatype.options)
 				datatype.options = {};
 
-			// Initialize the view
-			var view = new typeDefinition.View({
+			viewOptions = {
 				datatype: datatype,
-				value: typeof options.value != 'undefined' ? options.value : typeDefinition.defaultValue,
 				viewOptions: options.viewOptions || {},
 				state: options.state || {}
-			});
+			}
+
+			// Check the value/model for the view.
+			if(typeof options.value == 'undefined'){
+				viewOptions.value = typeDefinition.defaultValue;
+			}
+			else {
+				if(options.value instanceof Backbone.Model)
+					viewOptions.model = options.value;
+				else
+					viewOptions.value = options.value;
+			}
+
+			// Initialize the view
+			var view = new typeDefinition.View(viewOptions);
 
 			return view;
 		},

@@ -36,7 +36,8 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			;
 
 			// And re-set it
-			this.model.set('value', value, {silent: true});
+			if(!this.model)
+				this.model.set('value', value, {silent: true});
 
 			this.selector = {
 				controls: '.js-array-controls[data-cid=' + this.cid + ']',

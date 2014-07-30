@@ -91,14 +91,17 @@ module.exports = {
 		if(id != doc._id)
 			res.send(400, {error: 'Wrong id for the document.'});
 
+		// It is not possible to update the id in MongoDB, so unset it.
+		delete doc['_id'];
+
 		getFieldDefinitions(collectionName)
 			.then(function(definitions){
 				doc = updateQueryDatatypes(doc, definitions);
-				updateDocument(doc, collectionName, res);
+				updateDocument(id, doc, collectionName, res);
 			})
 			.catch(function(error){
 				doc = updateQueryDatatypes(doc, {});
-				updateDocument(doc, collectionName, res);
+				updateDocument(id, doc, collectionName, res);
 			})
 		;
 	},
@@ -452,8 +455,8 @@ function createDocument(doc, collectionName, res) {
 * @param {String} collectionName The collection name
 * @param {http.ServerResponse} res  The response object to send to the client.
 */
-function updateDocument(doc, collectionName, res) {
-	db.collection(collectionName).update({_id: doc._id}, doc, function(err, updated){
+function updateDocument(id, doc, collectionName, res) {
+	db.collection(collectionName).update({_id: id}, doc, function(err, updated){
 		if(err){
 			res.send(400, {error: 'Internal Error: ' + err});
 		}

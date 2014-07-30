@@ -1,0 +1,54 @@
+/* Collection views: collections.less */
+
+.tule-collection-items {
+  background: #fff;
+  border: 1px solid #eee;
+  box-shadow: @shadow;
+  width: 100%;
+
+  .tule-doc-edit {
+    background: #eefffa;
+    box-shadow: @shadow-inset;
+    padding: @margin;
+    position: relative;
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: @margin;
+      width: 20px;
+      height: 10px;
+      border: 10px solid transparent;
+      border-top-color: #fff;
+      z-index: 2;
+    }
+    &:after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: @margin - 4px;
+      width: 20px;
+      height: 10px;
+      border: 10px solid transparent;
+      border-top-color: rgba(0,0,0,.05);
+    }
+  }
+
+  .tule-doc-options {
+    text-align: right;
+  }
+}
+
+.tule-doc-header {
+  border-bottom: 1px solid #eee;
+}
+
+.tule-doc-field {
+  padding: @margin-narrow @margin;
+}
+
+.tule-doc-control {
+  width: 30px;
+  padding: @margin-narrow 0;
+}

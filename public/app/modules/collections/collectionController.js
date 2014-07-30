@@ -95,6 +95,93 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		},
 
 		initViews: function(){
+			var me = this;
+
+			this.subViews = {
+				items: this.createCollectionView()
+			};
+
+			_.each(this.subViews, function(view, key){
+				me.regions[key].show(view);
+			});
+		},
+
+		createCollectionView: function() {
+			var collection = new CollectionViews.CollectionView({
+				collection: this.currentQuery.results,
+				collectionSettings: this.collectionSettings
+			});
+
+			this.listenTo(collection, 'saveDocument', this.saveDocument);
+			this.listenTo(collection, 'click:remove', this.deleteDocument);
+			this.listenTo(collection, 'clickField', this.editDocument)
+
+			return collection;
+		},
+
+		saveDocument: function(docView) {
+
+			// Update the model
+			docView.model.set(docView.objectView.model.get('value'));
+			docView.render();
+
+			// Save the model
+			this.service.save(docView.model)
+				.then(function(){
+					Alerts.add({message: 'Saved successfully!', autoclose: 5000});
+				})
+				.fail(function(){
+					Alerts.add({message: 'There was an error saving the document. Please, try again.', level: 'error'});
+				})
+			;
+		},
+
+		deleteDocument: function(docView) {
+			var me = this,
+				itemsView = me.subViews.items,
+				doc = docView.model,
+				dialog = Alerts.add({
+					message: 'Are you sure to delete this document?',
+					confirmButtons: {ok: 'Delete it', cancel: 'Don\'t do it'},
+					level: 'warn'
+				})
+			;
+
+			dialog.once('alertOk', function(){
+				me.service.remove(doc)
+					.then(function(){
+						Alerts.add({message: 'Deleted successfully!', autoclose: 5000});
+
+						// Reload current query to update the documents.
+						me.service.find(location.search.replace('?', ''))
+							.then(function(query){
+								me.currentQuery = query;
+
+								itemsView.collection = query.results;
+								itemsView.resetSubViews();
+								itemsView.render();
+							})
+							.fail(function(error, emptyQuery){
+								// Oh an error! Just remove the document.
+								itemsView.collection.remove(doc);
+								itemsView.render(doc);
+							})
+						;
+					})
+					.fail(function(){
+						Alerts.add({message: 'There was an error deleting the document. Please, try again.', level: 'error'});
+					})
+				;
+			});
+		},
+
+		editDocument: function(docView, action) {
+			if(action != 'remove')
+				docView.edit();
+		},
+
+		dummy: function() {
+
 			var datatypes = Services.get('datatype'),
 				object = datatypes.get({
 					datatype: {id: 'object', options:{
@@ -130,10 +217,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 				})
 			;
 
-			window.model = object.model;
-
 			this.regions.create.show(object);
-			this.regions.items.show(string);
 		}
 	});
 
