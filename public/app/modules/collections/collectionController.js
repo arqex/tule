@@ -17,9 +17,6 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 	"use strict";
 
-	window.service = Services.get('collection').collection('games');
-	window.Alerts = Alerts;
-
 	var templates = BaseController.prototype.extractTemplates(tplSource),
 		// Here we will store the collection service when it is ready
 		collections
@@ -65,9 +62,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 							// init the views
 							me.initViews();
-						});
+						})
+					;
 				})
 			;
+
 		},
 
 		initCollectionSettings: function(){
@@ -238,7 +237,87 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 		updateFieldDefinitions: function(fieldDefinitions) {
 
-		}
+		},
+
+		/**
+		 * Method to test the collection service.
+		 */
+		testCollectionAPI: function() {
+			var collectionName = 'CollectionServiceTest',
+				service =  Services.get('collection'),
+				definitions = 'yeah',
+				updated = 'noooope'
+			;
+
+			setTimeout(function(){
+
+				service.create(collectionName, {propertyDefinitions: definitions, collectionName: collectionName})
+					.then(function(settings) {
+						console.log('Collection created OK.');
+
+						service.getStats(collectionName)
+							.then(function(stats){
+								var settings = stats.settings;
+								console.log('Collection stats fetched.');
+
+								if(stats.ok && settings && settings.propertyDefinitions == definitions){
+									settings.propertyDefinitions = updated;
+									service.updateSettings(collectionName, settings)
+										.then(function() {
+											console.log('Collection settings updated.');
+											service.getStats(collectionName)
+												.then(function(){
+													if(stats.settings.propertyDefinitions == updated){
+														console.log('After updating, settings ok.');
+
+														service.drop(collectionName)
+															.then(function(){
+																console.log('Collection dropped.');
+
+																service.getStats(collectionName)
+																	.then(function(){
+																		console.log('Error: We shouldn\'t get stats from a dropped collection.')
+																	})
+																	.fail(function(){
+																		console.log('PERFECT!');
+																	})
+															})
+															.fail(function(error){
+																console.log('Error dropping the collection: ' + error);
+															})
+														;
+													}
+													else {
+														console.log('Unexpected settings after update.');
+														console.log(stats);
+													}
+												})
+												.fail(function(){
+													console.log('Error fetching collection stats 2: ' + error);
+												})
+										})
+										.fail(function(error) {
+											console.log('Error updating collection settings: ' + error);
+										})
+									;
+								}
+								else {
+									console.log('Unexpected settings after creation.');
+									console.log(stats);
+								}
+							})
+							.fail(function(error){
+								console.log('Error fetching collection stats: ' + error);
+							})
+						;
+					})
+					.fail(function(error) {
+						console.log('Error creating a collection: ' + error);
+					})
+				;
+
+			}, 2000);
+		},
 	});
 
 

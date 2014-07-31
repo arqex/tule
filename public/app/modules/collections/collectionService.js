@@ -116,7 +116,7 @@ define(deps, function($, _, Backbone, CollectionModels){
 
 	/**
 	 * The collection service allows to access a CollectionEndpoint to fetch/save
-	 * the collection's documents.
+	 * the collection's documents, manage collection settings and create/delete collections.
 	 * @type {Object}
 	 */
 	var CollectionService = {
@@ -139,6 +139,95 @@ define(deps, function($, _, Backbone, CollectionModels){
 			$.get('/api/collections', {}, function(data){
 				deferred.resolve(data);
 			}, 'json');
+
+			return deferred.promise();
+		},
+
+		/**
+		 * Get collection information. Collection settings are available in the 'setting'
+		 * attribute of the response.
+		 *
+		 * @param {String} collectionName The collection name.
+		 */
+		getStats: function(collectionName) {
+			var	deferred = $.Deferred();
+
+			$.ajax('/api/collections/' + collectionName)
+				.then(function(stats){
+					deferred.resolve(stats);
+				})
+				.fail(function(jqXHR, status, error){
+					deferred.reject(error);
+				})
+			;
+
+			return deferred.promise();
+		},
+
+		/**
+		 * Replace the settings of the given collection.
+		 *
+		 * @param {String} collectionName The collection name
+		 * @param {Object} settings       The current settings. Must have database's _id attribute
+		 *                                for the settings document.
+		 */
+		updateSettings: function(collectionName, settings) {
+			var	deferred = $.Deferred();
+
+			$.ajax('/api/collections/' + collectionName, {type: 'put', data: settings})
+				.then(function(updatedData){
+					deferred.resolve(updatedData);
+				})
+				.fail(function(jqXHR, status, error){
+					deferred.reject(error);
+				})
+			;
+
+			return deferred.promise();
+		},
+
+		/**
+		 * Creates a new collection
+		 * @param  {String} collectionName The collection name.
+		 * @param  {Object} settings       The initial settings for the collection.
+		 * @return {Promise}                To be resolved when the collection is created.
+		 *                                     The saved collection settings are passed as
+		 *                                     argument to the callbacks.
+		 */
+		create: function(collectionName, settings) {
+			var	deferred = $.Deferred();
+
+			settings = settings || {};
+
+			$.ajax('/api/collections', {type: 'post', data: settings})
+				.then(function(settings){
+					deferred.resolve(settings);
+				})
+				.fail(function(jqXHR, status, error){
+					deferred.reject(error);
+				})
+			;
+
+			return deferred.promise();
+		},
+
+		/**
+		 * Drop a collection and all its elements.
+		 *
+		 * @param  {String} collectionName The collection name
+		 * @return {Promise}               To be resolved when the collection is dropped.
+		 */
+		drop: function(collectionName) {
+			var	deferred = $.Deferred();
+
+			$.ajax('/api/collections/' + collectionName, {type: 'delete'})
+				.then(function(){
+					deferred.resolve();
+				})
+				.fail(function(jqXHR, status, error){
+					deferred.reject(error);
+				})
+			;
 
 			return deferred.promise();
 		}
