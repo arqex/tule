@@ -188,9 +188,101 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		}
 	});
 
+	/**
+	 * Vew for create new documents, prints out the new document form and triggers
+	 *
+	 *
+	 */
+	var CreateView = BaseView.extend({
+		tpl: templates.createDoc,
+		tagName: 'form',
+		className: 'tule-doc-create',
+
+		defaultStatus: {
+			open: false
+		},
+
+		events: {
+			'click .js-doc-create-cancel': 'onClickCancel',
+			'click .js-doc-create-ok': 'onClickOk'
+		},
+
+		initialize: function(opts) {
+			this.collectionSettings = opts.collectionSettings;
+			this.reset();
+		},
+
+		render: function() {
+			var open = this.state('open');
+			this.$el.html(this.tpl(this.getTemplateData()));
+
+			if(open) {
+				if(!this.objectView)
+					this.objectView = this.createObjectView();
+
+				this.$('.js-doc-create-form').append(this.objectView.el);
+				this.objectView.render();
+			}
+		},
+
+		createObjectView: function() {
+			return Services.get('datatype').get({
+				datatype: {id: 'object', options: this.collectionSettings},
+				value: this.model.toJSON(),
+				state: {mode: 'edit'},
+				viewOptions: {closeable: false, editAllProperties: true}
+			});
+		},
+
+		open: function() {
+			if(!this.state('open')){
+				this.state('open', true);
+				this.render();
+				this.$el.addClass('tule-doc-create-open');
+			}
+
+			return this;
+		},
+
+		close: function() {
+			if(this.state('open')){
+				this.state('open', false);
+				this.render();
+				this.$el.removeClass('tule-doc-create-open');
+			}
+
+			return this;
+		},
+
+		reset: function() {
+			this.model = Services.get('collection')
+				.collection(this.collectionSettings.name)
+					.getNew()
+			;
+
+			return this;
+		},
+
+		onClickOk: function(e) {
+			e.preventDefault();
+
+			// Update the doc
+			this.model.set(this.objectView.getEditValue());
+
+			// And trigger a creation petition
+			this.trigger('createDoc', this.model, this.objectView.propertyDefinitions);
+		},
+
+		onClickCancel: function(e) {
+			e.preventDefault();
+			this.trigger('cancel');
+		}
+	});
+
 	return {
 		DocumentView: DocumentView,
-		CollectionView: CollectionView
+		CollectionView: CollectionView,
+		CreateView: CreateView
 	};
 
 });

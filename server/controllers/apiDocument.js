@@ -464,6 +464,8 @@ function updateDocument(id, doc, collectionName, res) {
 		if(!updated)
 			res.send(404);
 
+		// Restore the id
+		doc._id = id;
 		res.json(doc);
 	});
 }

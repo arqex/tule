@@ -1,13 +1,18 @@
 'use strict';
 
-var mongojs = require('mongojs'),
-	_ 		= require('underscore'),
+var 	_ 		= require('underscore'),
 	config 	= require('config'),
-	defaults = {
-		fields: {},
-		tableFields: []
-	},
 	db = require(config.path.modules + '/db/dbManager').getInstance()
+;
+
+var defaultSettings = {
+		propertyDefinitions: [],
+		headerFields: [],
+		allowCustom: true,
+		mandatoryProperties: [],
+		hiddenProperties: []
+	},
+	collectionPrefix = 'collection_'
 ;
 
 module.exports = {
@@ -28,43 +33,71 @@ module.exports = {
 		});
 	},
 
+	/**
+	 * Controller for the route 'get::collections/:name'.
+	 * Returns some stats from the given collection. At least the following attributes
+	 * are returned in the response:
+	 * 		ok: {boolean} whether the stats where fetched correctly. When false, it usually
+	 * 			means that the collection doesn't exits.
+	 *    count: The number of documents in the collection.
+	 *    settings: The collection settings.
+	 *
+	 * @param  {http.ClientRequest} req The request
+	 * @param  {http.ServerResponse} res The response
+	 */
 	getStatus: function(req, res){
-		var type = req.params.type,
+		var collectionName = req.params.name,
 			doc = req.body
 		;
-		if(!type)
-			res.send(400, {error: 'No document type given.'});
+		if(!collectionName)
+			res.send(400, {error: 'No collection name given.'});
 
-		db.collection(type).insert(doc, function(err, newDoc){
-			res.json(newDoc);
-		});
+		db.collection(config.mon.settingsCollection)
+			.findOne({name: collectionPrefix + collectionName}, function(err, collectionSettings){
+					if(err)
+						return res.send(400, {error: 'There where an error fetching the collection settings.'});
+					db.collection(collectionName).stats(function(err, stats){
+						if(err) {
+							// Check not found
+							if(err == Object(err) && err.errmsg == 'ns not found')
+								return res.send(404);
+							console.log(err);
+							return res.send(400, {error: 'There where an error fetching the collection stats: ' + err});
+						}
+
+						stats.settings = collectionSettings || {};
+						if(!stats.count)
+							stats.count = 0;
+
+						res.json(stats);
+					});
+			})
+		;
 	},
 
-	createCollection: function(req, res){
-		var name = req.body.name,
+	/**
+	 * Controller for route 'post::collections'.
+	 *
+	 * Create a new collection with the settings sent in the request body. The collectionNAme
+	 * will be used to create the 'name' property, by adding the prefix collectionPrefix to
+	 * the original name. That name property will be used to fetch the settings from
+	 * the settings collection.
+	 *
+	 * @param  {http.ClientRequest} req The request
+	 * @param  {http.ServerResponse} res The response
+	 */
+	create: function(req, res){
+		var name = req.body.collectionName,
 			doc	= req.body,
-			properties = {
-				name : "collection_" + name,
-				propertyDefinitions : [ ],
-				mandatoryProperties : [ ],
-				tableFields : [ ],
-				hiddenProperties: [],
-				allowCustom: true
-			}
+			properties = _.extend({}, defaultSettings, doc)
 		;
 
+
 		if(!name) {
-			res.send(400, {error: 'No name specified'});
-		} else {
-			if(!name[0].match(/[a-z0-9_]/i))
-				res.send(400, {error: 'Name has invalid characters or empty'});
-			if(name.indexOf('$') != -1)
-				res.send(400, {error: 'Name contains $ symbol'});
-			if(name.indexOf(/\x00/) != -1)
-				res.send(400, {error: 'Name contains some null character'});
-			if(name.indexOf('system.') === 0)
-				res.send(400, {error: 'Name starts with system. which is MongoDB reserved'});
+			res.send(400, {error: 'No collection name given.'});
 		}
+
+		properties.name = collectionPrefix + name;
 
 		db.createCollection(name, function(err, newDoc){
 			if(err){
@@ -80,42 +113,86 @@ module.exports = {
 				res.json(props[0]);
 			});
 		});
-
-
 	},
 
-	updateCollection: function(req, res){
-		var data = req.body.data,
-			type = req.params.name,
-			definitionsKeys = {}
+	/**
+	 * Controller for the route 'put::collections/:name'.
+	 * Updates the collection settings.
+	 *
+	 * @param  {http.ClientRequest} req The request
+	 * @param  {http.ServerResponse} res The response
+	 */
+	update: function(req, res){
+		var doc = req.body,
+			collectionName = req.params.name,
+			definitionsKeys = {},
+			id
 		;
 
-		db.collection(config.mon.settingsCollection).findOne(
-			{name: 'collection_' + type},
-			function(err, collection){
-				if(err)
-					return res.send(400, {error: 'Internal error while fetching definitions'});
+		if(!collectionName) {
+			res.send(400, {error: 'No collection name given.'});
+		}
 
-				if(collection != undefined)
-					for(var definition in collection.propertyDefinitions)
-						definitionsKeys[collection.propertyDefinitions[definition].key] = true;
-				
+		if(collectionName != doc.collectionName) {
+			res.send(400, {error: 'Collection name doesn\'t match with the route.'});
+		}
 
-				for(var key in data){
-					if(!definitionsKeys[key] && key != '_id'){
-						var definition = data[key];
-						delete definition['value'];
-						if(collection != undefined)
-							collection.propertyDefinitions.push(definition);
-					}
-				};
+		if(!doc._id) {
+			res.send(400, {error: 'A _id attribute is needed to update the collection settings.'});
+		}
 
-				db.collection(config.mon.settingsCollection).save(collection, function(err, saved) {
-					if( err || !saved )
-						return res.send(400, {error: 'Internal error while saving definitions'});
-					return res.send(200, collection);
-				});
-		});
+		// Be sure the name is set
+		doc.name = collectionPrefix + collectionName;
+
+		// Remove the _id in order to update the document successfully
+		id = doc._id;
+		delete doc._id;
+
+		console.log(doc);
+
+		db.collection(config.mon.settingsCollection)
+			.update({_id: id, name: collectionPrefix + collectionName}, doc, function(err, updated){
+					if(err)
+						return res.send(400, 'Error updating the collection settings: ' + err);
+
+					if(!updated)
+						return res.send(404);
+
+					// Restore the id
+					doc._id = id;
+					res.json(doc);
+			})
+		;
+	},
+
+	/**
+	 * Controller for the route 'delete::collections/:name'.
+	 * Deletes a collection with all of its documents.
+	 *
+	 * @param  {http.ClientRequest} req The request
+	 * @param  {http.ServerResponse} res The response
+	 */
+	remove: function(req, res) {
+		var collectionName = req.params.name;
+
+		if(!collectionName) {
+			res.send(400, {error: 'No collection name given.'});
+		}
+
+		// Remove the settings. Don't care about the result.
+		db.collection(config.mon.settingsCollection)
+			.remove({name: collectionPrefix + collectionName}, function(){});
+
+		// Drop the collection
+		db.dropCollection(collectionName, function(err){
+			if(err){
+				// Check not found
+				if(err == Object(err) && err.errmsg == 'ns not found')
+					return res.send(404);
+				return res.send(400, 'Error deleting the collection: ' + err);
+			}
+			res.send(200, {}); // Empty hash needed for trigger backbone's success callback
+		})
 	}
 
 }

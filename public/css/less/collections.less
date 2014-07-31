@@ -7,7 +7,7 @@
   width: 100%;
 
   .tule-doc-edit {
-    background: #eefffa;
+    background: @color-main-0;
     box-shadow: @shadow-inset;
     padding: @margin;
     position: relative;
@@ -51,4 +51,28 @@
 .tule-doc-control {
   width: 30px;
   padding: @margin-narrow 0;
+}
+
+.tule-collection-tools {
+  margin-bottom: @margin;
+}
+
+.tule-doc-create {
+  background: @color-main-0;
+  border: 1px solid #eee;
+  box-shadow: @shadow;
+  padding: @margin;
+  display: none;
+
+  &.tule-doc-create-open {
+    display: block;
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.tule-doc-create-options {
+  text-align: right;
 }

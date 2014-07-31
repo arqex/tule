@@ -36,7 +36,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		},
 
 		events: {
-			'click .js-document-new': 'openNewDocumentForm',
+			'click .js-doc-create': 'openCreateDoc',
 			'click .js-collection-search': 'openSearchTools'
 		},
 
@@ -78,14 +78,14 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 				Services.get('settings')
 					.getCollectionSettings(me.collectionName)
 						.then(function(settings){
-							me.collectionSettings = settings.toJSON();
+							me.collectionSettings = _.extend(settings.toJSON(), {name: me.collectionName});
 							deferred.resolve();
 						})
 						.fail(function(error){
 							console.log(error);
 
 							//There has been an error, so we apply default settings
-							me.collectionSettings = {allowCustom: true};
+							me.collectionSettings = {allowCustom: true, name: me.collectionName};
 							deferred.resolve();
 						})
 				;
@@ -98,7 +98,8 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			var me = this;
 
 			this.subViews = {
-				items: this.createCollectionView()
+				items: this.createCollectionView(),
+				create: this.createCreateView()
 			};
 
 			_.each(this.subViews, function(view, key){
@@ -117,6 +118,51 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			this.listenTo(collection, 'clickField', this.editDocument)
 
 			return collection;
+		},
+
+		createCreateView: function() {
+			var createView = new CollectionViews.CreateView({
+				collectionSettings: this.collectionSettings
+			});
+
+			this.listenTo(createView, 'createDoc', this.createDocument);
+			this.listenTo(createView, 'cancel', this.closeCreateDoc);
+
+			return createView;
+		},
+
+		createDocument: function(doc, fieldDefinitions) {
+			if(!_.keys(doc.attributes).length) {
+				return Alerts.add({
+					message: 'Can\'t create an empty document. Add one field at least.',
+					level: 'error'
+				});
+			}
+
+			var me = this;
+
+			this.service.save(doc)
+				.then(function() {
+					var itemsView = me.subViews.items;
+
+					me.subViews.create.reset();
+					me.closeCreateDoc();
+
+					// Add the doc to the items and show it
+					itemsView.collection.add(doc, {at: 0});
+					itemsView.resetSubViews();
+					itemsView.render();
+
+					// Open the brand new document
+					itemsView.subViews[doc.id].edit();
+
+					me.updateFieldDefinitions(fieldDefinitions);
+
+					Alerts.add({
+						message: 'Document created.',
+						autoclose: 5000
+					});
+				})
 		},
 
 		saveDocument: function(docView) {
@@ -180,44 +226,18 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 				docView.edit();
 		},
 
-		dummy: function() {
+		openCreateDoc: function() {
+			this.$('.js-collection-controls').hide();
+			this.subViews.create.open();
+		},
 
-			var datatypes = Services.get('datatype'),
-				object = datatypes.get({
-					datatype: {id: 'object', options:{
-						propertyDefinitions: [{
-							key: 'opts',
-							datatype:{
-								id: 'select',
-								options: {
-									selectOptions: [
-										{value: 'opt1', label: 'option 1'},
-										{value: 'opt2', label: 'option 2'},
-										{value: 'opt3', label: 'option 3'}
-									]
-								}
-							}
-						}]
-					}},
-					value: {
-						hola: 'tu',
-						quetal: 'comoestas',
-						booolean: true,
-						array: ['esto', 'es', 'una', 'prueba'],
-						objeto: {un:'par', de:'propiedades'},
-						opts: 'opt2'
-					},
+		closeCreateDoc: function() {
+			this.$('.js-collection-controls').show();
+			this.subViews.create.close();
+		},
 
-					state: {mode: 'edit'},
-					viewOptions: {editAllProperties: false, closeable: false}
-				}),
-				string = datatypes.get({
-					datatype: {id: 'string'},
-					value: 'Pedazo de string'
-				})
-			;
+		updateFieldDefinitions: function(fieldDefinitions) {
 
-			this.regions.create.show(object);
 		}
 	});
 

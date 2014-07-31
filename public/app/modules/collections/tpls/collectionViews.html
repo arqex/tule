@@ -1,29 +1,28 @@
 <div> <!--	Wrapper to easily access to all the templates -->
 
 <script type="text/template" id="main">
-	<div class="collectionTools clearfix">
-		<div class="collectionControls">
-			<button class="document-new js-document-new">Add new</button>
-			<a class="collection-search js-collection-search" href="#" data-bypass="true"><i class="fa fa-search"></i></a>
+	<div class="tule-collection-tools clearfix">
+		<div class="tule-collection-controls js-collection-controls">
+			<button class="tule-doc-new js-doc-create">Add new</button>
+			<a class="tule-collection-search js-collection-search" href="#" data-bypass="true"><i class="fa fa-search"></i></a>
 		</div>
-		<div class="createRegion" style="display:none"></div>
+		<div class="createRegion"></div>
 		<div class="searchRegion" style="display:none"></div>
 		<div class="paginationRegion"></div>
-
 	</div>
 	<div class="itemsRegion"></div>
 </script>
 
 
-<script type="text/template" id="newDocForm">
-	<form class="newdoc-form">
-		<h4>Create a new one</h4>
-		<div class="object-form"></div>
-		<div class="document-options">
-			<a href="#" class="document-cancel" data-bypass="true">Cancel</a>
-			<button class="document-create" type="submit">Create</button>
+<script type="text/template" id="createDoc">
+	<% if(state.open) { %>
+		<h3>Create a new</h3>
+		<div class="js-doc-create-form"></div>
+		<div class="tule-doc-create-options">
+			<a href="#" class="tule-doc-create-cancel js-doc-create-cancel" data-bypass="true">Cancel</a>
+			<button class="tule-doc-create-ok js-doc-create-ok" type="submit">Create</button>
 		</div>
-	</form>
+	<% } %>
 </script>
 
 <script type="text/template" id="pagination">

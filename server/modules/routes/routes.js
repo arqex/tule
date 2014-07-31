@@ -5,9 +5,10 @@ module.exports = [
 	{route: 'delete::settings/:name', controller: 'apiSettings::removeConfig'},
 
 	{route: 'get::collections', controller: 'apiCollection::list'},
-	{route: 'get::collectionstatus/:name', controller: 'apiCollection::getStatus'},
-	{route: 'post::collection/fields/:name', controller: 'apiCollection::updateCollection'},
-	{route: 'post::collection', controller: 'apiCollection::createCollection'},
+	{route: 'get::collections/:name', controller: 'apiCollection::getStatus'},
+	{route: 'put::collections/:name', controller: 'apiCollection::update'},
+	{route: 'post::collections', controller: 'apiCollection::create'},
+	{route: 'delete::collections/:name', controller: 'apiCollection::remove'},
 
 	{route: 'get::docs/:collection', controller: 'apiDocument::collection'},
 	{route: 'post::docs/:collection', controller: 'apiDocument::create'},

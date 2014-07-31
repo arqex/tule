@@ -253,6 +253,17 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			if(this.viewOptions.closeable)
 				this.trigger('edit:cancel');
 		},
+
+		getEditValue: function() {
+			if(this.state('mode') == 'edit') {
+				var value = {};
+				_.each(this.subViews, function(dataElement, key) {
+					value[key] = dataElement.getEditValue();
+				});
+				return value;
+			}
+			return this.model.get('value');
+		}
 	});
 
 
