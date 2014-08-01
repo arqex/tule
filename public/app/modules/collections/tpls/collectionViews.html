@@ -16,7 +16,7 @@
 
 <script type="text/template" id="createDoc">
 	<% if(state.open) { %>
-		<h3>Create a new</h3>
+		<h3>Create new</h3>
 		<div class="js-doc-create-form"></div>
 		<div class="tule-doc-create-options">
 			<a href="#" class="tule-doc-create-cancel js-doc-create-cancel" data-bypass="true">Cancel</a>
@@ -26,63 +26,37 @@
 </script>
 
 <script type="text/template" id="pagination">
-	<div class="tab">
-		<% if(lastPage > 1) { %>
-			<div class="js-tab-results">
+	<% if(currentPage != 1) { %>
+		<span class="tule-pagination-prev js-prev"><a href="#"><i class="fa fa-chevron-left"></i></a></span>
+	<% } %>
 
-			<% if(currentPage == 1) { %>
-				<a class="js-goto current-page" data-page="1">1</a>
-			<% } else if (currentPage == 2) { %>
-				<a class="js-before"><i class="fa fa-chevron-left"></i></a>
-				<a class="js-goto" data-page="1">1</a>
-				<a class="js-goto current-page" data-page="2">2</a>
-			<% } else if (currentPage > 2) { %>
-				<a class="js-before"><i class="fa fa-chevron-left"></i></a>
-				<a class="js-goto" data-page="<%= currentPage - 2 %>"><%= currentPage - 2 %></a>
-				<a class="js-goto" data-page="<%= currentPage - 1 %>"><%= currentPage - 1 %></a>
-				<a class="js-goto current-page" data-page="<%= currentPage %>"><%= currentPage %></a>
-			<% } %>
+	<% if(from > 1) { %>
+		<a href="#" class="tule-pagination-page js-page-link" data-page="1">1</a>
+	<% } %>
 
-			<% if(distance == 2) { %>
-				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
-			<% } else if(distance == 3) { %>
-				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
-				<a class="js-goto" data-page="<%= currentPage + 2 %>"><%= currentPage + 2 %></a>
-			<% } else if(distance > 3) { %>
-				<a class="js-goto" data-page="<%= currentPage + 1 %>"><%= currentPage + 1 %></a>
-				<a class="js-goto" data-page="<%= currentPage + 2 %>"><%= currentPage + 2 %></a>
-				<a class="js-goto" data-page="<%= currentPage + 3 %>"><%= currentPage + 3 %></a>
-				 ...
-			<% } %>
+	<% if(from > 2) { %>
+		<span class="tule-pagination-dots">...</span>
+	<% } %>
 
-			<% if(distance != 0) { %>
-				<a class="js-goto" data-page="<%= lastPage %>"><%= lastPage %></a>
-				<a class="js-next"><i class="fa fa-chevron-right"></i></a>
-			<% } %>
+	<% for(var i=from; i<=to; i++) { %>
+		<a href="#" class="tule-pagination-page js-page-link <%= i == currentPage ? 'tule-pagination-current' : '' %>" data-page="<%= i %>"><%= i %></a>
+	<% } %>
 
-				<a class="js-goto-switcher">
-				<input type="checkbox" name="goto-switcher" id="button-goto-switcher" />
-				<label for="button-goto-switcher" class="fa fa-arrow-circle-right" name="arrow-right"></label>
-				</a>
+	<% if(to < lastPage - 1) { %>
+		<span class="tule-pagination-dots">...</span>
+	<% } %>
 
-				<div class="goto-panel">
-				    <div class="contents">
-				        <div class="inner">
-				            Go to <input type="number" /> <button class="js-goto-ok">Go</button>
-				        </div>
-				    </div>
-				</div>
-			</div>
-		<% } else if (lastPage == 1) { %>
-			<div class="js-tab-result">
-				<span> All results </span>
-			</div>
-		<% } else if (lastPage == 0) { %>
-			<div class="js-tab-noresults">
-				<span> No results found </span>
-			</div>
-		<% } %>
-	</div>
+	<% if(to < lastPage) { %>
+		<a href="#" class="tule-pagination-page js-page-link" data-page="<%= lastPage %>"><%= lastPage %></a>
+	<% } %>
+
+	<% if(currentPage != lastPage) { %>
+		<span class="tule-pagination-prev js-prev"><a href="#"><i class="fa fa-chevron-right"></i></a></span>
+	<% } %>
+
+	<% if(from > 2 || to < lastPage - 1) { %>
+		<input type="text" class="tule-pagination-goto js-goto" placeholder="go...">
+	<% } %>
 </script>
 
 <script type="text/template" id="doc">

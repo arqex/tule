@@ -188,9 +188,8 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 	});
 
 	/**
-	 * Vew for create new documents, prints out the new document form and triggers
-	 *
-	 *
+	 * View for create new documents, prints out the new document form and triggers
+	 * 'createDoc' when the user create a new document.	 *
 	 */
 	var CreateView = BaseView.extend({
 		tpl: templates.createDoc,
@@ -315,10 +314,100 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		}
 	});
 
+	var PaginationView = BaseView.extend({
+		tpl: templates.pagination,
+		defaults: {
+			currentDoc: 0,
+			pageSize: 0,
+			count: 0
+		},
+
+		events: {
+			'click a': 'onClickPage',
+			'keydown input': 'onKeyPress'
+		},
+
+		initialize: function(opts) {
+			if(!this.model)
+				this.createModel(opts);
+
+			this.listenTo(this.model, 'change', this.render);
+		},
+
+		createModel: function(opts) {
+			var me = this,
+				value = {}
+			;
+
+			_.each(this.defaults, function(def, key) {
+				value[key] = opts[key] || me.defaults[key];
+			});
+
+			this.model = new Backbone.Model(value);
+		},
+
+		render: function() {
+
+			// Frist, calculate page numbers
+			this.calculatePages();
+
+			var data = this.getTemplateData(),
+				pagePadding = 2
+			;
+
+			if(data.lastPage <= 1)
+				return this.$el.html('');
+
+
+			data.from = Math.max(1, data.currentPage - pagePadding);
+			data.to = Math.min(data.currentPage + pagePadding, data.lastPage);
+
+			this.$el.html(
+				this.tpl(data)
+			);
+
+			return this;
+		},
+
+		calculatePages: function() {
+			var data = this.model.toJSON();
+			if(!data.count || !data.pageSize) {
+				data.lastPage = 0;
+				data.currentPage = 0;
+			}
+			else {
+				data.currentPage = Math.floor(data.currentDoc / data.pageSize) + 1;
+				data.lastPage = Math.floor(data.count / data.pageSize) + 1;
+			}
+
+			this.model.set(data);
+		},
+
+		onClickPage: function(e) {
+			e.preventDefault();
+			var page = $(e.currentTarget).data('page');
+
+			if(page != this.model.get('currentPage'))
+				this.trigger('goto', page);
+		},
+
+		onKeyPress: function(e) {
+			// If press enter
+			if(e.which == 13){
+				e.preventDefault();
+
+				var page = this.$('input').val();
+				if(page != this.model.get('currentPage'))
+					this.trigger('goto', page);
+			}
+		}
+	});
+
 	return {
 		DocumentView: DocumentView,
 		CollectionView: CollectionView,
-		CreateView: CreateView
+		CreateView: CreateView,
+		PaginationView: PaginationView
 	};
 
 });

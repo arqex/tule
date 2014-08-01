@@ -204,7 +204,8 @@ module.exports = {
 								skip: skip,
 								limit: limit,
 								sort: sort,
-								current: Math.floor(skip/limit) + 1
+								current: Math.floor(skip/limit) + 1,
+								query: queryOptions.query
 							});
 						});
 					});

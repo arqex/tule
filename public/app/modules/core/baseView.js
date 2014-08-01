@@ -22,6 +22,12 @@ define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, 
 			if(this.model)
 				_.extend(data, this.model.toJSON());
 			return data;
+		},
+
+		render: function() {
+			this.$el.html(this.tpl(this.getTemplateData()));
+
+			return this;
 		}
 	});
 

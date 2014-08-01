@@ -71,6 +71,13 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 					me.results = new Collection(response.documents, {collectionName: me.collectionName});
 					me.documentCount = response.total;
 
+					me.query = response.query;
+					me.modifiers = {
+						skip: response.skip,
+						limit: response.limit,
+						sort: response.sort
+					};
+
 					deferred.resolve(me);
 				})
 				.fail(function(response, status, error){
@@ -87,7 +94,8 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 				var modifier = this.validModifiers[i];
 				if(options[modifier])
 					modifiers[modifier] = options[modifier];
-			};
+			}
+
 			return modifiers;
 		},
 

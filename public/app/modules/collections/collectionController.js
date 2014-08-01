@@ -65,6 +65,8 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 							me.initViews();
 						})
 					;
+
+					$('.js-pagetitle').text('Collection ' + me.collectionName);
 				})
 			;
 
@@ -120,7 +122,8 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 			this.subViews = {
 				items: this.createCollectionView(),
-				create: this.createCreateView()
+				create: this.createCreateView(),
+				pagination: this.createPaginationView()
 			};
 
 			_.each(this.subViews, function(view, key){
@@ -150,6 +153,65 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			this.listenTo(createView, 'cancel', this.closeCreateDoc);
 
 			return createView;
+		},
+
+		createPaginationView: function() {
+			var query = this.currentQuery,
+				paginationView = new CollectionViews.PaginationView({
+					currentDoc: query.modifiers.skip,
+					pageSize: query.modifiers.limit,
+					count: query.documentCount
+				})
+			;
+
+			this.listenTo(paginationView, 'goto', function(page){
+				var data = paginationView.model.toJSON(),
+					modifiers = this.currentQuery.modifiers
+				;
+
+				if(page < 1 || page > data.lastPage)
+					return Alerts.add({message: 'Can\'t go to the page number ' + page, level: 'error'});
+				if(page == data.currentPage)
+					return;
+
+				modifiers.skip = modifiers.limit * (page - 1);
+
+				this.doQuery(this.currentQuery.query, modifiers);
+			});
+
+			return paginationView;
+		},
+
+		doQuery: function(query, modifiers) {
+			var me = this;
+
+			this.service.find(query, modifiers)
+				.then(function(responseQuery) {
+					var items = me.subViews.items;
+
+					// Update query
+					me.currentQuery = responseQuery;
+
+					// Update items
+					items.collection = responseQuery.results;
+					items.resetSubViews();
+					items.render();
+
+					// Update pagination
+					me.subViews.pagination.model.set({
+						currentDoc: responseQuery.modifiers.skip,
+						count: responseQuery.documentCount
+					});
+
+					Backbone.history.navigate(location.pathname + '?' + responseQuery.queryURL);
+				})
+				.fail(function(error) {
+					Alerts.add({
+						message: error,
+						level: 'error'
+					});
+				})
+			;
 		},
 
 		createDocument: function(doc, fieldDefinitions) {

@@ -36,7 +36,7 @@ define(['jquery', 'underscore', 'backbone', 'baseController'], function($, _, Ba
 
 	var TitleView = Backbone.View.extend({
 		tagName: 'h2',
-		className: 'pagetitle',
+		className: 'tule-pagetitle js-pagetitle',
 		initialize: function(options){
 			this.title = options.title;
 		},
