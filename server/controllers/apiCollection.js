@@ -8,7 +8,7 @@ var 	_ 		= require('underscore'),
 var defaultSettings = {
 		propertyDefinitions: [],
 		headerFields: [],
-		allowCustom: true,
+		customProperties: true,
 		mandatoryProperties: [],
 		hiddenProperties: []
 	},
@@ -83,13 +83,19 @@ module.exports = {
 	 * the original name. That name property will be used to fetch the settings from
 	 * the settings collection.
 	 *
+	 * This controller returns the stored settings on success, and it will return success if the
+	 * settings are saved, even thought if the collection already existed and it couldn't be
+	 * created.
+	 *
 	 * @param  {http.ClientRequest} req The request
 	 * @param  {http.ServerResponse} res The response
 	 */
 	create: function(req, res){
 		var name = req.body.collectionName,
 			doc	= req.body,
-			properties = _.extend({}, defaultSettings, doc)
+			properties = _.extend({}, defaultSettings, doc),
+			errors = {},
+			savedSettings = false
 		;
 
 
@@ -99,19 +105,35 @@ module.exports = {
 
 		properties.name = collectionPrefix + name;
 
+		// Create the collection
 		db.createCollection(name, function(err, newDoc){
 			if(err){
 				console.log(err);
-				return res.send(400, {error: 'Internal error while creating new collection'});
+				errors.collection = err;
+			}
+			else {
+				errors.collection = false;
 			}
 
-			db.collection(config.mon.settingsCollection).insert(properties, function(err, props){
-				if(err){
-					console.log(err);
-					return res.send(400, {error: 'Internal error while setting properties'});
-				}
-				res.json(props[0]);
-			});
+			if(typeof errors.settings != 'undefined') {
+				resolveCollectionCreation(errors, savedSettings, res);
+			}
+		});
+
+		// Create the settings
+		db.collection(config.mon.settingsCollection).insert(properties, function(err, props){
+			if(err){
+				console.log(err);
+				errors.collection = err;
+			}
+			else{
+				errors.settings = false;
+				savedSettings = props[0];
+			}
+
+			if(typeof errors.collection != 'undefined') {
+				resolveCollectionCreation(errors, savedSettings, res);
+			}
 		});
 	},
 
@@ -192,7 +214,16 @@ module.exports = {
 				return res.send(400, 'Error deleting the collection: ' + err);
 			}
 			res.send(200, {}); // Empty hash needed for trigger backbone's success callback
-		})
+		});
 	}
 
+}
+
+function resolveCollectionCreation(errors, doc, res) {
+	if(errors.collection && errors.settings)
+		return res.send(400, errors.collection + ' and ' + errors.settings);
+	if(errors.settings)
+		return res.send(400, errors.settings + '; But collection created successfully.');
+
+	res.json(doc);
 }

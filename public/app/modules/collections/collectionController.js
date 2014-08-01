@@ -54,6 +54,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 					me.service.find(location.search.replace('?', ''))
 						.then(function(query){
 							me.currentQuery = query;
+							me.guessHeaderFields();
 						})
 						.fail(function(error, emptyQuery){
 							me.currentQuery = emptyQuery;
@@ -74,23 +75,44 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 				deferred = $.Deferred()
 			;
 			Events.once('service:ready:collection', function(){
-				Services.get('settings')
-					.getCollectionSettings(me.collectionName)
-						.then(function(settings){
-							me.collectionSettings = _.extend(settings.toJSON(), {name: me.collectionName});
+				Services.get('collection')
+					.getStats(me.collectionName)
+						.then(function(stats){
+							me.collectionSettings = stats.settings;
 							deferred.resolve();
 						})
 						.fail(function(error){
 							console.log(error);
 
 							//There has been an error, so we apply default settings
-							me.collectionSettings = {allowCustom: true, name: me.collectionName};
+							me.collectionSettings = {customProperties: true, collectionName: me.collectionName};
 							deferred.resolve();
 						})
 				;
 			});
 
 			return deferred.promise();
+		},
+
+		guessHeaderFields: function() {
+			if(this.collectionSettings.headerFields)
+				return;
+
+			var headerFields = [],
+				docs = this.currentQuery.results
+			;
+
+			if(! docs.length)
+				return;
+
+			var doc = docs.at(0);
+
+			if(doc.get('title'))
+				headerFields.push('title');
+			else if(doc.get('name'))
+				headerFields.push('name');
+
+			this.collectionSettings.headerFields = headerFields;
 		},
 
 		initViews: function(){
@@ -114,7 +136,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 			this.listenTo(collection, 'saveDocument', this.saveDocument);
 			this.listenTo(collection, 'click:remove', this.deleteDocument);
-			this.listenTo(collection, 'clickField', this.editDocument)
+			this.listenTo(collection, 'clickField', this.editDocument);
 
 			return collection;
 		},
@@ -162,9 +184,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 						autoclose: 5000
 					});
 				})
+			;
 		},
 
-		saveDocument: function(docView) {
+		saveDocument: function(docView, fieldDefinitions) {
+			var me = this;
 
 			// Update the model
 			docView.model.set(docView.objectView.model.get('value'));
@@ -174,6 +198,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			this.service.save(docView.model)
 				.then(function(){
 					Alerts.add({message: 'Saved successfully!', autoclose: 5000});
+					me.updateFieldDefinitions(fieldDefinitions);
 				})
 				.fail(function(){
 					Alerts.add({message: 'There was an error saving the document. Please, try again.', level: 'error'});
@@ -236,7 +261,47 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		},
 
 		updateFieldDefinitions: function(fieldDefinitions) {
+			var currentDefinitions = this.collectionSettings.propertyDefinitions,
+				// Mark for update if the settings are not already stored
+				update = !this.collectionSettings._id,
+				equalsKey = function(target) {
+					return function(def) {
+						return def.key == target.key;
+					};
+				},
+				me = this
+			;
 
+			if(!currentDefinitions)
+				currentDefinitions = (this.collectionSettings.propertyDefinitions = []);
+
+			// Check every field and add the new ones.
+			_.each(fieldDefinitions, function(targetDefinition){
+				if(!_.find(currentDefinitions, equalsKey(targetDefinition))){
+					currentDefinitions.push(targetDefinition);
+					update = true;
+				}
+			});
+
+			if(!update)
+				return;
+
+			// Update or create the settings depending on th
+			var service = Services.get('collection'),
+				method = this.collectionSettings._id ? 'updateSettings' : 'create'
+			;
+
+			// Be sure the collectionName is set
+			this.collectionSettings.collectionName = this.collectionName;
+
+			service[method](this.collectionName, this.collectionSettings)
+				.then(function(storedSettings){
+					me.collectionSettings = storedSettings;
+					_.each(me.subViews, function(view){
+						view.updateCollectionSettings(storedSettings);
+					});
+				})
+			;
 		},
 
 		/**
@@ -276,11 +341,12 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 																service.getStats(collectionName)
 																	.then(function(){
-																		console.log('Error: We shouldn\'t get stats from a dropped collection.')
+																		console.log('Error: We shouldn\'t get stats from a dropped collection.');
 																	})
 																	.fail(function(){
 																		console.log('PERFECT!');
 																	})
+																;
 															})
 															.fail(function(error){
 																console.log('Error dropping the collection: ' + error);

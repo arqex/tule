@@ -58,11 +58,11 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 				value: this.model.toJSON(),
 				state: {mode: 'edit'},
 				viewOptions: {closeable: false}
-			})
+			});
 		},
 
 		edit: function() {
-			if(!this.state('mode') == 'edit')
+			if(this.state('mode') == 'edit')
 				return;
 
 			this.state('mode', 'edit');
@@ -100,7 +100,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 			if(this.subViews){
 				_.each(this.subViews, function(subView){
-					subView.remove;
+					subView.remove();
 				});
 			}
 
@@ -118,19 +118,9 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		getDocHeaderFields: function() {
 			var headerFields = this.collectionSettings.headerFields;
 
+			// If we don't have header fields, add the _id.
 			if(!headerFields || !headerFields.length){
-				headerFields = [];
-
-				if(this.collection.length){
-					var model = this.collection.at(0);
-
-					if(model.get('title'))
-						headerFields.push('title');
-					else if(model.get('name'))
-						headerFields.push('name');
-					else
-						headerFields.push('_id');
-				}
+					headerFields = ['_id'];
 			}
 
 			return headerFields.concat([
@@ -160,7 +150,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			;
 
 			if(subView)
-				this.trigger('saveDocument', subView);
+				this.trigger('saveDocument', subView, subView.objectView.typeOptions.propertyDefinitions);
 		},
 
 		onClickCancel: function(e){
@@ -185,6 +175,15 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 				this.trigger('click:' + action, subView);
 				this.trigger('clickField', subView, action);
 			}
+		},
+
+		updateCollectionSettings: function(updatedSettings) {
+			this.collectionSettings = updatedSettings;
+			_.each(this.subViews, function(view){
+				view.collectionSettings = updatedSettings;
+				view.objectView.typeOptions = updatedSettings;
+				view.objectView.createPropertyDefinitions();
+			});
 		}
 	});
 
@@ -226,12 +225,36 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		},
 
 		createObjectView: function() {
+			var settings = this.mergeMandatoryAndHeaderFields();
 			return Services.get('datatype').get({
-				datatype: {id: 'object', options: this.collectionSettings},
+				datatype: {id: 'object', options: settings},
 				value: this.model.toJSON(),
 				state: {mode: 'edit'},
 				viewOptions: {closeable: false, editAllProperties: true}
 			});
+		},
+
+		/**
+		 * Return a copy of the settings where the header fields are added to the mandatory properties,
+		 * in order to make those fields appear in the form automatically.
+		 *
+		 * @return {Object} Updated collection settings.
+		 */
+		mergeMandatoryAndHeaderFields: function(){
+			// Deep cloning
+			var settings = $.extend(true, {}, this.collectionSettings);
+
+			if(!settings.mandatoryProperties) {
+				settings.mandatoryProperties = [];
+			}
+
+			if(!settings.headerFields) {
+				settings.headerFields = [];
+			}
+
+			settings.mandatoryProperties = _.union(settings.mandatoryProperties, settings.headerFields);
+
+			return settings;
 		},
 
 		open: function() {
@@ -239,6 +262,15 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 				this.state('open', true);
 				this.render();
 				this.$el.addClass('tule-doc-create-open');
+
+				// Focus the first input
+				var inputs = this.$('input');
+				if(inputs.length){
+					//wait for rendering
+					setTimeout(function(){
+						$(inputs[0]).focus();
+					},100);
+				}
 			}
 
 			return this;
@@ -276,6 +308,10 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		onClickCancel: function(e) {
 			e.preventDefault();
 			this.trigger('cancel');
+		},
+
+		updateCollectionSettings: function(updatedSettings) {
+			this.collectionSettings = updatedSettings;
 		}
 	});
 

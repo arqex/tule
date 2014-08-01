@@ -39,11 +39,9 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 		},
 
 		initialize: function(opts){
-			var me = this,
 
-				//Make sure the value is an object
-				value = this.model.get('value') || _.clone(this.defaultModelValue)
-			;
+			//Make sure the value is an object
+			var value = this.model.get('value') || _.clone(this.defaultModelValue);
 
 			// And re-set it
 			if(!this.model)
@@ -55,13 +53,21 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 				close: '.js-object-close[data-cid=' + this.cid + ']'
 			};
 
+			this.createPropertyDefinitions();
+		},
+
+		/**
+		 * Creates a shortcut to the property definitions to fast access.
+		 * @return {undefined}
+		 */
+		createPropertyDefinitions: function() {
+			var me = this;
+
 			//Let's make the property definitions quicky accesible
 			this.propertyDefinitions = {};
 			_.each(this.typeOptions.propertyDefinitions, function(definition){
 				me.propertyDefinitions[definition.key] = definition;
 			});
-
-			// this.listenTo(this.model, 'change', this.render);
 		},
 
 		createSubViews: function() {
@@ -216,7 +222,10 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			;
 
 			// Update property definitions
-			this.propertyDefinitions[key] = elementData;
+			if(!this.propertyDefinitions[key]) {
+				this.propertyDefinitions[key] = elementData;
+				this.typeOptions.propertyDefinitions.push(elementData);
+			}
 
 			// Create subview
 			var newPropertyView = this.createSubView(key, value);

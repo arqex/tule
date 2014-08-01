@@ -187,7 +187,8 @@ define(deps, function($, _, Backbone, CollectionModels){
 		},
 
 		/**
-		 * Creates a new collection
+		 * Creates a new collection and its settings.
+		 *
 		 * @param  {String} collectionName The collection name.
 		 * @param  {Object} settings       The initial settings for the collection.
 		 * @return {Promise}                To be resolved when the collection is created.
