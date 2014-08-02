@@ -19,7 +19,7 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 
 		events: {
 			'click .js-DEok': 'onOk',
-			'click .js-DEcancel': 'cancel'
+			'click .js-DEcancel': 'onCancel'
 		},
 
 		defaultViewOptions: {

@@ -61,24 +61,29 @@
   }
   .paginationRegion {
   		float: right;
-  		margin-top: 5px;
+  		margin: 5px 0 0 @margin-narrow;
   }
 }
 
+.tule-doc-dialog() {
+	background: @color-main-0;
+	border: 1px solid #eee;
+	box-shadow: @shadow;
+	padding: @margin;
+	display: none;
+	margin-bottom: @margin;
+
+	h3 {
+		margin-top: 0;
+	}
+}
+
 .tule-doc-create {
-  background: @color-main-0;
-  border: 1px solid #eee;
-  box-shadow: @shadow;
-  padding: @margin;
-  display: none;
+	.tule-doc-dialog();
 
-  &.tule-doc-create-open {
-    display: block;
-  }
-
-  h3 {
-    margin-top: 0;
-  }
+	&.tule-doc-create-open {
+		display: block;
+	}
 }
 
 .tule-doc-create-options {
@@ -91,4 +96,57 @@
 
 .tule-pagination-current {
 	font-weight: bold;
+	font-size: 1.1em;
+}
+
+
+
+/** Search */
+
+.tule-search {
+	.tule-doc-dialog();
+
+	&.tule-doc-search-open {
+		display: block;
+	}
+
+	.tule-search-controls {
+		text-align: right;
+	}
+}
+
+.tule-collection-search-link {
+	margin-left: @margin-narrow;
+}
+
+.tule-search-clause {
+	margin-bottom: @margin-narrow;
+}
+
+.tule-search-logic-controls {
+	margin: 0 0 @margin-narrow 70px;
+}
+
+.tule-search-op-logical {
+
+}
+
+.tule-search-key {
+	width: 100px;
+}
+
+.tule-search-op-hidden {
+	visibility: hidden;
+}
+
+.tule-search-delete {
+	display: none;
+}
+
+/** Count */
+.countRegion {
+	float: right;
+	margin-top: 7px;
+	font-style: italic;
+	color: #999;
 }

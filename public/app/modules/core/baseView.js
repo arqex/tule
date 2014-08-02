@@ -3,6 +3,7 @@
 define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, Backbone, Region, mixins){
 	var BaseView = Backbone.View.extend({
 		constructor: function(options){
+			options = options || {};
 
 			//Create the state model
 			var state = options.state || this.defaultState || {};

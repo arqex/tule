@@ -171,6 +171,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 				subView = this.subViews[docId],
 				action = field.data('action')
 			;
+
 			if(subView){
 				this.trigger('click:' + action, subView);
 				this.trigger('clickField', subView, action);
@@ -403,11 +404,247 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		}
 	});
 
+	var SearchView = BaseView.extend({
+		tpl: templates.search,
+		clauseTpl: templates.searchClause,
+
+		className: 'tule-search',
+
+		events: {
+			'click .js-search-add': 'onAddClause',
+			'click .js-search-cancel': 'onCancel',
+			'click .js-search-ok': 'onOk',
+			'click .js-search-delete': 'onDeleteClause'
+		},
+
+		defaultState: {
+			open: false
+		},
+
+		initialize: function(opts) {
+			this.query = opts.query || {};
+			this.clauses = [];
+		},
+
+		open: function() {
+			if(!this.state('open')){
+				this.state('open', true);
+
+				//Render if it's never been rendered
+				if(!this.$('.js-search-clauses').length)
+					this.render();
+
+				this.$el.addClass('tule-doc-search-open');
+
+				// Focus the first input
+				var inputs = this.$('input');
+				if(inputs.length){
+					//wait for rendering
+					setTimeout(function(){
+						$(inputs[0]).focus();
+					},100);
+				}
+			}
+
+			return this;
+		},
+
+		close: function() {
+			if(this.state('open')){
+				this.state('open', false);
+				this.$el.removeClass('tule-doc-search-open');
+			}
+
+			return this;
+		},
+
+		render: function() {
+			var me = this,
+				clauses = this.queryToClauses(this.query)
+			;
+			this.$el.html(this.tpl(this.getTemplateData()));
+
+			if(!clauses.length)
+				return this.addClause();
+
+			_.each(clauses, function(clause){
+				this.$('.js-search-clauses').append(this.clauseTpl(clause));
+			});
+
+			return this;
+		},
+
+		queryToClauses: function(query) {
+			//TODO implementation
+			return [];
+		},
+
+		clausesToQuery: function(clauses) {
+			var me = this,
+				clauseBuffer = [],
+				orGroups = []
+			;
+			_.each(clauses, function(clause) {
+				if(clause.logical == 'and')
+					clauseBuffer.push(me.clauseToMongo(clause));
+				else if(clause.logical == 'or') {
+					orGroups.push({'$and': clauseBuffer});
+					clauseBuffer = [me.clauseToMongo(clause)];
+				}
+			});
+
+			orGroups.push({'$and': clauseBuffer});
+
+			if(orGroups.length == 1){
+				return orGroups[0];
+			}
+			else {
+				return {'$or': orGroups};
+			}
+		},
+
+		clauseToMongo: function(clause) {
+			var mongoClause = {},
+				logical = clause.value
+			;
+
+			if(clause.comparison != 'eq'){
+				logical = {};
+				logical['$' + clause.comparison] = clause.value;
+			}
+
+			mongoClause[clause.key] = logical;
+			return mongoClause;
+		},
+
+		addClause: function(operator) {
+			var clause = {
+					operator:operator,
+					key: '',
+					value: '',
+					comparison: ''
+				},
+				$clauses
+			;
+
+			// Add the new clause
+			this.$('.js-search-clauses').append(this.clauseTpl(clause));
+
+			$clauses = this.$('.js-search-clause');
+
+			if($clauses.length > 1)
+				this.enableDeleteClauses();
+
+			$clauses.last().find('.js-search-key').focus();
+		},
+
+		getClauseValues: function() {
+			var clauses = [];
+
+			this.$('.js-search-clause').each(function(){
+				var $clause = $(this),
+					clause = {
+						key: $.trim($clause.find('.js-search-key').val() || ''),
+						value: $.trim($clause.find('.js-search-value').val() || '')
+					}
+				;
+
+				if(clause.key && clause.value){
+					clause.logical = $clause.find('.js-search-op-logical').val() || 'and';
+					clause.comparison = $clause.find('.js-search-op-comparison').val();
+
+					clauses.push(clause);
+				}
+			});
+
+			return clauses;
+		},
+
+		onAddClause: function(e){
+			e.preventDefault();
+
+			var values = this.getClauseValues(),
+				$clauses = this.$('.js-search-clause')
+			;
+
+			if(values.length != $clauses.length){
+				return Alerts.add({
+					message: 'Fill all the clauses before adding a new one.',
+					level: 'error',
+					autoclose: 6000
+				});
+			}
+
+			this.addClause($(e.target).data('operator'));
+		},
+
+		onCancel: function(e){
+			e.preventDefault();
+			this.trigger('searchCancel');
+		},
+
+		onOk: function(e){
+			e.preventDefault();
+			var query = this.clausesToQuery(this.getClauseValues());
+			this.trigger('searchOk', query);
+		},
+
+		onDeleteClause: function(e) {
+			e.preventDefault();
+			var $clause = $(e.target).closest('.js-search-clause'),
+				$clauses = this.$('.js-search-clause')
+			;
+
+			if ($clauses.length < 2)
+				return;
+
+			if ($clauses.length == 2)
+				this.disableDeleteClauses();
+
+			$clause.remove();
+
+			this.$('.js-search-clause').first()
+				.find('.js-search-op-logical')
+					.addClass('tule-search-op-hidden')
+			;
+		},
+
+		enableDeleteClauses: function() {
+			this.$('.js-search-delete').show();
+		},
+
+		disableDeleteClauses: function() {
+			this.$('.js-search-delete').hide();
+		}
+	});
+
+	var DocumentCountView = BaseView.extend({
+		tpl: templates.docCount,
+		modelDefaults: {
+			count: 0,
+			search: false
+		},
+
+		initialize: function(opts) {
+			var modelData = {};
+
+			_.each(this.modelDefaults, function(value, key){
+				modelData[key] = opts[key] || value;
+			});
+
+			this.model = new Backbone.Model(modelData);
+
+			this.listenTo(this.model, 'change', this.render);
+		}
+	});
+
 	return {
 		DocumentView: DocumentView,
 		CollectionView: CollectionView,
 		CreateView: CreateView,
-		PaginationView: PaginationView
+		PaginationView: PaginationView,
+		SearchView: SearchView,
+		DocumentCountView: DocumentCountView
 	};
 
 });

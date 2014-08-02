@@ -29,12 +29,13 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			create: '.createRegion',
 			search: '.searchRegion',
 			pagination: '.paginationRegion',
-			items: '.itemsRegion'
+			items: '.itemsRegion',
+			count: '.countRegion'
 		},
 
 		events: {
 			'click .js-doc-create': 'openCreateDoc',
-			'click .js-collection-search': 'openSearchTools'
+			'click .js-collection-search': 'openSearch'
 		},
 
 		init: function(options){
@@ -123,7 +124,9 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			this.subViews = {
 				items: this.createCollectionView(),
 				create: this.createCreateView(),
-				pagination: this.createPaginationView()
+				pagination: this.createPaginationView(),
+				search: this.createSearchView(),
+				count: this.createCountView()
 			};
 
 			_.each(this.subViews, function(view, key){
@@ -182,6 +185,24 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			return paginationView;
 		},
 
+		createSearchView: function() {
+			var searchView = new CollectionViews.SearchView({query: this.currentQuery.query});
+
+			this.listenTo(searchView, 'searchCancel', this.closeSearch);
+			this.listenTo(searchView, 'searchOk', this.doQuery);
+
+			return searchView;
+		},
+
+		createCountView: function() {
+			var countView = new CollectionViews.DocumentCountView({
+				search: !_.isEmpty(this.currentQuery.query),
+				count: this.currentQuery.documentCount
+			});
+
+			return countView;
+		},
+
 		doQuery: function(query, modifiers) {
 			var me = this;
 
@@ -200,6 +221,12 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 					// Update pagination
 					me.subViews.pagination.model.set({
 						currentDoc: responseQuery.modifiers.skip,
+						count: responseQuery.documentCount
+					});
+
+					// Update count
+					me.subViews.count.model.set({
+						search: !_.isEmpty(responseQuery.query),
 						count: responseQuery.documentCount
 					});
 
@@ -320,6 +347,19 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		closeCreateDoc: function() {
 			this.$('.js-collection-controls').show();
 			this.subViews.create.close();
+		},
+
+		openSearch: function(e) {
+			if(e)
+				e.preventDefault();
+
+			this.$('.js-collection-controls').hide();
+			this.subViews.search.open();
+		},
+
+		closeSearch: function() {
+			this.$('.js-collection-controls').show();
+			this.subViews.search.close();
 		},
 
 		updateFieldDefinitions: function(fieldDefinitions) {

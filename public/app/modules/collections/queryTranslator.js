@@ -34,7 +34,8 @@
 				'$in': 'in',
 				'$nin': 'nin',
 				'$lt': 'lt',
-				'$lte': 'lte'
+				'$lte': 'lte',
+				'$ne': 'ne'
 			},
 
 			logical: {
@@ -58,6 +59,7 @@
 				'nin': '$nin',
 				'lt': '$lt',
 				'lte': '$lte',
+				'ne': '$ne',
 				'eq': 'eq' // Eq is not a MongoDB operator
 			},
 		},
