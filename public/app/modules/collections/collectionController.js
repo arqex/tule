@@ -22,6 +22,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		collections
 	;
 
+	/**
+	 * Handles the client route /collection/list/:collectionName
+	 *
+	 * Allows to create/search/edit/delete documents.
+	 */
 	var CollectionController = BaseController.extend({
 		template: templates.main(),
 
@@ -55,6 +60,9 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 					me.service.find(location.search.replace('?', ''))
 						.then(function(query){
 							me.currentQuery = query;
+
+							// Try to guess the fields for document headers,
+							// in case they are not defined by the collection settigns.
 							me.guessHeaderFields();
 						})
 						.fail(function(error, emptyQuery){
@@ -73,6 +81,12 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 		},
 
+		/**
+		 * Fetches the collection settings from the server. If there are no settings
+		 * for the collection, applies some defaults.
+		 *
+		 * @return {Promise} A promise to be resolved with the settings when fetched.
+		 */
 		initCollectionSettings: function(){
 			var me = this,
 				deferred = $.Deferred()
@@ -97,6 +111,12 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			return deferred.promise();
 		},
 
+		/**
+		 * If there are not headerFields defined in the collection settings, checks if a
+		 * title or name attribute exists in the docs, and add it as header field.
+		 *
+		 * @return {undefined}
+		 */
 		guessHeaderFields: function() {
 			if(this.collectionSettings.headerFields)
 				return;
@@ -118,6 +138,12 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			this.collectionSettings.headerFields = headerFields;
 		},
 
+		/**
+		 * Create all the sub views, add them to the subViews attribute and
+		 * render them.
+		 *
+		 * @return {undefined}
+		 */
 		initViews: function(){
 			var me = this;
 
@@ -167,16 +193,19 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 				})
 			;
 
+			// Listen to the page clicks
 			this.listenTo(paginationView, 'goto', function(page){
 				var data = paginationView.model.toJSON(),
 					modifiers = this.currentQuery.modifiers
 				;
 
+				// Check if the page is correct.
 				if(page < 1 || page > data.lastPage)
 					return Alerts.add({message: 'Can\'t go to the page number ' + page, level: 'error'});
 				if(page == data.currentPage)
 					return;
 
+				// update the skip depending on the page
 				modifiers.skip = modifiers.limit * (page - 1);
 
 				this.doQuery(this.currentQuery.query, modifiers);
@@ -203,10 +232,17 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			return countView;
 		},
 
+		/**
+		 * Make a query to the server and updates the views with the results.
+		 *
+		 * @param  {Object} query     A MongoDB alike query.
+		 * @param  {Object} modifiers Modifiers for the query. skip, limit and sort accepted.
+		 * @return {Promise}          A promise to be resolved when the results are fetched.
+		 */
 		doQuery: function(query, modifiers) {
 			var me = this;
 
-			this.service.find(query, modifiers)
+			return this.service.find(query, modifiers)
 				.then(function(responseQuery) {
 					var items = me.subViews.items;
 
@@ -241,6 +277,15 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			;
 		},
 
+		/**
+		 * Save a new document in the server and update the views to show the new element.
+		 * If new fields definition are created by the document, it updates the collection
+		 * settings to have them too.
+		 *
+		 * @param  {Document} doc            The document object
+		 * @param  {Object} fieldDefinitions Field definitions for the document.
+		 * @return {Promise}          A promise to be resolved when the document is saved.
+		 */
 		createDocument: function(doc, fieldDefinitions) {
 			if(!_.keys(doc.attributes).length) {
 				return Alerts.add({
@@ -251,7 +296,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 			var me = this;
 
-			this.service.save(doc)
+			return this.service.save(doc)
 				.then(function() {
 					var itemsView = me.subViews.items;
 
@@ -272,10 +317,23 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 						message: 'Document created.',
 						autoclose: 5000
 					});
+
+					// Update count
+					me.currentQuery.documentCount++;
+					me.subViews.count.model.set({count: me.currentQuery.documentCount});
 				})
 			;
 		},
 
+		/**
+		 * Updates a document that is already in the views.
+		 * If new fields definition are created by the document, it updates the collection
+		 * settings to have them too.
+		 *
+		 * @param  {DocumentView} docView    The view of the document to be saved.
+		 * @param  {Object} fieldDefinitions Field definitions for the document.
+		 * @return {Promise}                 A promise to be resolved when the document is saved.
+		 */
 		saveDocument: function(docView, fieldDefinitions) {
 			var me = this;
 
@@ -284,7 +342,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			docView.render();
 
 			// Save the model
-			this.service.save(docView.model)
+			return this.service.save(docView.model)
 				.then(function(){
 					Alerts.add({message: 'Saved successfully!', autoclose: 5000});
 					me.updateFieldDefinitions(fieldDefinitions);
@@ -295,6 +353,12 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			;
 		},
 
+		/**
+		 * Delete a document from the server updating the view, after user confirmation.
+		 *
+		 * @param  {DocumentView} docView    The view of the document to be deleted.
+		 * @return {[type]}         [description]
+		 */
 		deleteDocument: function(docView) {
 			var me = this,
 				itemsView = me.subViews.items,
@@ -306,26 +370,14 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 				})
 			;
 
+			// Delete the document if user confirms
 			dialog.once('alertOk', function(){
 				me.service.remove(doc)
 					.then(function(){
 						Alerts.add({message: 'Deleted successfully!', autoclose: 5000});
 
-						// Reload current query to update the documents.
-						me.service.find(location.search.replace('?', ''))
-							.then(function(query){
-								me.currentQuery = query;
-
-								itemsView.collection = query.results;
-								itemsView.resetSubViews();
-								itemsView.render();
-							})
-							.fail(function(error, emptyQuery){
-								// Oh an error! Just remove the document.
-								itemsView.collection.remove(doc);
-								itemsView.render(doc);
-							})
-						;
+						//Refresh the documents to show a complete page
+						me.doQuery(me.currentQuery.query, me.currentQuery.modifiers);
 					})
 					.fail(function(){
 						Alerts.add({message: 'There was an error deleting the document. Please, try again.', level: 'error'});
@@ -334,34 +386,14 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			});
 		},
 
-		editDocument: function(docView, action) {
-			if(action != 'remove')
-				docView.edit();
-		},
-
-		openCreateDoc: function() {
-			this.$('.js-collection-controls').hide();
-			this.subViews.create.open();
-		},
-
-		closeCreateDoc: function() {
-			this.$('.js-collection-controls').show();
-			this.subViews.create.close();
-		},
-
-		openSearch: function(e) {
-			if(e)
-				e.preventDefault();
-
-			this.$('.js-collection-controls').hide();
-			this.subViews.search.open();
-		},
-
-		closeSearch: function() {
-			this.$('.js-collection-controls').show();
-			this.subViews.search.close();
-		},
-
+		/**
+		 * Search the fieldDefinition object given for new definitions, not exisiting
+		 * in the current collection settings. If found, it adds the new definition to the collection settings, and store them in
+		 * the server. Also, updates the settings of all the subViews.
+		 *
+		 * @param  {Object} fieldDefinitions Field definition as stored in collection settings.
+		 * @return {undefined}
+		 */
 		updateFieldDefinitions: function(fieldDefinitions) {
 			var currentDefinitions = this.collectionSettings.propertyDefinitions,
 				// Mark for update if the settings are not already stored
@@ -400,11 +432,78 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 				.then(function(storedSettings){
 					me.collectionSettings = storedSettings;
 					_.each(me.subViews, function(view){
-						view.updateCollectionSettings(storedSettings);
+						if(view.updateCollectionSettings)
+							view.updateCollectionSettings(storedSettings);
 					});
 				})
 			;
 		},
+
+		/**
+		 * Handles CollectionView[clicField] event.
+		 * When user clicks on edit a document, opens the document edition view.
+		 *
+		 * @param  {DocumentView} docView    	The view of the document clicked.
+		 * @param  {String} action  				The action of the field clicked.
+		 * @return {undefined}
+		 */
+		editDocument: function(docView, action) {
+			if(action != 'remove')
+				docView.edit();
+		},
+
+		/**
+		 * Handles click on the Add new button.
+		 * Opens the Create new document form.
+		 *
+		 * @param  {Event} e Click event
+		 * @return {undefined}
+		 */
+		openCreateDoc: function(e) {
+			if(e)
+				e.preventDefault();
+
+			this.$('.js-collection-controls').hide();
+			this.subViews.create.open();
+		},
+
+		/**
+		 * Handles CreateView[cancel] event.
+		 * Closes the create new document form.
+		 *
+		 * @return {undefined}
+		 */
+		closeCreateDoc: function() {
+			this.$('.js-collection-controls').show();
+			this.subViews.create.close();
+		},
+
+		/**
+		 * Handles click on the magnifying glass icon.
+		 * Opens the search form.
+		 *
+		 * @param  {Event} e Click event
+		 * @return {undefined}
+		 */
+		openSearch: function(e) {
+			if(e)
+				e.preventDefault();
+
+			this.$('.js-collection-controls').hide();
+			this.subViews.search.open();
+		},
+
+		/**
+		 * Handles SearchView[cancel] event.
+		 * Closes the search form.
+		 *
+		 * @return {undefined}
+		 */
+		closeSearch: function() {
+			this.$('.js-collection-controls').show();
+			this.subViews.search.close();
+		},
+
 
 		/**
 		 * Method to test the collection service.

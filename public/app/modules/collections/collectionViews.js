@@ -13,6 +13,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 	var templates = BaseView.prototype.extractTemplates(tplSource);
 
+	/**
+	 * View for a single document inside a collection view.
+	 * In display mode, it show a header with the fields in the headerFields collection setting.
+	 * In edit mode, it uses the object type view for document editing.
+	 *
+	 * This view doesn't trigger any event.
+	 */
 	var DocumentView = BaseView.extend({
 		tpl: templates.doc,
 		tagName: 'tbody',
@@ -29,13 +36,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			this.collectionSettings = opts.collectionSettings || {};
 
 			this.objectView =  false;
-
 		},
 
 		render: function() {
 			this.$el.html(this.tpl(this.getTemplateData()));
 
 			if(this.state('mode') == 'edit'){
+				// Create the object view if it is not already created.
 				if(!this.objectView)
 					this.objectView = this.createObjectView();
 
@@ -52,7 +59,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			};
 		},
 
+		/**
+		 * Create the object view in order to edit the document.
+		 *
+		 * @return {ObjectTypeView}
+		 */
 		createObjectView: function() {
+			// Use the collection settings as the object type options.
 			return Services.get('datatype').get({
 				datatype: {id: 'object', options: this.collectionSettings},
 				value: this.model.toJSON(),
@@ -78,6 +91,18 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		}
 	});
 
+	/**
+	 * View for a list of documents.
+	 *
+	 * It use the headerFields attribute from collection settings to show document's header.
+	 *
+	 * @event 'clickField' When a document header field is clicked.
+	 *        Arguments: Document's view, Field 'action' name.
+	 * @event 'click:[fieldAction]' When the document header field with action 'fieldAction'
+	 *        is clicked. Arguments: Document's view.
+	 * @event 'saveDocument' When user clicks ok after editing a document.
+	 *        Arguments: Document's view, Document's field definitions.
+	 */
 	var CollectionView = BaseView.extend({
 		tagName: 'table',
 		className: 'tule-collection-items',
@@ -93,6 +118,12 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			this.resetSubViews();
 		},
 
+		/**
+		 * Remove all the subviews and re-create them using the collection attribute.
+		 * This is useful when the collection is updated.
+		 *
+		 * @return {undefined}
+		 */
 		resetSubViews: function() {
 			var me = this,
 				headerFields = this.getDocHeaderFields()
@@ -115,6 +146,17 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			});
 		},
 
+		/**
+		 * Create the header field list to show in the document's headers.
+		 * It adds the edit and delete icons.
+		 *
+		 * @return {Array} The list of headers. The elements can be:
+		 *                     * String: The name of the field in the document. The value of that
+		 *                     		field will be shown in the header. The field name will be used
+		 *                     		as action for the click event.
+		 *                     * Object: An icon will be shown (font awesome), and the action attribute
+		 *                     		will be used in the event triggered on click.
+		 */
 		getDocHeaderFields: function() {
 			var headerFields = this.collectionSettings.headerFields;
 
@@ -132,13 +174,23 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		render: function() {
 			var me = this;
 
-			this.el.innerHTML = '';
+			// If no documents, show an alert.
+			if(!this.collection.length){
+				this.$el.html(templates.nodocs({
+					message: 'Not documents found'
+				}));
+			}
+			else {
 
-			_.each(this.subViews, function(view){
-				view.render();
-				me.$el.append(view.el);
-				view.delegateEvents();
-			});
+				// Render all the documents
+				this.el.innerHTML = '';
+
+				_.each(this.subViews, function(view){
+					view.render();
+					me.$el.append(view.el);
+					view.delegateEvents();
+				});
+			}
 
 			return this;
 		},
@@ -178,6 +230,12 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			}
 		},
 
+		/**
+		 * Update the collection settings in the view itself and in its document views.
+		 *
+		 * @param  {Object} updatedSettings The new settings.
+		 * @return {undefined}
+		 */
 		updateCollectionSettings: function(updatedSettings) {
 			this.collectionSettings = updatedSettings;
 			_.each(this.subViews, function(view){
@@ -189,8 +247,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 	});
 
 	/**
-	 * View for create new documents, prints out the new document form and triggers
-	 * 'createDoc' when the user create a new document.	 *
+	 * View for create new documents, prints out the new document form.
+	 * Uses the Object type view to edit the new document.
+	 *
+	 * @event 'createDoc' When the user clicks on the save button.
+	 *        Arguments: The Document model, Document property definitions.
+	 *
+	 * @event 'cancel' When the user clicks on the cancel link. No arguments
 	 */
 	var CreateView = BaseView.extend({
 		tpl: templates.createDoc,
@@ -224,6 +287,12 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			}
 		},
 
+
+		/**
+		 * Create the object view in order to edit the document.
+		 *
+		 * @return {ObjectTypeView}
+		 */
 		createObjectView: function() {
 			var settings = this.mergeMandatoryAndHeaderFields();
 			return Services.get('datatype').get({
@@ -257,6 +326,11 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			return settings;
 		},
 
+		/**
+		 * Opens the create form.
+		 *
+		 * @chainable
+		 */
 		open: function() {
 			if(!this.state('open')){
 				this.state('open', true);
@@ -276,6 +350,11 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			return this;
 		},
 
+		/**
+		 * Closes the create form.
+		 *
+		 * @chainable
+		 */
 		close: function() {
 			if(this.state('open')){
 				this.state('open', false);
@@ -286,9 +365,14 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			return this;
 		},
 
+		/**
+		 * Resets the form, creating a new one.
+		 *
+		 * @chainable
+		 */
 		reset: function() {
 			this.model = Services.get('collection')
-				.collection(this.collectionSettings.name)
+				.collection(this.collectionSettings.collectionName)
 					.getNew()
 			;
 
@@ -310,11 +394,26 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			this.trigger('cancel');
 		},
 
+		/**
+		 * Update the collection settings.
+		 *
+		 * @param  {Object} updatedSettings The new collection settings.
+		 * @return {undefined}
+		 */
 		updateCollectionSettings: function(updatedSettings) {
 			this.collectionSettings = updatedSettings;
 		}
 	});
 
+	/**
+	 * Shows the links that allow to navigate among pages of documents.
+	 *
+	 * It calculates the number of the pages and the current one based on
+	 * the number of documents, the page size and the current document index.
+	 *
+	 * @event 'goto' when the user click on a page link or uses the 'go to page' input.
+	 *        Arguments: Page number.
+	 */
 	var PaginationView = BaseView.extend({
 		tpl: templates.pagination,
 		defaults: {
@@ -328,6 +427,19 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			'keydown input': 'onKeyPress'
 		},
 
+		/**
+		 * Initializes the view and create the model using the options given.
+		 *
+		 * @param  {Object} opts The data needed to start the navigation. The following
+		 *                       properties are accepted:
+		 *                       * currentDoc: The index of the first document that it's shown
+		 *                       		in the total of documents.
+		 *                       * pageSize: Number of documents shown per page. Used to calculate
+		 *                       		the total count of pages and the current one.
+		 *                       * count: Total of documents. Used to calculate the total count of
+		 *                       		pages.
+		 * @return {undefined}
+		 */
 		initialize: function(opts) {
 			if(!this.model)
 				this.createModel(opts);
@@ -335,6 +447,12 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			this.listenTo(this.model, 'change', this.render);
 		},
 
+		/**
+		 * Create the model needed by the view.
+		 *
+		 * @param  {Object} opts Model properties.
+		 * @return {undefined}
+		 */
 		createModel: function(opts) {
 			var me = this,
 				value = {}
@@ -349,7 +467,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 		render: function() {
 
-			// Frist, calculate page numbers
+			// First, calculate page numbers
 			this.calculatePages();
 
 			var data = this.getTemplateData(),
@@ -370,6 +488,11 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			return this;
 		},
 
+		/**
+		 *	Calculates currentPage and lastPage, and add them to the model.
+		 *
+		 * @return {undefined}
+		 */
 		calculatePages: function() {
 			var data = this.model.toJSON();
 			if(!data.count || !data.pageSize) {
@@ -378,7 +501,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			}
 			else {
 				data.currentPage = Math.floor(data.currentDoc / data.pageSize) + 1;
-				data.lastPage = Math.floor(data.count / data.pageSize) + 1;
+				data.lastPage = Math.ceil(data.count / data.pageSize);
 			}
 
 			this.model.set(data);
@@ -404,6 +527,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		}
 	});
 
+	/**
+	 * View for create simple queries, in order to search documents.
+	 *
+	 * @event 'searchCancel' When the user clicks on the cancel button. No arguments.
+	 * @event 'searchOk' When the user click on the search button.
+	 *        Arguments: The Mongo alike query to be searched.
+	 */
 	var SearchView = BaseView.extend({
 		tpl: templates.search,
 		clauseTpl: templates.searchClause,
@@ -423,9 +553,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 		initialize: function(opts) {
 			this.query = opts.query || {};
-			this.clauses = [];
 		},
 
+		/**
+		 * Opens the search form.
+		 *
+		 * @chainable
+		 */
 		open: function() {
 			if(!this.state('open')){
 				this.state('open', true);
@@ -449,6 +583,11 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			return this;
 		},
 
+		/**
+		 * Closes the search form.
+		 *
+		 * @chainable
+		 */
 		close: function() {
 			if(this.state('open')){
 				this.state('open', false);
@@ -479,6 +618,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			return [];
 		},
 
+		/**
+		 * Translates the clauses values from the form to a MongoDB alike query.
+		 *
+		 * @param  {Array} clauses A list of query values, as returned by the method,
+		 *                         getClauseValues.
+		 * @return {Object}        The query.
+		 */
 		clausesToQuery: function(clauses) {
 			var me = this,
 				clauseBuffer = [],
@@ -503,6 +649,12 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			}
 		},
 
+		/**
+		 * Translate a comparison single clause to a MongoDB query.
+		 *
+		 * @param  {Object} clause A clause.
+		 * @return {Object}        MongoDB simple query.
+		 */
 		clauseToMongo: function(clause) {
 			var mongoClause = {},
 				logical = clause.value
@@ -517,6 +669,11 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			return mongoClause;
 		},
 
+		/**
+		 * Add a new empty clause to the form.
+		 *
+		 * @param {String} operator The logical operator to be selected out of the box.
+		 */
 		addClause: function(operator) {
 			var clause = {
 					operator:operator,
@@ -532,12 +689,19 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 			$clauses = this.$('.js-search-clause');
 
+			// If there are more than one clause, enable delete.
 			if($clauses.length > 1)
 				this.enableDeleteClauses();
 
 			$clauses.last().find('.js-search-key').focus();
 		},
 
+		/**
+		 * Parses the form to get the clauses to init the search.
+		 * Uncomplete clauses are not added to the returned list.
+		 *
+		 * @return {Array} List of claueses.
+		 */
 		getClauseValues: function() {
 			var clauses = [];
 
@@ -585,8 +749,15 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 		onOk: function(e){
 			e.preventDefault();
-			var query = this.clausesToQuery(this.getClauseValues());
-			this.trigger('searchOk', query);
+			var clauses = this.getClauseValues();
+			if(!clauses.length)
+				return Alerts.add({
+					message: 'Please fill at least one clause to start the search.',
+					level: 'error',
+					autoclose: 6000
+				});
+
+			this.trigger('searchOk', this.clausesToQuery(clauses));
 		},
 
 		onDeleteClause: function(e) {
@@ -598,11 +769,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			if ($clauses.length < 2)
 				return;
 
+			// If we are going to have just one clause, disable delete.
 			if ($clauses.length == 2)
 				this.disableDeleteClauses();
 
 			$clause.remove();
 
+			// Hide the logical operator in the first clause.
 			this.$('.js-search-clause').first()
 				.find('.js-search-op-logical')
 					.addClass('tule-search-op-hidden')
@@ -618,10 +791,26 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		}
 	});
 
+	/**
+	 * A simple view to format the document count.	 *
+	 */
 	var DocumentCountView = BaseView.extend({
 		tpl: templates.docCount,
+
+		/**
+		 * Default values for the model. Update the model to update the view.
+		 * @type {Object}
+		 */
 		modelDefaults: {
+			/**
+			 * Number of documents
+			 * @type {Number}
+			 */
 			count: 0,
+			/**
+			 * Wether the documents were fetched by a search
+			 * @type {Boolean}
+			 */
 			search: false
 		},
 
