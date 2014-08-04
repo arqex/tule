@@ -39,7 +39,7 @@ var defaultClientRoutes = [
 			{text: 'Installed', url: '/plugins'}
 		]
 	},
-	settings = db.collection(config.mon.settingsCollection),
+	settings = db.collection(config.tule.settingsCollection),
 	hooks
 ;
 
@@ -52,7 +52,7 @@ var getNavigationItems = function(req, res){
 			return console.log('***** NAMES ERROR: ' + err);
 		}
 
-		var hiddenCollections = [config.mon.settingsCollection, 'system.indexes'],
+		var hiddenCollections = [config.tule.settingsCollection, 'system.indexes'],
 			collections = names.filter(function(collection){
 				return hiddenCollections.indexOf(collection) == -1;
 			})

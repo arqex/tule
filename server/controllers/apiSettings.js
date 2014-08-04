@@ -9,7 +9,7 @@ module.exports = {
     getConfig: function(req, res){
         var name = req.params.name;
 
-        db.collection(config.mon.settingsCollection).findOne({name:name}, function(err, settings){
+        db.collection(config.tule.settingsCollection).findOne({name:name}, function(err, settings){
             if(err){
                 console.log(err);
                 return res.send(400, {error: 'Internal error.'});
@@ -34,9 +34,9 @@ module.exports = {
             res.send(400, {error: 'No name matches.'});
         }
 
-        db.collection(config.mon.settingsCollection).save(doc, function(err, saved) {
+        db.collection(config.tule.settingsCollection).save(doc, function(err, saved) {
           if( err || !saved ) return res.send(400, {error: 'Internal error'});
-          db.collection(config.mon.settingsCollection).findOne({name:name}, function(err, settings){
+          db.collection(config.tule.settingsCollection).findOne({name:name}, function(err, settings){
             console.log(settings);
           });
           return res.json(doc);
@@ -54,7 +54,7 @@ module.exports = {
 
         doc.name = name;
 
-        db.collection(config.mon.settingsCollection).insert(doc, function(err, newDoc){
+        db.collection(config.tule.settingsCollection).insert(doc, function(err, newDoc){
             if(err){
                 console.log(err);
                 return res.send(400, {error: 'Internal error while inserting document'});

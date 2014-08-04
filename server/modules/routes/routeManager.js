@@ -21,7 +21,7 @@ RouteManager.prototype = {
 		hooks.on('plugin:deactivated', this.resetRoutes.bind(this));
 	},
 	addRoute: function(routeData){
-		var baseUrl = config.mon.baseUrl,
+		var baseUrl = config.tule.baseUrl,
 			controller = routeData.controller,
 			routeOpts = routeData.route.split('::'),
 			route = routeOpts.length == 2 ? routeOpts[1] : routeOpts[0],
@@ -60,7 +60,7 @@ RouteManager.prototype = {
 		if(route.url[0] && route.url[0] != '/')
 			route.url = '/' + route.url;
 
-		var url = config.mon.baseUrl + 'r' + route.url,
+		var url = config.tule.baseUrl + 'r' + route.url,
 			path = Path.join(config.path.plugins, route.path)
 		;
 

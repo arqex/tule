@@ -52,7 +52,7 @@ module.exports = {
 		if(!collectionName)
 			res.send(400, {error: 'No collection name given.'});
 
-		db.collection(config.mon.settingsCollection)
+		db.collection(config.tule.settingsCollection)
 			.findOne({name: collectionPrefix + collectionName}, function(err, collectionSettings){
 					if(err)
 						return res.send(400, {error: 'There where an error fetching the collection settings.'});
@@ -121,7 +121,7 @@ module.exports = {
 		});
 
 		// Create the settings
-		db.collection(config.mon.settingsCollection).insert(properties, function(err, props){
+		db.collection(config.tule.settingsCollection).insert(properties, function(err, props){
 			if(err){
 				console.log(err);
 				errors.collection = err;
@@ -172,7 +172,7 @@ module.exports = {
 
 		console.log(doc);
 
-		db.collection(config.mon.settingsCollection)
+		db.collection(config.tule.settingsCollection)
 			.update({_id: id, name: collectionPrefix + collectionName}, doc, function(err, updated){
 					if(err)
 						return res.send(400, 'Error updating the collection settings: ' + err);
@@ -202,7 +202,7 @@ module.exports = {
 		}
 
 		// Remove the settings. Don't care about the result.
-		db.collection(config.mon.settingsCollection)
+		db.collection(config.tule.settingsCollection)
 			.remove({name: collectionPrefix + collectionName}, function(){});
 
 		// Drop the collection

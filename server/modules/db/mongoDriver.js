@@ -22,9 +22,12 @@ MongoDriver.prototype = {
 
 	// collection method to let the find methods return an array of results
 	collection: function(){
+		console.log('inside collection');
+
 		var index = callbackIndex(arguments),
 			original
 		;
+
 
 		if(index != -1){
 			original = arguments[index];

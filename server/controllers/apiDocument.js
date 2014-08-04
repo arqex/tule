@@ -322,7 +322,7 @@ function getFieldDefinitions(collectionName) {
 		deferred = when.defer()
 	;
 
-	db.collection(config.mon.settingsCollection).findOne(
+	db.collection(config.tule.settingsCollection).findOne(
 		{name: 'collection_' + collectionName},
 		function(err, collection){
 			var properties = {};

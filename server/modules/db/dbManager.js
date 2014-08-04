@@ -56,15 +56,16 @@ module.exports = {
 	getInstance: function(){
 
 		console.log('Requesting instance');
+		console.log(driverInstance);
 		return driverInstance;
 	},
 	checkSettings: function(){
 
 		console.log('Checking settings');
-		driverInstance.collection(config.mon.settingsCollection).find({}, function(err, settings){
+		driverInstance.collection(config.tule.settingsCollection).find({}, function(err, settings){
 			if(err || settings.length === 0){
 				console.log("Database doesn't exists. Creating an empty new one.");
-				driverInstance.collection(config.mon.settingsCollection).insert([
+				driverInstance.collection(config.tule.settingsCollection).insert([
 					{
 						name: 'navData',
 						routes: [
