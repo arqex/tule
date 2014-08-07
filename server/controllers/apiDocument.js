@@ -211,7 +211,7 @@ module.exports = {
 					});
 				})
 				.catch(function(err){
-					res.send(400, {error: 'Malformed query: ' + err + '.'})
+					res.send(400, {error: 'Malformed query: ' + err + '.'});
 				})
 			;
 		});

@@ -22,8 +22,6 @@ MongoDriver.prototype = {
 
 	// collection method to let the find methods return an array of results
 	collection: function(){
-		console.log('inside collection');
-
 		var index = callbackIndex(arguments),
 			original
 		;
@@ -139,7 +137,7 @@ module.exports = {
 		var me = this,
 			deferred = when.defer()
 		;
-		console.log(config);
+
 		mongo.MongoClient.connect(config.mongo, function(err, db){
 			if(err)
 				deferred.reject(err);

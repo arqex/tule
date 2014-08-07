@@ -54,9 +54,7 @@ module.exports = {
 		return promise;
 	},
 	getInstance: function(){
-
 		console.log('Requesting instance');
-		console.log(driverInstance);
 		return driverInstance;
 	},
 	checkSettings: function(){

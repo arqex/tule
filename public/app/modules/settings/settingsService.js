@@ -3,11 +3,9 @@ var deps = [
 ];
 
 define(deps, function($, _, Backbone, Models){
-	"use strict";
+	'use strict';
 
-	var SettingsService = function(){
-
-	}
+	var SettingsService = function(){};
 
 	SettingsService.prototype = {
 		/**
@@ -15,30 +13,26 @@ define(deps, function($, _, Backbone, Models){
 		 * @param  {String} name Setting name
 		 * @return {Setting}     A Setting object
 		 */
-		get: function(name){
+		get: function(settingName){
 			var deferred = $.Deferred(),
-				setting = new Models.Setting({name: name})
+				setting = new Models.Setting({name: settingName})
 			;
 
 			setting.fetch({
 				success: function(){
-					deferred.resolve(setting);
+					var settingObject = setting.toJSON();
+
+					// _id shouldn't be needed
+					delete settingObject._id;
+
+					deferred.resolve(settingObject);
 				},
 				error: function(model, response){
 					deferred.reject(response.responseText);
 				}
 			});
 
-			deferred.promise();
-		},
-
-		/**
-		 * Get a new Setting object
-		 * @param  {String} name Setting's name
-		 * @return {Setting}      A new Setting object (not stored)
-		 */
-		getNew: function(name){
-			return new Models.Setting({name: name});
+			return deferred.promise();
 		},
 
 		/**
@@ -48,37 +42,17 @@ define(deps, function($, _, Backbone, Models){
 		 *                           On fail, the promise will be rejected with the message provided
 		 *                           by the server as argument.
 		 */
-		save: function(setting){
-			var deferred = $.Deferred();
-			setting.save(null, {
-				success: function(){
-					deferred.resolve(setting);
-				},
-				error: function(model, response) {
-					deferred.reject(response.responseText)
-				}
-			});
-			return deferred.promise();
-		},
-
-		/**
-		 * Get the collection settings given the collection name
-		 * @param  {String} collectionName Collection name
-		 * @return {Promise}     A promise that resolves with the CollectionSetting object, when
-		 *                         it has been fetched from the server.
-		 *                         On fail, the promise will be rejected with the message provided
-		 *                         by the server as argument.		 *
-		 */
-		getCollectionSettings: function(collectionName) {
+		save: function(settingName, settingValue){
 			var deferred = $.Deferred(),
-				setting = new Models.CollectionSettings({}, {collectionName: collectionName})
+				settingObject = {name: settingName, value: settingValue},
+				setting = new Models.Setting(settingObject)
 			;
 
-			setting.fetch({
+			setting.save(null, {
 				success: function(){
-					deferred.resolve(setting);
+					deferred.resolve(settingObject);
 				},
-				error: function(model, response){
+				error: function(model, response) {
 					deferred.reject(response.responseText);
 				}
 			});
@@ -86,10 +60,29 @@ define(deps, function($, _, Backbone, Models){
 			return deferred.promise();
 		},
 
-		getNewCollectionSettings: function(collectionName) {
-			return new Models.CollectionSettings({}, {collectionName: collectionName});
+		/**
+		 * Deletes a setting from the server given its name.
+		 *
+		 * @param  {String} settingName Setting's name.
+		 * @return {Promise}            A promise that resolves when the server has deleted the setting.
+		 */
+		remove: function(settingName) {
+			var deferred = $.Deferred(),
+				setting = new Models.Setting({name: settingName})
+			;
+
+			setting.destroy({
+				success: function(){
+					deferred.resolve();
+				},
+				error: function(err) {
+					deferred.reject(err);
+				}
+			});
+
+			return deferred.promise();
 		}
-	}
+	};
 
 	return new SettingsService();
 });

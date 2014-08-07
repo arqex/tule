@@ -5,6 +5,7 @@ var deps = [
 ];
 
 define(deps, function($, _, Backbone, Services, BaseController, MenuController, Region, Alerts, Events){
+	'use strict';
 
 	var MainController = BaseController.extend({
 		regionSelectors: {
@@ -14,15 +15,24 @@ define(deps, function($, _, Backbone, Services, BaseController, MenuController, 
 
 		init: function(opts) {
 			// Show the menu
-			var menuController =  new MenuController({
-				navigationData: opts.initSettings.navigation,
+			var me = this,
+				menuController =  new MenuController({
+				initSettings: opts.initSettings,
+
 				template: this.regions.menu.el.innerHTML
 			});
+
+			this.settings = opts.initSettings.tule;
 
 			this.regions.menu.show(menuController);
 
 			//Listen for route changes to load new pages
 			this.listenTo(Events, 'tule:route', this.loadPage);
+
+			//Listen for updates in the settings
+			this.listenTo(Events, 'settings:updated', function(settings){
+				me.settings = settings;
+			});
 
 			//Add alerts
 			this.$('body').append(Alerts.alerter.el);
@@ -38,7 +48,7 @@ define(deps, function($, _, Backbone, Services, BaseController, MenuController, 
 		loadPage: function(file, args){
 			var me = this;
 			require([file], function(Controller){
-				var controller = new Controller({args: args});
+				var controller = new Controller({args: args, tuleSettings: me.settings});
 				me.regions.page.show(controller);
 			});
 		}

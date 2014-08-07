@@ -8,6 +8,9 @@ define(deps, function($,_,Backbone){
 		tpl: _.template('<a class="tule-title" href="<%= url %>"><%= title %></a>'),
 		tagName: 'h1',
 		className: 'tuleTitle',
+		initialize: function(){
+			this.listenTo(this.model, 'change', this.render);
+		},
 		render: function(){
 			this.el.innerHTML = this.tpl(this.model.toJSON());
 		}

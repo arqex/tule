@@ -1,9 +1,11 @@
 var deps = [
 	'jquery', 'underscore', 'backbone',	'./collectionModels',
+	'events'
 ];
 
-define(deps, function($, _, Backbone, CollectionModels){
-	"use strict";
+define(deps, function($, _, Backbone, CollectionModels, Events){
+	'use strict';
+
 	/**
 	 * A collection endpoint allows to modify the documents in a given collection.
 	 * It is possible to get the endpoint using the 'collection' method of the
@@ -13,6 +15,8 @@ define(deps, function($, _, Backbone, CollectionModels){
 	var CollectionEndpoint = function(collectionName){
 		this.collectionName = collectionName;
 	};
+
+	var settings;
 
 	CollectionEndpoint.prototype = {
 		/**
@@ -61,15 +65,16 @@ define(deps, function($, _, Backbone, CollectionModels){
 		find: function(query, modifiers){
 			var skipBuildQuery = _.isString(query),
 				deferred = $.Deferred(),
+				defaultModifiers = {limit: parseInt(settings.pageSize) || 10},
 				docQuery
 			;
 
 			if(skipBuildQuery){
-				docQuery = new CollectionModels.Query({}, {collectionName: this.collectionName}),
+				docQuery = new CollectionModels.Query({}, _.extend({}, defaultModifiers, {collectionName: this.collectionName})),
 				docQuery.queryURL = query;
 			}
 			else
-				docQuery = new CollectionModels.Query(query, _.extend({}, (modifiers || {}), {collectionName: this.collectionName}));
+				docQuery = new CollectionModels.Query(query, _.extend({}, defaultModifiers, (modifiers || {}), {collectionName: this.collectionName}));
 
 			return docQuery.fetch(skipBuildQuery);
 		},
@@ -120,6 +125,14 @@ define(deps, function($, _, Backbone, CollectionModels){
 	 * @type {Object}
 	 */
 	var CollectionService = {
+
+		init: function(initSettings) {
+			settings = initSettings;
+
+			Events.on('settings:updated', function(updatedSettings){
+				settings = updatedSettings;
+			});
+		},
 
 		/**
 		 * Get a collection endpoint to work with the collection documents.
@@ -172,7 +185,7 @@ define(deps, function($, _, Backbone, CollectionModels){
 		 *                                for the settings document.
 		 */
 		updateSettings: function(collectionName, settings) {
-			var	deferred = $.Deferred();
+			var deferred = $.Deferred();
 
 			$.ajax('/api/collections/' + collectionName, {type: 'put', data: settings})
 				.then(function(updatedData){

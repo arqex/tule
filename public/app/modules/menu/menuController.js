@@ -11,8 +11,12 @@ function($, Backbone, NavigationView, LogoView, BaseController, Events){
 		},
 
 		init: function(opts){
-			var navigation = new NavigationView({navigationData: opts.navigationData}),
-				logo = new LogoView({model: new Backbone.Model({title: 'Tule', url: '/'})})
+			var navigation = new NavigationView({navigationData: opts.initSettings.navigation}),
+				logo = new LogoView({
+					model: new Backbone.Model({title: opts.initSettings.tule.siteTitle, url: '/'})
+				})
+			;
+
 			this.regions.navigation.show(navigation);
 			this.regions.logo.show(logo);
 
@@ -20,9 +24,19 @@ function($, Backbone, NavigationView, LogoView, BaseController, Events){
 			this.listenTo(Events, 'tule:route', function(){
 				navigation.select(location.href);
 			});
+
+			// Update title on settings change
+			this.listenTo(Events, 'settings:updated', function(settings){
+				logo.model.set('title', settings.siteTitle);
+			});
+
+			// Update navigation items on when the navigation is updated
+			this.listenTo(Events, 'navigation:updated', function(navigationData){
+				navigation.createItems(navigationData).render();
+			});
+
 			// Select existing menu items that match current url
-			navigation.select(location.href);
-		}
+			navigation.select(location.href);		}
 
 	});
 

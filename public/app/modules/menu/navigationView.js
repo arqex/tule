@@ -43,6 +43,8 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 
 				me.listenTo(item, 'selected', me.onChildSelected);
 			});
+
+			return this;
 		},
 
 		/**

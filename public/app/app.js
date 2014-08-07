@@ -10,6 +10,7 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 	var init = function() {
 		// Take the initial settings
 		var settings	 = window.tuleSettings;
+		console.log(settings);
 		window.tuleSettings = undefined;
 
 		initServices(settings).then(function(){
@@ -24,6 +25,7 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 	var initServices = function(settings){
 		//TODO: Services should be fetched from the server
 		return initDatatypes(settings).then(function(){
+			Services.init(settings.tule);
 			Services.add('collection', CollectionService);
 			Services.add('settings', SettingsService);
 		});

@@ -1,0 +1,19 @@
+<div class="tule-settings-section">
+	<h3 class="tule-settings-section-title">Site title</h3>
+	<div class="tule-settings-info">This title will appear on the top of the sidebar</div>
+	<div class="tule-settings-form">
+		<input type="text" class="js-setting-title" placeholder="Site title" value="<%= siteTitle %>">
+	</div>
+</div>
+
+<div class="tule-settings-section">
+	<h3 class="tule-settings-section-title">Documents per page</h3>
+	<div class="tule-settings-info">Maximum number of documents to be displayed in a page.</div>
+	<div class="tule-settings-form">
+		<input type="number" class="js-setting-pageSize" value="<%= pageSize %>" min="5" max="100" step="5">
+	</div>
+</div>
+
+<div class="tule-settings-controls">
+	<button class="tule-settings-ok js-settings-ok">Save settings</button>
+</div>

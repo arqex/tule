@@ -1,8 +1,8 @@
 module.exports = [
-	{route: 'get::settings/:name', controller: 'apiSettings::getConfig'},
-	{route: 'put::settings/:name', controller: 'apiSettings::updateConfig'},
-	{route: 'post::settings/:name', controller: 'apiSettings::createConfig'},
-	{route: 'delete::settings/:name', controller: 'apiSettings::removeConfig'},
+	{route: 'get::settings/:name', controller: 'apiSettings::get'},
+	{route: 'put::settings/:name', controller: 'apiSettings::save'},
+	{route: 'post::settings/:name', controller: 'apiSettings::save'},
+	{route: 'delete::settings/:name', controller: 'apiSettings::remove'},
 
 	{route: 'get::collections', controller: 'apiCollection::list'},
 	{route: 'get::collections/:name', controller: 'apiCollection::getStatus'},

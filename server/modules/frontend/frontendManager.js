@@ -3,7 +3,8 @@
 var config = require('config'),
 	_ = require('underscore'),
 	when = require('when'),
-	db = require(config.path.modules + '/db/dbManager').getInstance()
+	db = require(config.path.modules + '/db/dbManager').getInstance(),
+	settings = require(config.path.modules + '/settings/settingsManager')
 ;
 
 var defaultClientRoutes = [
@@ -12,12 +13,11 @@ var defaultClientRoutes = [
 		{route: 'settings', controller: 'modules/settings/settingsController'},
 		{route: 'settings/navigation', controller: 'modules/settings/settingsNavigation'},
 		{route: 'settings/collections', controller: 'modules/settings/settingsController'},
-		{route: 'settings/general', controller: 'modules/settings/settingsGeneral'},
+		{route: 'settings/general', controller: 'modules/settings/tuleSettingsController'},
 		{route: 'plugins', controller: 'modules/plugins/pluginController'},
 		{route: '*path', controller:'modules/core/404Controller'}
 	],
 	defaultFrontendSettings = {
-		settingsCollection: 'monSettings',
 		datatypes: ['string', 'object', 'field', 'boolean', 'integer', 'float', 'array', 'select'], //['relation'],
 		datatypesPath: 'modules/datatypes/',
 		navigation:[
@@ -39,7 +39,10 @@ var defaultClientRoutes = [
 			{text: 'Installed', url: '/plugins'}
 		]
 	},
-	settings = db.collection(config.tule.settingsCollection),
+	defaultTuleSettings = {
+		siteTitle: 'Tule',
+		pageSize: 10
+	},
 	hooks
 ;
 
@@ -77,29 +80,40 @@ var getNavigationItems = function(req, res){
 module.exports = {
 	init: function(app){
 		hooks = app.hooks;
-		console.log("ROUTES FOR THE NAVIGATION!! ----------------");
-		hooks.addFilter('routes:server', function(routes){
-			routes.splice(-1, 0, {route: 'get::navigationItems', controller: getNavigationItems});
-			return routes;
+		console.log('ROUTES FOR THE NAVIGATION!! ----------------');
+
+		settings.setStatic('routes:client', defaultClientRoutes, true);
+		settings.setStatic('frontend:settings', defaultFrontendSettings, true);
+
+		hooks.addFilter('settings:get:tule', function(settings){
+			if(!settings)
+				return _.clone(defaultTuleSettings);
+			return settings;
 		});
 	},
 
 	getFrontSettings: function(){
-		settings.findOne({name: 'navData'}, function(err, navRoutes){
-			if(!err && navRoutes && navRoutes.length !== 0)
-				defaultFrontendSettings.navigation = navRoutes.routes;
-		});
+		settings.get('navData')
+			.then(function(err, navRoutes){
+				if(!err && navRoutes && navRoutes.length !== 0)
+					defaultFrontendSettings.navigation = navRoutes.routes;
+			})
+		;
 
 
-		var settingsPromise = hooks.filter('settings:front', defaultFrontendSettings),
-			routesPromise = hooks.filter('routes:client', defaultClientRoutes),
+		var settingsPromise = settings.get('frontend:settings'),
+			routesPromise = settings.get('routes:client'),
+			tulePromise = settings.get('tule'),
 			deferred = when.defer()
 		;
 
 		settingsPromise.then(function(settings){
 			routesPromise.then(function(routes){
-				settings.clientRoutes = routes;
-				deferred.resolve(settings);
+				tulePromise.then(function(tuleSettings){
+					settings.clientRoutes = routes;
+					settings.tule = tuleSettings;
+					deferred.resolve(settings);
+				});
 			});
 		});
 

@@ -1,3 +1,5 @@
+'use strict';
+
 var config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance(),
 	when = require('when')
@@ -20,12 +22,31 @@ var settings = db.collection(config.tule.settingsCollection),
  * @return {undefined}
  */
 var filter = function(settingName, settingValue, deferred) {
-	hooks.filter('settings:get:' + settingName, settingValue)
+	// We need to clone the value to be the same in every get call.
+	var clonedValue;
+
+	// Array
+	if(Object.prototype.toString.call( settingValue ) === '[object Array]'){
+		clonedValue = settingValue.slice(0);
+	}
+	// Object
+	else if(settingValue == Object(settingValue)) {
+		clonedValue = JSON.parse(JSON.stringify(settingValue));
+	}
+	// Date
+	else if(settingValue instanceof Date)
+		clonedValue = new Date(settingValue.getTime());
+	// Others don't need a copy
+	else
+		clonedValue = settingValue;
+
+
+	hooks.filter('settings:get:' + settingName, clonedValue)
 		.then(function(filtered){
 			deferred.resolve(filtered);
 		})
 	;
-}
+};
 
 /**
  * The settings manager make easy to handle settings in tule.
@@ -65,7 +86,7 @@ module.exports = {
 				else if(setting)
 					filter(settingName, setting.value, deferred);
 				else
-					deferred.resolve(undefined);
+					filter(settingName, undefined, deferred);
 			});
 		}
 
@@ -89,7 +110,7 @@ module.exports = {
 
 		if(staticSetting = staticSettings[settingName]){
 			if(!staticSetting.isPublic)
-				deferred.reject('Private setting.');
+				deferred.reject({error: 'private', message: 'Private setting.'});
 			else
 				filter(settingName, staticSetting.value, deferred);
 		}
@@ -98,11 +119,11 @@ module.exports = {
 				if(err)
 					deferred.reject(err);
 				else if(setting && !setting.isPublic)
-					deferred.reject('Private setting.');
+					deferred.reject({error: 'private', message: 'Private setting.'});
 				else if(setting)
 					filter(settingName, setting.value, deferred);
 				else
-					deferred.resolve(undefined);
+					filter(settingName, undefined, deferred);
 			});
 		}
 
@@ -125,17 +146,19 @@ module.exports = {
 		;
 
 		if(typeof staticSettings[settingName] != 'undefined') {
-			deferred.reject('Can\'t update a static setting');
+			deferred.reject({error: 'static', message:' Can\'t update a static setting'});
 		}
 		else {
 			if(typeof isPublic != 'undefined')
 				val['$set'].isPublic = !!isPublic;
 
-			settings.update({name: settingName}, val, {upsert:true}, function(err, updated){
+			settings.update({name: settingName}, val, {upsert:true}, function(err){
 				if(err)
 					deferred.reject(err);
-				else
+				else {
+					hooks.trigger('settings:saved:' + settingName, settingValue);
 					deferred.resolve(settingValue);
+				}
 			});
 		}
 
@@ -157,7 +180,7 @@ module.exports = {
 			deferred.reject('Can\'t delete a static setting');
 		}
 		else {
-			settings.remove({name: settingName}, function(err, removed){
+			settings.remove({name: settingName}, function(err){
 				if(err)
 					deferred.reject(err);
 				else
@@ -193,4 +216,4 @@ module.exports = {
 		// Return the reference, last chance of updating the setting.
 		return setting;
 	}
-}
+};

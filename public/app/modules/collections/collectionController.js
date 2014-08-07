@@ -15,7 +15,7 @@ var deps = [
 
 define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseController, PageController, Alerts, Events, Models){
 
-	"use strict";
+	'use strict';
 
 	var templates = BaseController.prototype.extractTemplates(tplSource),
 		// Here we will store the collection service when it is ready

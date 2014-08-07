@@ -44,7 +44,7 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 		/**
 		 * Accepted modifierts to be sent to the server.
 		 */
-		validModifiers: ['sort', 'skip', 'limits'],
+		validModifiers: ['sort', 'skip', 'limit'],
 
 		/**
 		 * Fetch the documents that matches the query from the server.
@@ -63,6 +63,8 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 			// Create the query URL
 			if(!skipBuildQuery)
 				this.queryURL = this.buildUrlQuery();
+			else
+				this.queryURL = this.buildModifierUrlQuery();
 
 			this.fetching = $.get(this.url, this.queryURL)
 				.done(function(response){

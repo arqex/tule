@@ -2,7 +2,8 @@ var routes = require('./routes.js'),
 	_ = require('underscore'),
 	config = require('config'),
 	express = require('express'),
-	Path = require('path')
+	Path = require('path'),
+	settings = require(config.path.modules + '/settings/settingsManager')
 ;
 
 var app = false, hooks;
@@ -14,12 +15,18 @@ RouteManager.prototype = {
 		app = appObject;
 		hooks = app.hooks;
 		this.statics = [];
+
+
+		settings.setStatic('routes:server', routes);
+		settings.setStatic('routes:static', []);
+
 		this.resetRoutes();
 		//add first mandatory static route
 		app.use('/r/tule', express.static('public'));
 		hooks.on('plugin:activated', this.resetRoutes.bind(this));
 		hooks.on('plugin:deactivated', this.resetRoutes.bind(this));
 	},
+
 	addRoute: function(routeData){
 		var baseUrl = config.tule.baseUrl,
 			controller = routeData.controller,
@@ -80,15 +87,15 @@ RouteManager.prototype = {
 				app.stack.splice(i, 1);
 				this.statics.splice(staticIndex, 1);
 			}
-		};
+		}
 
-		hooks.filter('routes:static', []).then(function(statics){
-			console.log(statics);
-			statics.forEach(function(s){
-				me.addStaticDirectory(s);
-			});
-			console.log(app.stack);
-		});
+		settings.get('routes:static')
+			.then(function(statics){
+				statics.forEach(function(s){
+					me.addStaticDirectory(s);
+				});
+			})
+		;
 	},
 
 	resetRoutes: function(){
@@ -101,11 +108,14 @@ RouteManager.prototype = {
 		['get', 'post', 'put', 'delete'].forEach(function(method){
 			app.routes[method] = [];
 		});
-		hooks.filter('routes:server', routesClone).then(function(allRoutes){
-			console.log('Adding routes:');
-			console.log(allRoutes);
-			_.each(allRoutes, me.addRoute);
-		});
+
+		settings.get('routes:server')
+			.then(function(allRoutes){
+				console.log('Adding routes:');
+				console.log(allRoutes);
+				_.each(allRoutes, me.addRoute);
+			})
+		;
 
 		//Also static routes
 		this.resetStaticRoutes();
