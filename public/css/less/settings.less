@@ -5,3 +5,234 @@
 .tule-settings-section-title {
 	margin: 0 0 @margin-narrow;
 }
+
+/** NAVIGATION */
+.tule-nav-current {
+	width: 50%;
+	float: left;
+	padding-right: @margin-narrow;
+	h3 {
+		margin-top: 0;
+	}
+}
+.tule-navitems {
+	width: 50%;
+	float: left;
+	position: relative;
+	z-index:11;
+	padding-left: @margin-narrow;
+	h3 {
+		margin-top: 0;
+	}
+}
+
+.tule-nav-group {
+	position: relative;
+	width: 100%; /* When converted to absolute this will keep the width */
+	&.tule-nav-group-editing {
+		.tule-nav-group-edit {
+			display: block;
+		}
+
+		.tule-nav-group-header {
+			display: none;
+		}
+	}
+
+	.tule-nav-droppoint:last-child {
+		height: @margin-wide;
+	}
+	&.ui-draggable-dragging {
+		position: absolute;
+		a {
+			display: none;
+		}
+	}
+}
+
+.tule-nav-item {
+	position: relative;
+	width: 100%; /* When converted to absolute this will keep the width */
+	&.tule-nav-item-editing {
+		.tule-nav-item-edit {
+			display: block;
+		}
+
+		.tule-nav-item-header {
+			display: none;
+		}
+	}
+	&.ui-draggable-dragging {
+		position: absolute;
+		a {
+			display: none;
+		}
+	}
+}
+
+.tule-nav-group-controls,
+.tule-nav-item-controls {
+	text-align: right;
+	margin-top: @margin-narrow;
+}
+
+.tule-nav-groups {
+	margin-bottom: @margin;
+}
+
+.tule-nav-controls {
+	text-align: right;
+}
+
+.tule-nav-group-edit {
+	display: none;
+	margin-bottom: @margin-narrow;
+	input {
+		width: 100%;
+	}
+}
+
+.tule-nav-item-edit {
+	display: none;
+	input {
+		width: 100%;
+	}
+}
+
+.tule-nav-group-header {
+	margin-bottom: @margin-narrow;
+	cursor: move;
+
+	&>a {
+		float: right;
+		margin-left: @margin-narrow;
+		display: none;
+	}
+
+	&:hover>a {
+		display: block;
+	}
+}
+
+.tule-nav-item-header {
+	cursor: move;
+
+	&>a {
+		float: right;
+		margin-left: @margin-narrow;
+		display: none;
+	}
+
+	&:hover>a {
+		display: block;
+	}
+}
+
+.tule-nav-groups {
+	position: relative;
+	.tule-nav-group {
+		.mixin-box(@color-main-0);
+		.tule-nav-item {
+			border-bottom-width: 0;
+			margin-bottom: 0;
+			&:last-child {
+				border-bottom-width: 1px;
+			}
+		}
+	}
+	.tule-nav-item {
+		.mixin-box();
+		margin-bottom: @margin-narrow;
+	}
+}
+
+.tule-nav-item-url {
+	color: #999;
+	font-size: .8em;
+	font-style: italic;
+}
+
+
+.tule-navitems-group {
+	.mixin-box(@color-main-0);
+	padding: 0;
+
+	.fa-chevron-up {
+		display: none;
+	}
+
+	.tule-navitems-item {
+		border-bottom-width: 0;
+		width: 100%; /* When converted to absolute this will keep the width */
+
+		&:last-child {
+			border-bottom-width: 1px;
+		}
+	}
+
+	.tule-navitems-items {
+		 display: none;
+	}
+
+	&.tule-navitems-open {
+		.tule-navitems-items {
+			 display: block;
+		}
+
+		.fa-chevron-up {
+			display: block;
+		}
+
+		.fa-chevron-down {
+			display: none;
+		}
+	}
+
+}
+
+.tule-navitems-header {
+	padding: @margin-narrow @margin;
+	cursor: pointer;
+
+	i {
+		float:right;
+		text-shadow: none;
+		color: #ccc;
+		margin-top: 3px;
+	}
+
+	&:hover {
+		i {
+			color: #999;
+		}
+	}
+}
+
+.tule-navitems-items {
+	padding: 0 @margin @margin-narrow;
+}
+
+.tule-navitems-item {
+	.mixin-box();
+	margin-bottom: 0;
+	cursor: move;
+}
+
+.tule-nav-droppoint {
+	height: 40px;
+	width: 100%;
+	position: absolute;
+	z-index:2;
+	display: none;
+
+	&.tule-nav-drag-hover {
+		position:static;
+		margin-top: 0;
+	}
+}
+
+.tule-nav-info {
+	color: #999;
+	font-style: italic;
+}
+

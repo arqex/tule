@@ -17,3 +17,16 @@
 @margin: 15px;
 @margin-wide: 25px;
 @margin-narrow: 10px;
+
+.mixin-box(@bg-color: #fff) {
+	background: @bg-color;
+	border: 1px solid #eee;
+	box-shadow: @shadow;
+	padding: @margin-narrow @margin;
+	margin-bottom: @margin;
+
+	h3 {
+		margin-top: 0;
+	}
+
+}

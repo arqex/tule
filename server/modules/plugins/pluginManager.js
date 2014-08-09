@@ -75,6 +75,9 @@ PluginManager.prototype = {
 		return plugin;
 	},
 	getHooks: function(pluginId){
+
+		// Every plugin need to be its own hooks, so it is possible
+		// to remove its filters and actions on deactivate.
 		var pluginHash = 'p' + Math.floor(Math.random() * 10000000);
 		pluginHashes[pluginId] = pluginHash;
 		return {
@@ -84,7 +87,7 @@ PluginManager.prototype = {
 			addFilter: hooksManager.on.bind(this, filters, pluginHash),
 			removeFilter: hooksManager.off.bind(this, filters),
 			filter: hooksManager.trigger.bind(this, filters, true)
-		}
+		};
 	},
 	getAllPluginDefinitions: function(){
 		var me = this,

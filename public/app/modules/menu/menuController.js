@@ -1,7 +1,7 @@
 define(
 ['jquery', 'backbone', './navigationView', './logoView', 'baseController', 'events'],
 function($, Backbone, NavigationView, LogoView, BaseController, Events){
-	"use strict";
+	'use strict';
 
 	var MenuController = BaseController.extend({
 
@@ -33,10 +33,12 @@ function($, Backbone, NavigationView, LogoView, BaseController, Events){
 			// Update navigation items on when the navigation is updated
 			this.listenTo(Events, 'navigation:updated', function(navigationData){
 				navigation.createItems(navigationData).render();
+				navigation.select(location.href);
 			});
 
 			// Select existing menu items that match current url
-			navigation.select(location.href);		}
+			navigation.select(location.href);
+		}
 
 	});
 

@@ -22,26 +22,7 @@ var settings = db.collection(config.tule.settingsCollection),
  * @return {undefined}
  */
 var filter = function(settingName, settingValue, deferred) {
-	// We need to clone the value to be the same in every get call.
-	var clonedValue;
-
-	// Array
-	if(Object.prototype.toString.call( settingValue ) === '[object Array]'){
-		clonedValue = settingValue.slice(0);
-	}
-	// Object
-	else if(settingValue == Object(settingValue)) {
-		clonedValue = JSON.parse(JSON.stringify(settingValue));
-	}
-	// Date
-	else if(settingValue instanceof Date)
-		clonedValue = new Date(settingValue.getTime());
-	// Others don't need a copy
-	else
-		clonedValue = settingValue;
-
-
-	hooks.filter('settings:get:' + settingName, clonedValue)
+	hooks.filter('settings:get:' + settingName, settingValue)
 		.then(function(filtered){
 			deferred.resolve(filtered);
 		})

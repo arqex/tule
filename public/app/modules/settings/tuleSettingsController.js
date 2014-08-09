@@ -85,6 +85,7 @@ define(deps, function($,_,Backbone, Services, BaseView, PageController, Alerts, 
 				})
 			;
 		},
+
 		getSettingsValue: function(){
 			var settings = {};
 
@@ -99,5 +100,5 @@ define(deps, function($,_,Backbone, Services, BaseView, PageController, Alerts, 
 	return PageController.extend({
 		title: 'Tule Settings',
 		contentView: SettingsController
-	})
+	});
 });
