@@ -62,7 +62,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 							me.currentQuery = query;
 
 							// Try to guess the fields for document headers,
-							// in case they are not defined by the collection settigns.
+							// in case they are not defined by the collection settings.
 							me.guessHeaderFields();
 						})
 						.fail(function(error, emptyQuery){
@@ -163,7 +163,8 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		createCollectionView: function() {
 			var collection = new CollectionViews.CollectionView({
 				collection: this.currentQuery.results,
-				collectionSettings: this.collectionSettings
+				collectionSettings: this.collectionSettings,
+				headerFields: this.getHeaderFields()
 			});
 
 			this.listenTo(collection, 'saveDocument', this.saveDocument);
@@ -230,6 +231,31 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			});
 
 			return countView;
+		},
+
+		/**
+		 * Create the header field list to show in the document's headers.
+		 * It adds the edit and delete icons.
+		 *
+		 * @return {Array} The list of headers. The elements can be:
+		 *                     * String: The name of the field in the document. The value of that
+		 *                     		field will be shown in the header. The field name will be used
+		 *                     		as action for the click event.
+		 *                     * Object: An icon will be shown (font awesome), and the action attribute
+		 *                     		will be used in the event triggered on click.
+		 */
+		getHeaderFields: function() {
+			var headerFields = this.collectionSettings.headerFields;
+
+			// If we don't have header fields, add the _id.
+			if(!headerFields || !headerFields.length){
+				headerFields = ['_id'];
+			}
+
+			return headerFields.concat([
+				{action: 'edit', href: "#", icon: 'pencil'},
+				{action: 'remove', href: "#", icon: 'times'}
+			]);
 		},
 
 		/**

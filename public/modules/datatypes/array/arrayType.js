@@ -179,6 +179,11 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			});
 
 			this.listenTo(newElement, 'cancel', function(){
+
+				// If there are no elements, switch to display mode
+				if(!this.subViews.length)
+					this.trigger('edit:cancel');
+
 				this.render();
 				this.stopListening(newElement);
 				newElement.remove();

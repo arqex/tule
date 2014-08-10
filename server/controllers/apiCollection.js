@@ -45,7 +45,7 @@ module.exports = {
 	 * @param  {http.ClientRequest} req The request
 	 * @param  {http.ServerResponse} res The response
 	 */
-	getStatus: function(req, res){
+	getStats: function(req, res){
 		var collectionName = req.params.name,
 			doc = req.body
 		;
@@ -65,7 +65,11 @@ module.exports = {
 							return res.send(400, {error: 'There where an error fetching the collection stats: ' + err});
 						}
 
-						stats.settings = collectionSettings || {};
+						if(collectionSettings)
+							stats.settings = _.extend({}, defaultSettings, collectionSettings);
+						else
+							stats.settings = _.extend({collectionName: collectionName, name: collectionPrefix + collectionName}, defaultSettings);
+
 						if(!stats.count)
 							stats.count = 0;
 

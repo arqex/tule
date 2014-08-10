@@ -20,7 +20,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			'click .field-ok': 'onFieldOk',
 			'click .field-cancel': 'onFieldCancel',
 			'change .element-form-type': 'onChangeFieldType',
-			'click .element-form-advanced-toggle': 'onAdvancedToggle'
+			'click .js-field-advanced-toggle': 'onAdvancedToggle'
 		},
 		initialize: function() {
 			this.types = this.service.getDefinitions();

@@ -29,7 +29,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		},
 
 		initialize: function(opts) {
-			this.fields = opts.fields || [{href: '#', className: 'remove', icon: 'times'}];
+			this.headerFields = opts.headerFields || ['_id', {href: '#', className: 'remove', icon: 'times'}];
 			if(opts.editing)
 				this.state('mode', 'edit');
 
@@ -49,12 +49,14 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 				this.objectView.render();
 				this.$('.js-doc-edit').prepend(this.objectView.el);
 			}
+
+			return this;
 		},
 
 		getTemplateData: function() {
 			return {
 				doc: this.model.toJSON(),
-				fields: this.fields,
+				fields: this.headerFields,
 				state: this.currentState.toJSON()
 			};
 		},
@@ -115,6 +117,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 		initialize: function(options) {
 			this.collectionSettings = options.collectionSettings || {};
+			this.headerFields = options.headerFields;
 			this.resetSubViews();
 		},
 
@@ -125,9 +128,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		 * @return {undefined}
 		 */
 		resetSubViews: function() {
-			var me = this,
-				headerFields = this.getDocHeaderFields()
-			;
+			var me = this;
 
 			if(this.subViews){
 				_.each(this.subViews, function(subView){
@@ -138,37 +139,12 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			this.subViews = {};
 
 			this.collection.each(function(doc){
-				me.subViews[doc.id] = new DocumentView({
+				me.subViews[doc.get('_id')] = new DocumentView({
 					model: doc,
-					collectionSettings: me.settings,
-					fields: headerFields
+					collectionSettings: me.collectionSettings,
+					headerFields: me.headerFields
 				});
 			});
-		},
-
-		/**
-		 * Create the header field list to show in the document's headers.
-		 * It adds the edit and delete icons.
-		 *
-		 * @return {Array} The list of headers. The elements can be:
-		 *                     * String: The name of the field in the document. The value of that
-		 *                     		field will be shown in the header. The field name will be used
-		 *                     		as action for the click event.
-		 *                     * Object: An icon will be shown (font awesome), and the action attribute
-		 *                     		will be used in the event triggered on click.
-		 */
-		getDocHeaderFields: function() {
-			var headerFields = this.collectionSettings.headerFields;
-
-			// If we don't have header fields, add the _id.
-			if(!headerFields || !headerFields.length){
-					headerFields = ['_id'];
-			}
-
-			return headerFields.concat([
-				{action: 'edit', href: "#", icon: 'pencil'},
-				{action: 'remove', href: "#", icon: 'times'}
-			]);
 		},
 
 		render: function() {
@@ -198,11 +174,18 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		onClickOk: function(e){
 			e.preventDefault();
 			var	docId = $(e.target).closest('.tule-doc-content').data('id'),
-				subView = this.subViews[docId]
+				subView = this.subViews[docId],
+				definitions
 			;
 
-			if(subView)
-				this.trigger('saveDocument', subView, subView.objectView.typeOptions.propertyDefinitions);
+			if(subView){
+				definitions = subView.objectView.typeOptions ?
+					subView.objectView.typeOptions.propertyDefinitions :
+					{}
+				;
+
+				this.trigger('saveDocument', subView, definitions);
+			}
 		},
 
 		onClickCancel: function(e){
@@ -811,7 +794,8 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			 * Wether the documents were fetched by a search
 			 * @type {Boolean}
 			 */
-			search: false
+			search: false,
+			documentName: 'doc'
 		},
 
 		initialize: function(opts) {

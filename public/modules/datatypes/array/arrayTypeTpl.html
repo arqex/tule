@@ -11,7 +11,7 @@
 		<%= value.length  %> <%= value.length == 1 ? 'element' : 'elements' %>
 	</div>
 	<% } %>
-	<div class="tuleObjectEdit">
+	<div class="tuleObjectEdit <%= viewOptions.closeable ? 'tuleCloseable' : '' %>">
 		<table class="tuleArrayElements"><tbody class="js-array-elements" data-cid="<%= cid %>"></table>
 		<div class="js-array-controls tuleElementsControls" data-cid="<%= cid %>"></div>
 	</div>

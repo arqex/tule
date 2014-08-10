@@ -84,7 +84,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			});
 
 			_.each(objectValue, function(value, key){
-				if(!me.subViews[key])
+				if(!me.subViews[key] && me.typeOptions.hiddenProperties.indexOf(key) == -1)
 					me.subViews[key] = me.createSubView(key, value);
 			});
 		},
@@ -210,6 +210,10 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			});
 
 			this.listenTo(newElement, 'cancel', function(){
+				// If there are no properties, switch to display mode
+				if(_.isEmpty(this.subViews))
+					this.trigger('edit:cancel');
+
 				this.render();
 				this.stopListening(newElement);
 				newElement.remove();

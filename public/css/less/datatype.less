@@ -1,7 +1,7 @@
 
 /* Datatypes */
 .tuleDE td {
-	padding-bottom: 5px;
+	padding-bottom: 10px;
 }
 .tuleDEKey {
 	font-weight: bold;
@@ -58,6 +58,7 @@
 	font-style: italic;
 	vertical-align: top;
 	text-align: right;
+	padding-left: @margin-wide;
 }
 
 .tuleDECKey input{
@@ -92,7 +93,7 @@
 		content: '';
 		position:absolute;
 		width: 5px;
-		left: 0;
+		left: 5px;
 		bottom: 0;
 		height: 100%;
 		border-left: 1px solid #ddd;
@@ -129,4 +130,12 @@
 }
 .tuleDE-bool .tuleDEEdit {
 	vertical-align: middle;
+}
+
+.tule-field-advanced {
+	margin-bottom: @margin-narrow;
+}
+
+.tule-field-advanced-toggle {
+	font-size: .8em;
 }
