@@ -13,8 +13,10 @@ var deps = [
 define(deps, function($,_,Backbone, Services, BaseView, PageController, Alerts, Events, tplSource) {
 	'use strict';
 
+	var templates = BaseView.prototype.extractTemplates(tplSource);
+
 	var SettingsController = BaseView.extend({
-		tpl: _.template(tplSource),
+		tpl: templates.tuleSettings,
 		settingsName: 'tule',
 
 		events: {

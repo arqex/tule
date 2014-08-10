@@ -12,7 +12,7 @@ var defaultClientRoutes = [
 		{route: 'collections/list/:id(/page/:page)', controller: 'modules/collections/collectionController'},
 		{route: 'settings', controller: 'modules/settings/settingsController'},
 		{route: 'settings/navigation', controller: 'modules/settings/navigationController'},
-		{route: 'settings/collections', controller: 'modules/settings/settingsController'},
+		{route: 'settings/collections', controller: 'modules/settings/collectionSettingsController'},
 		{route: 'settings/general', controller: 'modules/settings/tuleSettingsController'},
 		{route: 'plugins', controller: 'modules/plugins/pluginController'},
 		{route: '*path', controller:'modules/core/404Controller'}

@@ -4,7 +4,7 @@ var url = require('url'),
 	config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance(),
 	when = require('when'),
-	queryTranslator = require(config.path.public + '/app/modules/collections/queryTranslator')
+	queryTranslator = require(config.path.public + '/modules/collections/queryTranslator')
 ;
 
 module.exports = {
