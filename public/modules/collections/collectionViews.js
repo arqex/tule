@@ -255,11 +255,14 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		initialize: function(opts) {
 			this.collectionSettings = opts.collectionSettings;
 			this.reset();
+			this.title = opts.title || 'Create new';
 		},
 
 		render: function() {
 			var open = this.state('open');
-			this.$el.html(this.tpl(this.getTemplateData()));
+			this.$el.html(
+				this.tpl( _.extend(this.getTemplateData(), {title: this.title}) )
+			);
 
 			if(open) {
 				if(!this.objectView)
