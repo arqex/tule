@@ -3,7 +3,10 @@ var path = require('path'),
 	config = require('config'),
 	db = require(path.join(__dirname, '../../..', 'server/modules/db/mongoDriver')),
 	//db = require(path.join(__dirname, '../../..', 'server/plugins/nedb/nedbDriver')),
-	hooks = {filter: function(hook, val){return {then: function(clbk){clbk(val);}};}},
+	hooks = {
+		filter: function(hook, val){return {then: function(clbk){clbk(val);}};},
+		trigger: function(){}
+	},
 	promise
 ;
 
@@ -199,7 +202,7 @@ describe('Settings Manager tests', function() {
 
 				},
 				function(err) {
-					expect(err).toBe('Private setting.');
+					expect(err).toBeTruthy();
 					done();
 				}
 			)
@@ -261,7 +264,7 @@ describe('Settings Manager tests', function() {
 
 				},
 				function(err) {
-					expect(err).toBe('Private setting.');
+					expect(err).toBeTruthy();
 					done();
 				}
 			)

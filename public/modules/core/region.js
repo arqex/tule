@@ -1,6 +1,6 @@
-"use strict";
-
 define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
+	'use strict';
+
 	var Region = Backbone.View.extend({
 		initialize: function(opts){
 			this.selector = opts.selector || '#noselector#';
@@ -10,10 +10,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 			if(this.view)
 				this.view.remove();
 			this.view = view;
-			this.$el
-				.html('')
-				.append(this.view.el)
-			;
+
 			this.render();
 
 			this.listenTo(this.view, 'save', function(routes){
@@ -22,8 +19,11 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 
 		},
 		render: function(){
-			if(this.view)
-				this.view.render();
+			if(!this.view)
+				return this.$el.html('Loading...');
+
+			this.$el.html(this.view.el);
+			this.view.render();
 		}
 	});
 

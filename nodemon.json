@@ -1,0 +1,12 @@
+{
+  "verbose": true,
+  "ignore": [
+		".git",
+		"public",
+		"batch",
+		"mongodb",
+		"tests",
+		"server/plugins",
+		"server/modules/plugins/activePlugins.json"
+	]
+}

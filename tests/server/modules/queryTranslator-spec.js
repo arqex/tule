@@ -1,6 +1,6 @@
 var require = require('amdrequire'),
 	path = require('path'),
-	translator = require(path.join(__dirname, '../../..', 'public/app/modules/collections/queryTranslator'))
+	translator = require(path.join(__dirname, '../../..', 'public/modules/collections/queryTranslator'))
 ;
 
 describe('String to query', function(){

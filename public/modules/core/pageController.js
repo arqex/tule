@@ -21,13 +21,13 @@ define(['jquery', 'underscore', 'backbone', 'baseController'], function($, _, Ba
 				this.listenTo(this.content, 'save', function(routes){
 					this.trigger('save', routes);
 				});
-				this.regions.content.show(this.content);
+				this.regions.content.view = this.content;
 			}
 			if(!this.title)
 				this.title = 'No title';
 
 			this.titleView = new TitleView({title: this.title});
-			this.regions.title.show(this.titleView);
+			this.regions.title.view = this.titleView;
 
 			if(typeof this.init == 'function')
 				this.init();

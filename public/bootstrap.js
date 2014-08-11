@@ -10,6 +10,7 @@ require.config({
 		'underscore':   'bower_components/underscore/underscore',
 		'backbone':     'bower_components/backbone/backbone',
 		'text':         'bower_components/requirejs-text/text',
+		'css': 'bower_components/require-css/css',
 		'marionette':   'bower_components/marionette/lib/backbone.marionette',
 		'backbone-query-params': 'bower_components/backbone-query-parameters/backbone.queryparams',
 

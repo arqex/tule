@@ -29,6 +29,17 @@ define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, 
 			this.$el.html(this.tpl(this.getTemplateData()));
 
 			return this;
+		},
+
+		reTrigger: function(eventName) {
+			var me =  this;
+			return function(){
+				// Add the event name to the arguments,
+				// we need to convert the arguments to an actual
+				// array to do so.
+				var args = [eventName].concat(Array.prototype.slice.call(arguments, 0));
+				me.trigger.apply(me, args);
+			};
 		}
 	});
 

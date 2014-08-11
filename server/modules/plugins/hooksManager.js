@@ -62,7 +62,7 @@ var cloneArguments = function(args) {
 		else
 			return arg;
 	});
-}
+};
 
 module.exports = {
 	on: function(hooks, pluginId, hookName, priority, callback){
@@ -70,8 +70,6 @@ module.exports = {
 			callback = priority;
 			priority = 0; //Default priority
 		}
-
-		console.log('ON ' + hookName);
 
 		if(!hooks[hookName])
 			hooks[hookName] = {};
