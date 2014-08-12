@@ -6,6 +6,8 @@ var deps = ['jquery', 'underscore', 'backbone', 'router', 'services',
 ];
 
 define(deps, function($, _, Backbone, Router, Services, CollectionService, SettingsService, DatatypeService, MainController){
+	'use strict';
+
 	// Here the magic starts
 	var init = function() {
 		// Take the initial settings
@@ -42,11 +44,12 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 
 		Services.add('datatype', DatatypeService);
 
-
-		_.each(settings.datatypes, function(type){
-			deps.push(settings.datatypesPath + type + '/' + type + 'Type');
+		// Get the types from the settings;
+		_.each(settings.datatypes, function(definition){
+			deps.push(definition.path);
 		});
 
+		// Require them
 		require(deps, function(){
 			_.each(arguments, function(typeOptions){
 				DatatypeService.add(typeOptions);

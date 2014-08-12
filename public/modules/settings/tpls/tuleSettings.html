@@ -17,6 +17,14 @@
 	</div>
 </div>
 
+<div class="tule-settings-section">
+	<h3 class="tule-settings-section-title">Save display name in relation fields</h3>
+	<div class="tule-settings-info">If checked, relation fields will be saved as objects with the format {id, display} to recognize the related documents at first sight. Otherwise just the document _id will be stored. <b>Be careful.</b> Be sure of what you do, you can break your application by changing this value.</div>
+	<div class="tule-settings-form">
+		<input type="checkbox" class="js-setting-compositeRelated" <%= compositeRelated ? 'checked' : '' %>> Save display name in relation fields.
+	</div>
+</div>
+
 <div class="tule-settings-controls">
 	<button class="tule-settings-ok js-settings-ok">Save settings</button>
 </div>

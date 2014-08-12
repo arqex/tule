@@ -25,7 +25,8 @@ define(deps, function($,_,Backbone, Services, BaseView, PageController, Alerts, 
 
 		defaults: {
 			siteTitle: 'Tule',
-			pageSize: 10
+			pageSize: 10,
+			compositeRelated: false
 		},
 
 		initialize: function(options) {
@@ -93,6 +94,7 @@ define(deps, function($,_,Backbone, Services, BaseView, PageController, Alerts, 
 
 			settings.siteTitle = this.$('.js-setting-title').val();
 			settings.pageSize = this.$('.js-setting-pageSize').val();
+			settings.compositeRelated = this.$('.js-setting-compositeRelated').is(':checked');
 
 			return settings;
 		}

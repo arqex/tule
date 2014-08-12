@@ -1,0 +1,21 @@
+<div>
+<script type="text/template" id="relationTpl">
+	<div class="relation-display">
+		<%= value %>
+		<% if(related){ %><a href="#" title="Edit this <%= options.relatedCollection %> item"><% } %>
+			<% if(options.relatedCollection){ %><i class="fa fa-external-link-square" title="Doesn't exists any <%= options.relatedCollection %> item with this id."></i><% } %>
+		<% if(related){ %></a><% } %>
+	</div>
+</script>
+
+<script type="text/template" id="relationEditTpl">
+	<form class="relation-form">
+		<% if(options.relatedCollection && options.displayField) { %>
+		<input type="text" value="<%= value.display %>" placeholder="<%= options.displayField %>" class="relation-field">
+		<% } %>
+		<input type="text" value="<%= value.id %>" placeholder="id" class="relation-id">
+		<%= controls %>
+	</form>
+</script>
+
+</div>

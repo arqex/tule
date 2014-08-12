@@ -7,35 +7,36 @@ var deps = [
 ];
 
 define(deps, function($,_,Backbone, tplSource, DatatypeViews){
-	"use strict";
+	'use strict';
 
 	var FieldTypeView = DatatypeViews.DataTypeView.extend({
 		displayTpl: _.template($(tplSource).find('#fieldTpl').html()),
 		editTpl: _.template($(tplSource).find('#fieldEditTpl').html()),
-		defaultModelValue: false,
+		defaultModelValue: {id: false, options: {}},
 		defaultTypeOptions: {
 			allowAnyType: false
 		},
-		events: {
-			'click .field-ok': 'onFieldOk',
-			'click .field-cancel': 'onFieldCancel',
-			'change .element-form-type': 'onChangeFieldType',
-			'click .js-field-advanced-toggle': 'onAdvancedToggle'
-		},
+
 		initialize: function() {
 			this.types = this.service.getDefinitions();
+
+			_.extend(this.events, {
+				'change .element-form-type': 'onChangeFieldType',
+				'click .js-field-advanced-toggle': 'onAdvancedToggle'
+			});
+
 			if(this.typeOptions.allowAnyType)
 				this.types.any = {id: '', name: 'Any'};
 		},
 
 		getTemplateData: function(){
 			var value = this.model.get('value');
+
 			return {
 				types: this.types,
 				value: value,
 				label: this.getLabel(value),
-				okButton: this.datatype.okButton,
-				cancelButton: this.datatype.cancelButton,
+				controls: this.getControlsTpl(),
 				cid: this.cid
 			};
 		},
@@ -57,16 +58,11 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 			};
 
 			this.model.set('value', value);
+			this.trigger('edit:ok', value);
 
 			return this;
 		},
-		onFieldCancel: function(e) {
-			e.preventDefault();
 
-			var cid = $(e.target).closest('form').data('cid');
-			if(cid == this.cid)
-				this.trigger('changeMode', 'display');
-		},
 		onChangeFieldType: function(e){
 			e.preventDefault();
 
@@ -105,9 +101,8 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 
 			this.advanced = this.service.get({
 				datatype: {id: 'object', options: objectOptions},
-				value: this.model.get('value'),
 				viewOptions: {closeable: false}
-			}); //dispatcher.getView('object',  objectOptions, this.model.get('value').options);
+			});
 
 			this.advanced.state('mode', 'edit');
 
@@ -121,7 +116,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		View: FieldTypeView,
 		defaultValue: FieldTypeView.prototype.defaultModelValue,
 		typeOptionsDefinition: [
-			{key: 'allowAnyType', label: 'Allow any type', datatype:{id: 'boolean'}}
+			{key: 'allowAnyType', label: 'Allow any type', datatype:{id: 'bool'}}
 		],
 		controls: true
 	};

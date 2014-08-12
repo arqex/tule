@@ -63,20 +63,19 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 		 *                            with the documents in the results attribute.
 		 */
 		find: function(query, modifiers){
-			var skipBuildQuery = _.isString(query),
-				deferred = $.Deferred(),
+			var queryURL = _.isString(query) ? query : false,
 				defaultModifiers = {limit: parseInt(settings.pageSize) || 10},
 				docQuery
 			;
 
-			if(skipBuildQuery){
-				docQuery = new CollectionModels.Query({}, _.extend({}, defaultModifiers, {collectionName: this.collectionName})),
-				docQuery.queryURL = query;
+			if(queryURL){
+				docQuery = new CollectionModels.Query({}, _.extend({}, defaultModifiers, {collectionName: this.collectionName}));
 			}
-			else
+			else {
 				docQuery = new CollectionModels.Query(query, _.extend({}, defaultModifiers, (modifiers || {}), {collectionName: this.collectionName}));
+			}
 
-			return docQuery.fetch(skipBuildQuery);
+			return docQuery.fetch(queryURL);
 		},
 
 		/**
@@ -190,6 +189,7 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 			$.ajax('/api/collections/' + collectionName, {type: 'put', data: settings})
 				.then(function(updatedData){
 					deferred.resolve(updatedData);
+					Events.trigger('collection:updated', collectionName, settings);
 				})
 				.fail(function(jqXHR, status, error){
 					deferred.reject(error);
@@ -216,6 +216,7 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 			$.ajax('/api/collections', {type: 'post', data: settings})
 				.then(function(settings){
 					deferred.resolve(settings);
+					Events.trigger('collection:updated', collectionName, settings);
 				})
 				.fail(function(jqXHR, status, error){
 					deferred.reject(error);
@@ -237,6 +238,7 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 			$.ajax('/api/collections/' + collectionName, {type: 'delete'})
 				.then(function(){
 					deferred.resolve();
+					Events.trigger('collection:deleted', collectionName);
 				})
 				.fail(function(jqXHR, status, error){
 					deferred.reject(error);

@@ -78,3 +78,17 @@ input[type=text]:focus, input[type=number]:focus, textarea:focus, select:focus {
 	border: 2px solid @color-main-1;
 	outline: none;
 }
+
+.autocomplete-suggestions {
+	.mixin-box();
+	padding:0;
+}
+.autocomplete-suggestion {
+	padding: 2px 5px;
+	margin:0;
+}
+.autocomplete-suggestion:hover,
+.autocomplete-selected {
+	background: #e0f0f0;
+	cursor: pointer;
+}

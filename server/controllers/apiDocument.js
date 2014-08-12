@@ -254,13 +254,18 @@ function parseQuery(urlArguments, collectionName){
 		return deferred.promise;
 	}
 
+
 	// We have a query, update values depending on the datatype
 	getFieldDefinitions(collectionName)
 		.then(function(definitions){
-			deferred.resolve({
-				query: updateQueryDatatypes(query, definitions),
+			var queryData = {
+
+				// Convert 'like' comparisons to regexp too
+				query: resolveLike(updateQueryDatatypes(query, definitions)),
 				modifiers: parseQueryModifiers(urlArguments)
-			});
+			};
+
+			deferred.resolve(queryData);
 		})
 		.catch(function(error){
 			deferred.reject(error);
@@ -268,6 +273,47 @@ function parseQuery(urlArguments, collectionName){
 	;
 
 	return deferred.promise;
+}
+
+function resolveLike(query) {
+	var value = false;
+
+	for(var operator in query) {
+		value = query[operator];
+
+		// If the operator is 'like', transform
+		if(operator === 'like'){
+			query.$regex = likeToRegex(value);
+			query.$options = 'im';
+			delete query.like;
+		}
+
+		// If the value is an array, try to resolve every element
+		else if (Object.prototype.toString.call( value ) === '[object Array]') {
+			for (var i = 0; i < value.length; i++) {
+				value[i] = resolveLike(value[i]);
+			}
+		}
+
+		// If the value is an object, just resolve it
+		else if (value === Object(value)) {
+			query[operator] = resolveLike(value);
+		}
+	}
+
+	return query;
+}
+
+/**
+ * Converts a like expresion to a regex. Basically, it escapes the string and
+ * uses the words to create an OR regexp.
+ *
+ * the words
+ * @param  {[type]} likeExpression [description]
+ * @return {[type]}                [description]
+ */
+function likeToRegex(likeExpression) {
+	return likeExpression.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\s+/g, '|');
 }
 
 /**

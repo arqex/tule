@@ -55,16 +55,16 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 		 * @return {Promise}         A promise to be resolved with the query when the
 		 *                             documents are fetched.
 		 */
-		fetch: function(skipBuildQuery){
+		fetch: function(queryURL){
 			var me = this,
 				deferred = $.Deferred()
 			;
 
 			// Create the query URL
-			if(!skipBuildQuery)
+			if(!queryURL)
 				this.queryURL = this.buildUrlQuery();
 			else
-				this.queryURL = this.buildModifierUrlQuery();
+				this.queryURL = this.normalizeQueryURL(queryURL);
 
 			this.fetching = $.get(this.url, this.queryURL)
 				.done(function(response){
@@ -153,6 +153,30 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 				return '';
 
 			return urlParts.join('&');
+		},
+
+		normalizeQueryURL: function(urlArgs) {
+			var me = this,
+				argsStr = urlArgs.split('&'),
+				validArgs = ['query', 'sort', 'limit', 'skip'],
+				args = {},
+				normalized = []
+			;
+
+			_.each(argsStr, function(arg){
+				var argParts = arg.split('=');
+				if(argParts.length == 2)
+					args[argParts[0]] = argParts[1];
+			});
+
+			_.each(validArgs, function(argName) {
+				if(args[argName])
+					normalized.push(argName + '=' + args[argName]);
+				else if(me.modifiers[argName])
+					normalized.push(argName + '=' + me.modifiers[argName]);
+			});
+
+			return normalized.join('&');
 		}
 	};
 

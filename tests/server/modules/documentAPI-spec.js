@@ -112,6 +112,20 @@ frisby.create('Look for docs younger or equal than alice')
     .toss()
 ;
 
+frisby.create('Look for docs like bo or ice')
+  .get(tuleApiUrl + 'docs/' + collection + '?query=name|like|bo ice')
+    .expectStatus(200)
+    .expectJSONLength('documents', 3)
+    .toss()
+;
+
+frisby.create('Look for docs by regexp')
+  .get(tuleApiUrl + 'docs/' + collection + '?query=name|regex|ice')
+    .expectStatus(200)
+    .expectJSONLength('documents', 1)
+    .toss()
+;
+
 frisby.create('Look for docs using two fields')
   .get(tuleApiUrl + 'docs/' + collection + '?query=and(age|eq|' + doc.age + ',name|eq|' + doc.name + ')')
     .expectStatus(200)

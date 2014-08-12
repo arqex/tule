@@ -7,7 +7,8 @@ var config = require('config'),
 	settings = require(config.path.modules + '/settings/settingsManager')
 ;
 
-var defaultClientRoutes = [
+var datatypesPath = 'modules/datatypes/',
+	defaultClientRoutes = [
 		{route: '(/)', controller: 'modules/core/homeController'},
 		{route: 'collections/list/:id(/page/:page)', controller: 'modules/collections/collectionController'},
 		{route: 'settings', controller: 'modules/settings/settingsController'},
@@ -18,8 +19,17 @@ var defaultClientRoutes = [
 		{route: '*path', controller:'modules/core/404Controller'}
 	],
 	defaultFrontendSettings = {
-		datatypes: ['string', 'object', 'field', 'boolean', 'integer', 'float', 'array', 'select'], //['relation'],
-		datatypesPath: 'modules/datatypes/'
+		datatypes: [
+			{ path: datatypesPath + 'string/stringType' },
+			{ path: datatypesPath + 'object/objectType' },
+			{ path: datatypesPath + 'field/fieldType' },
+			{ path: datatypesPath + 'boolean/booleanType' },
+			{ path: datatypesPath + 'integer/integerType' },
+			{ path: datatypesPath + 'float/floatType' },
+			{ path: datatypesPath + 'array/arrayType' },
+			{ path: datatypesPath + 'select/selectType' },
+			{ path: datatypesPath + 'relation/relationType' }
+		]
 	},
 	defaultNavigationItems = {
 		'Settings': [
@@ -33,7 +43,8 @@ var defaultClientRoutes = [
 	},
 	defaultTuleSettings = {
 		siteTitle: 'Tule',
-		pageSize: 10
+		pageSize: 10,
+		compositeRelated: false
 	},
 	hooks
 ;

@@ -1,13 +1,14 @@
 var deps = [
-	'jquery', 'underscore', 'backbone', './settingsModels'
+	'jquery', 'underscore', 'backbone', './settingsModels', 'events'
 ];
 
-define(deps, function($, _, Backbone, Models){
+define(deps, function($, _, Backbone, Models, Events){
 	'use strict';
 
 	var SettingsService = function(){};
 
 	SettingsService.prototype = {
+
 		/**
 		 * Fetch a setting from the server
 		 * @param  {String} name Setting name
@@ -51,6 +52,7 @@ define(deps, function($, _, Backbone, Models){
 			setting.save(null, {
 				success: function(){
 					deferred.resolve(settingObject);
+					Events.trigger('setting:updated:' + settingName, settingValue);
 				},
 				error: function(model, response) {
 					deferred.reject(response.responseText);
@@ -74,6 +76,7 @@ define(deps, function($, _, Backbone, Models){
 			setting.destroy({
 				success: function(){
 					deferred.resolve();
+					Events.trigger('setting:deleted:' + settingName);
 				},
 				error: function(err) {
 					deferred.reject(err);

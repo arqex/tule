@@ -95,7 +95,6 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 		},
 
 		save: function(e) {
-
 			var input = this.$('input');
 
 			if(!input.length)
@@ -275,7 +274,6 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 
 		tpl: templates.dataElementCreation,
 
-
 		tagName: 'tr',
 		className: 'tuleDEC',
 
@@ -288,7 +286,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			this.initModel(options);
 
 			this.typeView = service.get({
-				datatype: {id: 'field',	options: {}}
+				datatype: {id: 'field',	options: {}},
+				viewOptions: {singleEditable: false}
 			});
 		},
 

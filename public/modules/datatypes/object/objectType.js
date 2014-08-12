@@ -6,7 +6,7 @@ var deps = [
 ];
 
 define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
-	"use strict";
+	'use strict';
 
 	var templates = DatatypeViews.DataTypeView.prototype.extractTemplates(tplSource);
 
@@ -38,7 +38,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			closeable: true
 		},
 
-		initialize: function(opts){
+		initialize: function(){
 
 			//Make sure the value is an object
 			var value = this.model.get('value') || _.clone(this.defaultModelValue);
@@ -226,10 +226,8 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 			;
 
 			// Update property definitions
-			if(!this.propertyDefinitions[key]) {
-				this.propertyDefinitions[key] = elementData;
-				this.typeOptions.propertyDefinitions.push(elementData);
-			}
+			this.propertyDefinitions[key] = elementData;
+			this.typeOptions.propertyDefinitions.push(elementData);
 
 			// Create subview
 			var newPropertyView = this.createSubView(key, value);

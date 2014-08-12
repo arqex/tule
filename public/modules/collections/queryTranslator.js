@@ -35,7 +35,9 @@
 				'$nin': 'nin',
 				'$lt': 'lt',
 				'$lte': 'lte',
-				'$ne': 'ne'
+				'$ne': 'ne',
+				'$regex': 'regex',
+				'like': 'like'
 			},
 
 			logical: {
@@ -60,6 +62,8 @@
 				'lt': '$lt',
 				'lte': '$lte',
 				'ne': '$ne',
+				'regex': '$regex',
+				'like': 'like',
 				'eq': 'eq' // Eq is not a MongoDB operator
 			},
 		},
