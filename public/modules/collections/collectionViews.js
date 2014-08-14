@@ -223,8 +223,10 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			this.collectionSettings = updatedSettings;
 			_.each(this.subViews, function(view){
 				view.collectionSettings = updatedSettings;
-				view.objectView.typeOptions = updatedSettings;
-				view.objectView.createPropertyDefinitions();
+				if(view.objectView){
+					view.objectView.typeOptions = updatedSettings;
+					view.objectView.createPropertyDefinitions();
+				}
 			});
 		}
 	});
