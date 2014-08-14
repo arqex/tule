@@ -1,0 +1,65 @@
+<div>
+
+
+<script type="text/template" id="dataElement">
+	<td class="tuleDEKey js-DEKey">
+		<% if(deleteable) { %>
+		<a href="#" data-cid="<%= cid %>" class="tuleDEDelete js-DEDelete" title="Delete <%= key %>"><i class="fa fa-minus-circle"></i></a>
+		<% } %>
+		<%= label %>:
+	</td>
+	<td class="tuleDEValue js-DEValue <%= state.mode == 'edit' ? 'tuleDEEdit' : 'tuleDEDisplay' %>"></td>
+</script>
+
+<script type="text/template" id="dataElementCreation">
+	<td class="tuleDECKey">
+		<% if(editKey) { %>
+			<input type="text" class="js-DECinput" value="<%= key %>" placeholder="Property name" tabindex="1">:
+		<% }else{ %>
+			<%= key %>:
+		<% } %>
+	</td>
+	<td class="tuleDECType">
+		<div class="js-DEC-type"></div>
+		<div class="tuleDECControls">
+			<a href="#" class="js-DEC-cancel" tabindex="4">Cancel</a>
+			<button class="js-DEC-ok" tabindex="3">Add</button>
+		</div>
+	</td>
+</script>
+
+<script type="text/template" id="dataElementCreationOld">
+	<div class="tuleDECTitle"><%= title %></div>
+	<div class="tuleDECKey">
+		<% if(editKey) { %>
+			<input type="text" class="js-DECinput" value="<%= key %>" placeholder="Property name">
+		<% }else{ %>
+			<strong><%= key %></strong>
+		<% } %><strong>:</strong>
+	</div>
+	<div class="tuleDECType js-DEC-type"></div>
+	<div class="tuleDECControls">
+		<a href="#" class="js-DEC-cancel">Cancel</a>
+		<button class="js-DEC-ok">Add</button>
+	</div>
+</script>
+
+<script type="text/template" id="DataElementDisplay">
+	<div class="element element-datatype-<%= datatype %><%= inline ? ' element-inline' : '' %><%= isNew ? ' element-new' : '' %>" data-key="<%= key %>" data-cid="<%= cid %>">
+		<div class="element-key">
+			<% if(allowDelete) { %>
+			<a href="#" data-bypass="true" class="element-delete" title="Delete <%= key %>"><i class="fa fa-minus-circle"></i></a>
+			<% } %>
+			<%= key %>:
+		</div>
+		<div class="element-value element-mode-<%= mode %>"></div>
+	</div>
+</script>
+
+<script type="text/template" id="dataElementControls">
+	<button class="js-DEok DEok"><%= buttonText %></button>
+	<a href="#" class="js-DEcancel DEcancel">Cancel</a>
+</script>
+
+
+</div>

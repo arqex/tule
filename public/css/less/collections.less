@@ -1,0 +1,158 @@
+/* Collection views: collections.less */
+
+.tule-collection-items {
+  background: #fff;
+  border: 1px solid #eee;
+  box-shadow: @shadow;
+  width: 100%;
+
+  .tule-doc-edit {
+    background: @color-main-0;
+    box-shadow: @shadow-inset;
+    padding: @margin;
+    position: relative;
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: @margin;
+      width: 20px;
+      height: 10px;
+      border: 10px solid transparent;
+      border-top-color: #fff;
+      z-index: 2;
+    }
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: @margin - 4px;
+      width: 20px;
+      height: 10px;
+      border: 10px solid transparent;
+      border-top-color: rgba(0,0,0,.05);
+    }
+  }
+
+  .tule-doc-options {
+    text-align: right;
+  }
+}
+
+.tule-doc-header {
+  border-bottom: 1px solid #eee;
+}
+
+.tule-doc-field {
+  padding: @margin-narrow @margin;
+}
+
+.tule-collection-nodocs {
+	padding: @margin-narrow @margin;
+	font-style: italic;
+}
+
+.tule-doc-control {
+  width: 30px;
+  padding: @margin-narrow 0;
+}
+
+.tule-collection-tools {
+  margin-bottom: @margin;
+
+  .tule-collection-controls {
+  		float: left;
+  }
+  .paginationRegion {
+  		float: right;
+  		margin: 5px 0 0 @margin-narrow;
+  }
+}
+
+.tule-doc-dialog() {
+	background: @color-main-0;
+	border: 1px solid #eee;
+	box-shadow: @shadow;
+	padding: @margin;
+	display: none;
+	margin-bottom: @margin;
+
+	h3 {
+		margin-top: 0;
+	}
+}
+
+.tule-doc-create {
+	.tule-doc-dialog();
+
+	&.tule-doc-create-open {
+		display: block;
+	}
+}
+
+.tule-doc-create-options {
+  text-align: right;
+}
+
+.tule-pagination-goto {
+	width: 40px;
+}
+
+.tule-pagination-current {
+	font-weight: bold;
+	font-size: 1.1em;
+}
+
+
+
+/** Search */
+
+.tule-search {
+	.tule-doc-dialog();
+
+	&.tule-doc-search-open {
+		display: block;
+	}
+
+	.tule-search-controls {
+		text-align: right;
+	}
+}
+
+.tule-collection-search-link {
+	margin-left: @margin-narrow;
+}
+
+.tule-search-clause {
+	margin-bottom: @margin-narrow;
+}
+
+.tule-search-logic-controls {
+	margin: 0 0 @margin-narrow 70px;
+}
+
+.tule-search-op-logical {
+
+}
+
+.tule-search-key {
+	width: 100px;
+}
+
+.tule-search-op-hidden {
+	visibility: hidden;
+}
+
+.tule-search-delete {
+	display: none;
+}
+
+/** Count */
+.countRegion {
+	float: right;
+	margin-top: 7px;
+	font-style: italic;
+	color: #999;
+}

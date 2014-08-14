@@ -1,8 +1,0 @@
-.git
-/public/*
-/.git/*
-/batch/*
-/mongodb/*
-/tests/*
-/server/plugins/nedb/data
-/server/modules/plugins

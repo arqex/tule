@@ -3,30 +3,33 @@
 var config = require('config'),
 	_ = require('underscore'),
 	when = require('when'),
-	db = require(config.path.modules + '/db/dbManager').getInstance()
+	db = require(config.path.modules + '/db/dbManager').getInstance(),
+	settings = require(config.path.modules + '/settings/settingsManager')
 ;
 
-var defaultClientRoutes = [
+var datatypesPath = 'modules/datatypes/',
+	defaultClientRoutes = [
 		{route: '(/)', controller: 'modules/core/homeController'},
-		{route: 'collections/list/:id(/page/:page)', controller: 'modules/collection/collectionController'},
+		{route: 'collections/list/:id(/page/:page)', controller: 'modules/collections/collectionController'},
 		{route: 'settings', controller: 'modules/settings/settingsController'},
-		{route: 'settings/navigation', controller: 'modules/settings/settingsNavigation'},
-		{route: 'settings/collections', controller: 'modules/settings/settingsController'},
-		{route: 'settings/general', controller: 'modules/settings/settingsGeneral'},
+		{route: 'settings/navigation', controller: 'modules/settings/navigationController'},
+		{route: 'settings/collections', controller: 'modules/settings/collectionSettingsController'},
+		{route: 'settings/general', controller: 'modules/settings/tuleSettingsController'},
 		{route: 'plugins', controller: 'modules/plugins/pluginController'},
 		{route: '*path', controller:'modules/core/404Controller'}
 	],
 	defaultFrontendSettings = {
-		settingsCollection: 'monSettings',
-		datatypes: ['array', 'boolean', 'float', 'integer', 'object', 'string', 'field', 'select', 'relation'],
-		datatypesPath: 'modules/datatypes/',
-		navigation:[
-			{text: 'Collection', url: '/collections/list/test'},
-			{text: 'Settings', url: '/settings/general', subItems: [
-				{text: 'General', url: '/settings/general'},
-				{text: 'Navigation', url: '/settings/navigation'},
-				{text: 'Collections', url: '/settings/collections'}
-			]}
+		datatypes: [
+			{ path: datatypesPath + 'string/stringType' },
+			{ path: datatypesPath + 'object/objectType' },
+			{ path: datatypesPath + 'field/fieldType' },
+			{ path: datatypesPath + 'boolean/booleanType' },
+			{ path: datatypesPath + 'integer/integerType' },
+			{ path: datatypesPath + 'float/floatType' },
+			{ path: datatypesPath + 'array/arrayType' },
+			{ path: datatypesPath + 'select/selectType' },
+			{ path: datatypesPath + 'date/dateType' },
+			{ path: datatypesPath + 'relation/relationType' }
 		]
 	},
 	defaultNavigationItems = {
@@ -39,67 +42,143 @@ var defaultClientRoutes = [
 			{text: 'Installed', url: '/plugins'}
 		]
 	},
-	settings = db.collection(config.mon.settingsCollection),
+	defaultTuleSettings = {
+		siteTitle: 'Tule',
+		pageSize: 10,
+		compositeRelated: false,
+		dateFormat: 'd/mm/yy',
+		timeFormat: 'h:mm',
+		firstDayOfWeek: 1
+	},
 	hooks
 ;
 
-var getNavigationItems = function(req, res){
-	var itemsPromise = hooks.filter('navigation:items', defaultNavigationItems);
+var getCollectionNavigationItems = function(items){
+
+	var deferred = when.defer();
 
 	db.getCollectionNames(function(err, names){
+
 		if(err){
-			res.json(500, {error: 'There was an error fetching navigation items.'});
-			return console.log('***** NAMES ERROR: ' + err);
+			return deferred.reject(err);
 		}
 
-		var hiddenCollections = [config.mon.settingsCollection, 'system.indexes'],
-			collections = names.filter(function(collection){
-				return hiddenCollections.indexOf(collection) == -1;
-			})
+		var hiddenCollections = [config.tule.settingsCollection, 'system.indexes'],
+			collections = names
+				.filter(function(collection){
+					return hiddenCollections.indexOf(collection) == -1;
+				})
+				.sort(),
+			collectionItems = []
 		;
 
-		itemsPromise.then(function(items){
-				var collectionsLinks = [];
-				collections.forEach(function(collectionName){
-					collectionsLinks.push({text: collectionName, url: '/collections/list/' + collectionName});
-				});
-				items.Collections = collectionsLinks;
-				res.json(items);
-			})
-			.catch(function(err){
-				res.json(500, {error: 'There was an error fetching navigation items.'});
-				return console.log('***** ITEMS ERROR: ' + err);
-			})
-		;
+		for (var i = 0; i < collections.length; i++) {
+			var c = collections[i];
+			collectionItems.push({text: c, url: '/collections/list/' + c});
+		}
+
+		items.Collections = collectionItems;
+
+		deferred.resolve(items);
 	});
+
+	return deferred.promise;
+};
+
+/**
+ * Generates a default navigation adding some collections to the menu, when
+ * there is no navigation data stored.
+ *
+ * @param  {array} navigation Current navigation settings.
+ * @return {String|Promise}   The resulting navigation.
+ */
+var generateDefaultNavigation = function(navigation) {
+
+	// Only if there is no navigation set
+	if(typeof navigation != 'undefined')
+		return navigation;
+
+	var deferred = when.defer(),
+		defaults = JSON.parse(JSON.stringify(defaultNavigationItems))
+	;
+
+
+	// Get all items
+	getCollectionNavigationItems(defaults)
+		.then(function(items){
+			navigation = [
+				{ // Five collections
+					text: 'Collections',
+					url: '#',
+					subItems: items.Collections.slice(0,5)
+				},
+				{ // Settings
+					text: 'Settings',
+					url: '#',
+					subItems: items.Settings
+				},
+				{ text: 'Plugins', url: items.Plugins[0].url}
+			];
+			deferred.resolve(navigation);
+		})
+		.catch(function(){
+			// If we got an error getting the collections use just settings and plugins
+			var items = defaults;
+
+			navigation = [
+				{ // Settings
+					text: 'Settings',
+					url: '#',
+					subItems: items.Settings
+				},
+				{ text: 'Plugins', url: items.Plugins[0].url}
+			];
+			deferred.resolve(navigation);
+		})
+	;
+
+	return deferred.promise;
 };
 
 module.exports = {
 	init: function(app){
 		hooks = app.hooks;
-		console.log("ROUTES FOR THE NAVIGATION!! ----------------");
-		hooks.addFilter('routes:server', function(routes){
-			routes.splice(-1, 0, {route: 'get::navigationItems', controller: getNavigationItems});
-			return routes;
+		console.log('ROUTES FOR THE NAVIGATION!! ----------------');
+
+		settings.setStatic('routes:client', defaultClientRoutes, true);
+		settings.setStatic('frontend:settings', defaultFrontendSettings, true);
+
+		// Prepare navigation items
+		settings.setStatic('navigation:items', defaultNavigationItems, true);
+		hooks.addFilter('settings:get:navigation:items', getCollectionNavigationItems);
+
+		// If there is no navigation saved, generate one
+		hooks.addFilter('settings:get:tuleNavigation', generateDefaultNavigation);
+
+		// Apply defaults for mandatory settings
+		hooks.addFilter('settings:get:tule', function(settings){
+			return _.extend({}, defaultTuleSettings, settings || {});
 		});
 	},
 
 	getFrontSettings: function(){
-		settings.findOne({name: 'navData'}, function(err, navRoutes){
-			if(!err && navRoutes && navRoutes.length !== 0)
-				defaultFrontendSettings.navigation = navRoutes.routes;
-		});
-
-
-		var settingsPromise = hooks.filter('settings:front', defaultFrontendSettings),
-			routesPromise = hooks.filter('routes:client', defaultClientRoutes),
+		var settingsPromise = settings.get('frontend:settings'),
+			routesPromise = settings.get('routes:client'),
+			tulePromise = settings.get('tule'),
+			navigationPromise = settings.get('tuleNavigation'),
 			deferred = when.defer()
 		;
 
 		settingsPromise.then(function(settings){
 			routesPromise.then(function(routes){
-				settings.clientRoutes = routes;
-				deferred.resolve(settings);
+				tulePromise.then(function(tuleSettings){
+					navigationPromise.then(function(navigation){
+						settings.clientRoutes = routes;
+						settings.tule = tuleSettings;
+						settings.navigation = navigation;
+						deferred.resolve(settings);
+					});
+				});
 			});
 		});
 

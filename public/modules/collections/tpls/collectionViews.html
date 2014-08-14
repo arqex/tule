@@ -1,0 +1,138 @@
+<div> <!--	Wrapper to easily access to all the templates -->
+
+<script type="text/template" id="main">
+	<div class="tule-collection-tools clearfix">
+		<div class="tule-collection-controls js-collection-controls">
+			<button class="tule-doc-new js-doc-create">Add new</button>
+			<a class="tule-collection-search-link js-collection-search" href="#" data-bypass="true"><i class="fa fa-search"></i></a>
+		</div>
+		<div class="createRegion"></div>
+		<div class="searchRegion"></div>
+		<div class="paginationRegion"></div>
+		<div class="countRegion"></div>
+	</div>
+	<div class="itemsRegion"></div>
+</script>
+
+
+<script type="text/template" id="createDoc">
+	<% if(state.open) { %>
+		<h3><%= title %></h3>
+		<div class="js-doc-create-form"></div>
+		<div class="tule-doc-create-options">
+			<a href="#" class="tule-doc-create-cancel js-doc-create-cancel" data-bypass="true">Cancel</a>
+			<button class="tule-doc-create-ok js-doc-create-ok" type="submit">Create</button>
+		</div>
+	<% } %>
+</script>
+
+<script type="text/template" id="pagination">
+	<% if(currentPage != 1) { %>
+		<span class="tule-pagination-prev js-prev"><a href="#" data-page="<%= currentPage - 1 %>"><i class="fa fa-chevron-left"></i></a></span>
+	<% } %>
+
+	<% if(from > 1) { %>
+		<a href="#" class="tule-pagination-page js-page-link" data-page="1">1</a>
+	<% } %>
+
+	<% if(from > 2) { %>
+		<span class="tule-pagination-dots">...</span>
+	<% } %>
+
+	<% for(var i=from; i<=to; i++) { %>
+		<a href="#" class="tule-pagination-page js-page-link <%= i == currentPage ? 'tule-pagination-current' : '' %>" data-page="<%= i %>"><%= i %></a>
+	<% } %>
+
+	<% if(to < lastPage - 1) { %>
+		<span class="tule-pagination-dots">...</span>
+	<% } %>
+
+	<% if(to < lastPage) { %>
+		<a href="#" class="tule-pagination-page js-page-link" data-page="<%= lastPage %>"><%= lastPage %></a>
+	<% } %>
+
+	<% if(currentPage != lastPage) { %>
+		<span class="tule-pagination-prev js-prev"><a href="#" data-page="<%= currentPage + 1 %>"><i class="fa fa-chevron-right"></i></a></span>
+	<% } %>
+
+	<% if(from > 2 || to < lastPage - 1) { %>
+		<input type="text" class="tule-pagination-goto js-goto" placeholder="go...">
+	<% } %>
+</script>
+
+<script type="text/template" id="doc">
+<tr data-id="<%= doc._id %>" class="tule-doc-header js-doc-header" id="document-<%= doc._id %>">
+<% var fcount = 0; _.each(fields, function(field){  %>
+	<% if (_.isFunction(field)){ %>// Doc field %>
+		<td class="tule-doc-field tule-doc-field-function<%= ++fcount %>" data-action="function<%= fcount %>"><%= field(doc) %></td>
+	<% } else if(_.isObject(field)){ %>// icon control %>
+		<td class="tule-doc-control tule-doc-control-<%= field.action %> js-control-<%= field.action %>" data-action="<%= field.action %>">
+			<a href="<%= field.href %>" data-bypass="true">
+				<span class="fa fa-<%= field.icon %>"></span>
+			</a>
+		</td>
+	<% } else { %>
+		<td class="tule-doc-field tule-doc-field-<%= field %>" data-action="<%= field %>"><%= doc[field] %></td>
+	<% } %>
+<%	}) %>
+</tr>
+<% if(state.mode == 'edit'){ %>
+<tr class="tule-doc-content" data-id="<%= doc._id %>" id="tule-doc-editing-<%= doc._id %>">
+	<td colspan="<%= fields.length %>" class="tule-doc-edit js-doc-edit">
+		<div class="tule-doc-options">
+			<a href="#" data-bypass="true" class="tule-doc-cancel js-doc-cancel">Cancel</a>
+			<button class="tule-doc-ok js-doc-ok">Save</button>
+		</div>
+	</td>
+</tr>
+<% } //Endif editing %>
+</script>
+
+<script type="text/template" id="nodocs">
+	<tr><td class="tule-collection-nodocs"><%= message %></td></tr>
+</script>
+
+<script type="text/template" id="search">
+	<% if(state.open) { %>
+	<h3>Search</h3>
+	<div class="tule-search-clauses js-search-clauses"></div>
+	<div class="add-clause">
+		<div class="tule-search-logic-controls">
+			<button class="js-search-add" data-operator="and">And...</button>
+			<button class="js-search-add" data-operator="or">Or...</button>
+		</div>
+	</div>
+	<div class="tule-search-controls">
+		<a href="#" class="js-search-cancel">Cancel</a>
+		<button class="js-search-ok">Search</button>
+	</div>
+	<% } %>
+</script>
+
+<script type="text/template" id="searchClause">
+	<div class="tule-search-clause js-search-clause">
+		<select class="tule-search-op-logical js-search-op-logical <%= operator ? '' : 'tule-search-op-hidden' %>">
+			<option value="and" <%= operator === "and" ? 'selected' : '' %>>And</option>
+			<option value="or" <%= operator === "or" ? 'selected' : '' %>>Or</option>
+		</select>
+		<input class="js-search-key tule-search-key" type="text" placeholder="Key" <% if(key){ %> value="<%= key %>" <% } %> />
+		<select class="js-search-op-comparison">
+			<option value="eq" <%= comparison === "eq" ? 'selected' : '' %>>   ==  </option>
+			<option value="ne" <%= comparison === "ne" ? 'selected' : '' %>>   !=  </option>
+			<option value="gt" <%= comparison === "gt" ? 'selected' : '' %>>   &gt;   </option>
+			<option value="gte" <%= comparison === "gte" ? 'selected' : '' %>> &gt;=  </option>
+			<option value="lt" <%= comparison === "lt" ? 'selected' : '' %>>   &lt;   </option>
+			<option value="lte" <%= comparison === "lte" ? 'selected' : '' %>> &lt;=  </option>
+		</select>
+		<input class="js-search-value tule-search-value" type="text" placeholder="Value" <% if(value){ %> value="<%= value %>" <% } %> />
+		<a href="#" class="tule-search-delete js-search-delete" title="Delete clause">
+			<i class="fa fa-minus-circle"></i>
+		</a>
+	</div>
+</script>
+
+<script type="text/template" id="docCount">
+	<%= count %> <%= documentName %><%= count > 1 ? 's' : '' %><%if(search){ %> matched your search<% } %>
+</script>
+
+</div>

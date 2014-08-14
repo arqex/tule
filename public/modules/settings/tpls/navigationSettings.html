@@ -1,0 +1,85 @@
+<div>
+<script type="text/template" id="navigation">
+	<div class="tule-nav-current">
+		<h3>Current Navigation</h3>
+		<div class="js-nav-current"></div>
+	</div>
+	<div class="tule-navitems">
+		<h3>Available menu items</h3>
+		<div class="js-navitems"></div>
+	</div>
+</script>
+<script type="text/template" id="currentNavigation">
+	<div class="tule-nav-groups js-nav-groups">
+
+		<div class="tule-nav-droppoint tule-nav-dropgroup" data-index="0"></div>
+		<%= groups %>
+	</div>
+	<div class="tule-nav-controls">
+		<button class="js-nav-add-group"><i class="fa fa-plus"></i> Add new group</button>
+		<button class="js-nav-ok">Save</button>
+	</div>
+</script>
+
+<script type="text/template" id="noItems">
+	<div class="tule-nav-info">Drag items from the right list here in order to update the navigation.</div>
+</script>
+
+<script type="text/template" id="navGroup">
+	<div class="tule-nav-group js-nav-group js-nav-sortable js-nav-element" data-index="<%= index %>" data-text="<%= text %>">
+		<div class="tule-nav-group-header js-nav-drag-handle">
+			<a href="#" class="js-group-remove"><i class="fa fa-times"></i></a>
+			<a href="#" class="js-group-title-edit"><i class="fa fa-pencil"></i></a>
+			<span class="tule-nav-group-title js-group-title"><%= text %></span>
+		</div>
+		<div class="tule-nav-group-edit js-group-edit">
+			<input type="text" value="<%= text %>">
+			<div class="tule-nav-group-controls">
+				<a href="#" class="js-group-cancel">Cancel</a>
+				<button class="js-group-ok">Ok</button>
+			</div>
+		</div>
+		<div class="tule-nav-group-items js-group-items">
+		<div class="tule-nav-droppoint" data-index="0"></div>
+			<%= subItems %>
+		</div>
+	</div>
+	<div class="tule-nav-droppoint tule-nav-dropgroup" data-index="<%= index + 1 %>"></div>
+</script>
+
+<script type="text/template" id="navItem">
+	<div class="tule-nav-item js-nav-item js-nav-sortable js-nav-element" data-index="<%= index %>" data-url="<%= url %>" data-text="<%= text %>">
+		<div class="tule-nav-item-header js-nav-drag-handle">
+			<a href="#" class="js-item-remove"><i class="fa fa-times"></i></a>
+			<a href="#" class="js-item-title-edit"><i class="fa fa-pencil"></i></a>
+			<span class="tule-nav-item-title js-item-title" title="<%= url %>"><%= text %></span>
+		</div>
+		<div class="tule-nav-item-edit js-item-edit">
+			<input type="text" value="<%= text %>">
+			<div class="tule-nav-item-url"><%= url %></div>
+			<div class="tule-nav-item-controls">
+				<a href="#" class="js-item-cancel">Cancel</a>
+				<button class="js-item-ok">Ok</button>
+			</div>
+		</div>
+	</div>
+	<div class="tule-nav-droppoint" data-index="<%= index + 1%>"></div>
+</script>
+
+<script type="text/template" id="items">
+	<% _.each(groups, function(items, name){ %>
+		<div class="tule-navitems-group js-navitems-group">
+			<div class="tule-navitems-header js-navitems-header">
+				<i class="fa fa-chevron-down"></i>
+				<i class="fa fa-chevron-up"></i>
+				<span class="tule-navitems-group-title"><%= name %></span>
+			</div>
+			<div class="tule-navitems-items">
+				<% _.each(items, function(item) {%>
+				<div class="tule-navitems-item js-navitems-item js-nav-element" data-url="<%= item.url %>" data-text="<%= item.text %>"><%= item.text %></div>
+				<% }); %>
+			</div>
+		</div>
+	<% }); %>
+</script>
+</div>

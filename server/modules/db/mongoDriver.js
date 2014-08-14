@@ -6,6 +6,7 @@ var mongo = require('mongodb'),
 
 var MongoDriver = function(nativeDriver){
 	this.db = nativeDriver;
+	this.mongo = mongo;
 };
 
 
@@ -24,6 +25,7 @@ MongoDriver.prototype = {
 		var index = callbackIndex(arguments),
 			original
 		;
+
 
 		if(index != -1){
 			original = arguments[index];
@@ -128,13 +130,14 @@ var TuleCollection = {
 
 
 
-var driver = new MongoDriver();
+var driver;
+
 module.exports = {
 	init: function(){
 		var me = this,
 			deferred = when.defer()
 		;
-		console.log(config);
+
 		mongo.MongoClient.connect(config.mongo, function(err, db){
 			if(err)
 				deferred.reject(err);

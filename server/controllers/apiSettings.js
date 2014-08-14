@@ -1,87 +1,95 @@
 'use strict';
 
-var _       = require('underscore'),
-    config  = require('config'),
-    db = require(config.path.modules + '/db/dbManager').getInstance()
+var config = require('config'),
+	settings = require(config.path.modules + '/settings/settingsManager')
 ;
 
 module.exports = {
-    getConfig: function(req, res){
-        var name = req.params.name;
+	/**
+	 * Controller for the route 'get::settings/:name'.
+	 * Get a setting given its name.
+	 *
+	 * @param  {http.ClientRequest} req The request
+	 * @param  {http.ServerResponse} res The response
+	 */
+	get: function(req, res) {
+		var name = req.params.name;
 
-        db.collection(config.mon.settingsCollection).findOne({name:name}, function(err, settings){
-            if(err){
-                console.log(err);
-                return res.send(400, {error: 'Internal error.'});
-            }
+		settings.getPublic(name)
+			.then(function(settingValue){
+				if(typeof settingValue == 'undefined')
+					res.send(404);
+				else
+					res.json({name: name, value: settingValue});
+			})
+			.catch(function(err){
+				if(err && err.error == 'private')
+					res.send(404);
+				else
+					res.send(400, {error: 'Unexpected error: ' + err});
+			})
+		;
+	},
 
-            if(!_.isObject(settings))
-                return res.send(404);
+	/**
+	 * Controller for the routes 'post::settings/:name' & 'put::settings/:name'.
+	 * Creates or updates a setting a setting given its name. If we try to update
+	 * a private setting we will get an error.
+	 *
+	 * @param  {http.ClientRequest} req The request
+	 * @param  {http.ServerResponse} res The response
+	 */
+	save: function(req, res) {
+		var name = req.params.name,
+		   doc = req.body
+		;
 
-            return res.json(settings);
-        });
-    },
+		if(!name || doc.name != name)
+			return res.send(400, {error: 'Invalid name.'});
 
-    updateConfig: function(req, res){
-        var name    = req.params.name,
-            doc     = req.body
-        ;
+		if(typeof doc.name == 'undefined')
+			return res.send(400, {error: 'No setting value sent.'});
 
-        if(!name)
-            res.send(400, {error: 'No document name given.'});
+		// We need to be sure the setting is public
+		settings.getPublic(name)
+			.then(function(){
 
-        if(name != doc.name) {
-            res.send(400, {error: 'No name matches.'});
-        }
+				// Now, we are sure it is not private.
+				settings.save(name, doc.value, true)
+					.then(function(){
+						res.json(doc);
+					})
+					.catch(function(err){
+						res.send(400, {error: 'Unexpected error: ' + err});
+					})
+				;
+			})
+			.catch(function(err){
+				if(err && err.message)
+					res.send(400, {error: 'Error: ' + err.message});
 
-        db.collection(config.mon.settingsCollection).save(doc, function(err, saved) {
-          if( err || !saved ) return res.send(400, {error: 'Internal error'});
-          db.collection(config.mon.settingsCollection).findOne({name:name}, function(err, settings){
-            console.log(settings);
-          });
-          return res.json(doc);
-      });
+				res.send(400, {error: 'Unexpected error: ' + err});
+			})
+		;
+	},
 
-    },
+	/**
+	 * Controller for the routes 'delete::settings/:name'.
+	 * Deletes a setting given its name.
+	 *
+	 * @param  {http.ClientRequest} req The request
+	 * @param  {http.ServerResponse} res The response
+	 */
+	remove: function(req, res) {
+		var name = req.params.name;
 
-    createConfig: function(req, res){
-        var name = req.params.name,
-            doc  = req.body
-        ;
-
-        if(!name)
-            res.send(400, {error: 'No name specified'});
-
-        doc.name = name;
-
-        db.collection(config.mon.settingsCollection).insert(doc, function(err, newDoc){
-            if(err){
-                console.log(err);
-                return res.send(400, {error: 'Internal error while inserting document'});
-            }
-            return res.json(newDoc[0]);
-        });
-    },
-
-    removeConfig: function(req, res) {
-        var name = req.params.name,
-            type = req.params.type
-        ;
-
-        if(!name)
-            res.send(400, {error: 'No document name given.'});
-        if(!type)
-            res.send(400, {error: 'No document type given.'});
-
-        db.collection(type).remove(
-            {name: name},
-            function(err){
-                if(err){
-                    console.log(err);
-                    res.send(400, {error: 'Internal Error'});
-                }
-                res.send(200, {});
-            }
-        );
-    }
-}
+		settings.remove(name)
+			.then(function(){
+				res.send(200, {});
+			})
+			.catch(function(err){
+				res.send(400, {error: 'Unexpected error: ' + err});
+			})
+		;
+	}
+};

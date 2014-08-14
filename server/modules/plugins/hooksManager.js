@@ -1,3 +1,5 @@
+'use strict';
+
 var when = require('when');
 
 var resolve = function(queue, returnValue, args){
@@ -43,14 +45,31 @@ var createArray = function(ob){
 	return [ob];
 };
 
+var cloneArguments = function(args) {
+	return args.map(function(arg){
+		if(Object.prototype.toString.call( arg ) === '[object Array]'){
+			return arg.slice(0);
+		}
+		// Object
+		if(arg === Object(arg)) {
+			return JSON.parse(JSON.stringify(arg));
+		}
+		// Date
+		if(arg instanceof Date)
+			return new Date(arg.getTime());
+
+		// Others don't need a copy
+		else
+			return arg;
+	});
+};
+
 module.exports = {
 	on: function(hooks, pluginId, hookName, priority, callback){
 		if(typeof priority === 'function'){
 			callback = priority;
 			priority = 0; //Default priority
 		}
-
-		console.log('ON ' + hookName);
 
 		if(!hooks[hookName])
 			hooks[hookName] = {};
@@ -71,6 +90,14 @@ module.exports = {
 			}
 		}
 	},
+	/**
+	 * Trigger function is used by the hooks 'trigger' and 'filter' method.
+	 *
+	 * @param  {Object} hooks       All the functions hooked. Actions if trigger is called
+	 *                              and filetrs if 'filter' is called.
+	 * @param  {Boolean} returnValue Whether to return a value. false for trigger and true for filter.
+	 * @return {Promise}            A promise to be fulfilled when all the actions or filters have been called.
+	 */
 	trigger: function(hooks, returnValue){
 		var args = Array.prototype.slice.call(arguments, 2, arguments.length),
 			hookName = args.shift(),
@@ -79,13 +106,15 @@ module.exports = {
 			deferred = when.defer()
 		;
 
+		// Arguments are cloned to not modify original ones
+		args = cloneArguments(args);
+
 		if(!hookName){
 			deferred.resolve(result);
 			return deferred.promise;
 		}
 
-
-		console.log('TRIGGER ' + hookName);
+		// console.log('TRIGGER ' + hookName);
 
 		var priorityStack = hooks[hookName];
 		if(!priorityStack){

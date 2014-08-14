@@ -1,0 +1,34 @@
+.tule-plugin-list {
+	.mixin-box();
+
+	list-style: none;
+	padding: 0;
+
+	h3 {
+		margin-bottom: 0;
+	}
+}
+
+.tule-plugin {
+	border-bottom: 1px solid #eee;
+	padding: @margin-narrow @margin;
+	background: @color-main-0;
+
+	&.tule-plugin-active {
+		background: @color-light;
+	}
+}
+
+.tule-plugin-meta {
+	margin: 0 0 @margin-narrow;
+	font-size: 0.8em;
+	color: #666;
+}
+
+.tule-plugin-description {
+	margin: @margin-narrow 0;
+}
+
+.tule-plugin-controls {
+	text-align: right;
+}

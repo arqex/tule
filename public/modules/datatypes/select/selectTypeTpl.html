@@ -1,0 +1,18 @@
+<div>
+
+<script type="text/template" id="selectTpl">
+	<div class="select-display"><%= valueLabel %></div>
+</script>
+
+<script type="text/template" id="selectEditTpl">
+	<form class="select-form">
+		<select>
+			<% _.each(options.selectOptions, function(option, key){ %>
+				<option value='<%= option.value %>'<%= option.value === value ? ' selected' : '' %>><%= option.label %></option>
+			<%	}) %>
+		</select>
+		<%= controls %>
+	</form>
+</script>
+
+</div>

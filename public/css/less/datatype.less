@@ -1,0 +1,141 @@
+
+/* Datatypes */
+.tuleDE td {
+	padding-bottom: 10px;
+}
+.tuleDEKey {
+	font-weight: bold;
+	padding-left: @margin-wide;
+	position: relative;
+	vertical-align: top;
+	text-align: right;
+	line-height: 1em;
+	max-width: 150px;
+}
+
+.tuleDEDelete {
+	display: none;
+	color: #ccc;
+	position: absolute;
+	left: 5px;
+}
+
+.tuleDEKey:hover .tuleDEDelete {
+	display: inline;
+}
+.tuleDEValue {
+	padding-left: @margin-narrow;
+	vertical-align: top;
+	line-height: 1em;
+}
+
+.tuleDEDisplay,
+.tuleObjectCount {
+	cursor: pointer;
+	margin-bottom: 5px;
+
+	&:hover {
+		color: @color-alt-1;
+	}
+}
+
+.tuleDEEdit {
+	padding: 0 0 0 @margin-narrow;
+	position: relative;
+	margin: 0 0 @margin-narrow @margin-wide;
+}
+
+.tuleDEC {
+}
+
+.tuleDECType {
+	vertical-align: top;
+	padding-left: @margin-narrow;
+}
+
+.tuleDECKey {
+	font-weight: bold;
+	font-style: italic;
+	vertical-align: top;
+	text-align: right;
+	padding-left: @margin-wide;
+}
+
+.tuleDECKey input{
+	margin-left: @margin-narrow;
+	font-weight: normal;
+	font-style: normal;
+	width: 120px;
+}
+
+.tuleDECControls {
+	text-align: right;
+}
+
+.tuleElementsControls {
+	margin-top: 5px;
+}
+
+.tule-add-element {
+	margin: 0 @margin-narrow 0 @margin-wide;
+}
+
+.tuleObjectProperties,
+.tuleArrayElements {
+
+}
+
+.tuleObjectEdit {
+	margin-left: -@margin-narrow;
+	position: relative;
+
+	&.tuleCloseable:before {
+		content: '';
+		position:absolute;
+		width: 5px;
+		left: 5px;
+		bottom: 0;
+		height: 100%;
+		border-left: 1px solid #ddd;
+		border-bottom: 2px solid #ddd;
+	}
+}
+
+.tule-array-placeholder {
+	display: block;
+	border: 1px dashed #ddd;
+	background: rgba(0,0,0,.05);
+}
+
+.tule-array-sorting {
+	box-shadow: @shadow;
+	background: #fff;
+	outline: 2px solid #ddd;
+	padding: 2px;
+}
+
+.tuleArrayElements .tuleDEKey {
+	cursor: move;
+}
+
+/* Inline fields */
+.tule-inline-field {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+
+	&:before {
+		display: none;
+	}
+}
+.tuleDE-bool .tuleDEEdit {
+	vertical-align: middle;
+}
+
+.tule-field-advanced {
+	margin-bottom: @margin-narrow;
+}
+
+.tule-field-advanced-toggle {
+	font-size: .8em;
+}

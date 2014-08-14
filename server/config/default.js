@@ -5,9 +5,9 @@ var path = require('path'),
 ;
 
 module.exports = {
-	mon: {
+	tule: {
 		baseUrl: baseUrl,
-		settingsCollection: 'monSettings'
+		settingsCollection: 'tuleSettings'
 	},
 	dbName: dbName,
 	mongo: 'mongodb://localhost:27017/' + dbName,

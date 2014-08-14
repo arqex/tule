@@ -1,7 +1,7 @@
 // Config * Hack, this should be an enviroment variable
 process.env.NODE_CONFIG_DIR = __dirname + '/server/config';
 var config = require('config');
-if(!config.mon.settingsCollection){
+if(!config.tule.settingsCollection){
 	console.error('\r\n*** There is not a collection name for the settings. ***');
 	process.exit(1);
 }
