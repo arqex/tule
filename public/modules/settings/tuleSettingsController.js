@@ -51,7 +51,7 @@ define(deps, function($,_,Backbone, Services, BaseView, PageController, Alerts, 
 			var me = this;
 			this.loading
 				.then(function() {
-					me.$el.html(me.tpl(_.extend(me.defaults, me.settings)));
+					me.$el.html(me.tpl(me.settings));
 				})
 				.fail(function(){
 					me.$el.html('Whooops!');
@@ -95,6 +95,9 @@ define(deps, function($,_,Backbone, Services, BaseView, PageController, Alerts, 
 			settings.siteTitle = this.$('.js-setting-title').val();
 			settings.pageSize = this.$('.js-setting-pageSize').val();
 			settings.compositeRelated = this.$('.js-setting-compositeRelated').is(':checked');
+			settings.dateFormat = this.$('.js-setting-dateFormat').val();
+			settings.timeFormat = this.$('.js-setting-timeFormat').val();
+			settings.firstDayOfWeek = this.$('.js-setting-firstDay').val();
 
 			return settings;
 		}

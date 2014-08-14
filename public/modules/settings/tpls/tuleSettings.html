@@ -25,6 +25,31 @@
 	</div>
 </div>
 
+<div class="tule-settings-section">
+	<h3 class="tule-settings-section-title">Date format</h3>
+	<div class="tule-settings-info">You can use <a target="_blank" href="http://php.net/manual/function.date.php">PHP date masks</a> to format the way tule shows the dates.</div>
+	<div class="tule-settings-form">
+		<label for="dateFormat">Date format:</label>
+		<input type="text" id="dateFormat" class="js-setting-dateFormat" value="<%= dateFormat %>" placeholder="d/mm/yy">
+	</div>
+	<div class="tule-settings-form">
+		<label for="timeFormat">Time format:</label>
+		<input type="text" id="timeFormat" class="js-setting-timeFormat" value="<%= timeFormat %>" placeholder="h:mm">
+	</div>
+	<div>
+		<label for="firstDayOfWeek">First day of the week:</label>
+		<select type="text" id="firstDayOfWeek" class="js-setting-firstDay">
+			<option value="0" <%= firstDayOfWeek == 0 ? 'selected' : '' %>>Sunday</option>
+			<option value="1" <%= firstDayOfWeek == 1 ? 'selected' : '' %>>Monday</option>
+			<option value="2" <%= firstDayOfWeek == 2 ? 'selected' : '' %>>Tuesday</option>
+			<option value="3" <%= firstDayOfWeek == 3 ? 'selected' : '' %>>Wednesday</option>
+			<option value="4" <%= firstDayOfWeek == 4 ? 'selected' : '' %>>Thursday</option>
+			<option value="5" <%= firstDayOfWeek == 5 ? 'selected' : '' %>>Friday</option>
+			<option value="6" <%= firstDayOfWeek == 6 ? 'selected' : '' %>>Saturday</option>
+		</select>
+	</div>
+</div>
+
 <div class="tule-settings-controls">
 	<button class="tule-settings-ok js-settings-ok">Save settings</button>
 </div>

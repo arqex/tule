@@ -30,10 +30,13 @@ require.config({
 		'jquery.ui.datepicker': 'bower_components/jqueryui/ui/jquery.ui.datepicker',
 		'jquery.ui.slider':     'bower_components/jqueryui/ui/jquery.ui.slider',
 		'jquery.ui.tooltip':    'bower_components/jqueryui/ui/jquery.ui.tooltip',
-		'autocomplete':    'js/jquery.autocomplete',
+
+		'autocomplete':    'bower_components/devbridge-autocomplete/dist/jquery.autocomplete',
+		'timepicker': 'bower_components/jquery-timepicker-addon/jquery-ui-timepicker-addon',
 
 		/* jQuery UI i18n */
 		'jquery.ui.datepicker-en': 'bower_components/jqueryui/ui/i18n/jquery.ui.datepicker-en',
+
 
 		/* Core components */
 		'baseController': 'modules/core/baseController',
@@ -132,6 +135,14 @@ require.config({
 
 		/* jQuery UI i18n */
 		'jquery.ui.datepicker-en': {
+			deps: ['jquery.ui.datepicker']
+		},
+
+		'autocomplete': {
+			deps: ['jquery']
+		},
+
+		'timepicker': {
 			deps: ['jquery.ui.datepicker']
 		}
 	}

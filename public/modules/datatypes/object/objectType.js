@@ -194,8 +194,19 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 				var key = $.trim(elementData.key);
 				elementData.key = key;
 
-				if(this.subViews[key])
-					return Alerts.add({message: 'There is already a property called ' + key + '.', level: 'error'});
+				if(!key){
+					return Alerts.add({
+						message: 'Please, write a name for the property.',
+						level: 'error'
+					});
+				}
+
+				if(this.subViews[key]){
+					return Alerts.add({
+						message: 'Could not create the property. There is already a property called ' + key + '.',
+						level: 'error'
+					});
+				}
 
 				this.stopListening(newElement);
 				newElement.remove();
@@ -214,7 +225,7 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 				if(_.isEmpty(this.subViews))
 					this.trigger('edit:cancel');
 
-				this.render();
+				// this.render();
 				this.stopListening(newElement);
 				newElement.remove();
 			});

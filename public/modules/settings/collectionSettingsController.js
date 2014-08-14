@@ -262,7 +262,17 @@ define(deps, function($,_,Backbone, Services, BaseController, PageController, Al
 		getDefinitions: function() {
 			return [
 				{key: 'customProperties', label: 'Allow custom properties', datatype: {id: 'bool'}},
-				{key: 'propertyDefinitions', label: 'Property definitions', datatype: {id: 'array'}},
+				{key: 'propertyDefinitions', label: 'Property definitions', datatype: {id: 'array', options:{
+					elementsType: {id: 'object', options: {
+						propertyDefinitions: [
+							{key: 'key', datatype: {id: 'string', options: {}}},
+							{key: 'label', datatype: {id: 'string', options: {}}},
+							{key: 'datatype', datatype: {id: 'field'}}
+						],
+						mandatoryProperties: ['key', 'label', 'datatype'],
+						customProperties: false
+					}}
+				}}},
 				{key: 'propertiesType', label: 'Properties datatype', datatype: {id: 'field', options:{allowAnyType: true}}},
 				{key: 'headerFields', label: 'Header Fields', datatype: {id: 'array', options: {elementsType: {id: 'string', options: {}}}}},
 				{key: 'mandatoryProperties', label: 'Mandatory properties', datatype: {id: 'array', options: {elementsType: {id: 'string', options: {}}}}},

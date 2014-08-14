@@ -30,11 +30,11 @@ var Router = Backbone.Router.extend({
 			// If prevented don't route
 			if(e.isDefaultPrevented()) return;
 
-			var a = e.target;
+			var a = e.currentTarget;
 
 			if(a.origin == location.origin){
 				e.preventDefault();
-				Backbone.history.navigate(a.pathname, true);
+				Backbone.history.navigate(a.pathname + a.search + a.hash, true);
 			}
 		});
 	}

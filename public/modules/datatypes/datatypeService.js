@@ -82,9 +82,16 @@ define(deps, function($,_,Backbone){
 				typeId = 'array';
 			} else if( _.isObject(value) ) {
 				typeId = 'object';
-			} else if( (value === parseInt(value, 10)) && (value != parseInt(NaN,10)) ) {
-				typeId = 'integer';
-			} else if( (value === parseFloat(value)) && (value != parseFloat(NaN)) ) {
+			} else if( (value === parseInt(value, 10)) && ( !isNaN(parseInt(value,10))) ) {
+				value = parseInt(value, 10);
+
+				// Big integers are considered as timestamp
+				if(Math.abs(value) > 100000000000)
+					typeId = 'date';
+				else
+					typeId = 'integer';
+			} else if( (value === parseFloat(value)) && ( !isNaN(parseFloat(value))) ) {
+				value = parseFloat(value);
 				typeId = 'float';
 			} else if( _.isBoolean(value) ) {
 				typeId = 'bool';

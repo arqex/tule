@@ -417,13 +417,13 @@ function updateQueryDatatypes(query, definitions) {
 
 			// Comparison operator?
 			if(value === Object(value)) {
-				keys = Object.keys(value);
 				newValue = {};
 
-				//Use the definition datatype or guess it
-				datatype = definitions[field] ? definitions[field].datatype.id : guessDatatype(value[keys[0]]);
-
-				newValue[keys[0]] = convertToDatatype(value[keys[0]], datatype);
+				for(var key in value) {
+					//Use the definition datatype or guess it
+					datatype = definitions[field] ? definitions[field].datatype.id : guessDatatype(value[key]);
+					newValue[key] = convertToDatatype(value[key], datatype);
+				}
 
 				updated[field] = newValue;
 			}
@@ -456,6 +456,9 @@ function convertToDatatype(value, datatype) {
 	if(datatype == 'string')
 		return '' + value;
 
+	if(datatype == 'date')
+		return new Date(parseInt(value, 10));
+
 	return value;
 }
 
@@ -463,15 +466,24 @@ function convertToDatatype(value, datatype) {
  * Guess the datatype of a value. Parse numeric strings.
  *
  * @param {Mixed} value 	The value to guess the datatype.
-* @return {String} 				Datatype id
+ * @return {String} 				Datatype id
  */
 function guessDatatype(value) {
-	if(value == parseInt(value, 10))
+	var val = parseInt(value, 10);
+	if(value == val && ( !isNaN(val) )){
+		if(Math.abs(val) > 100000000000)
+			return 'date';
+
 		return 'integer';
-	if(value == parseFloat(value))
+	}
+
+	val = parseFloat(value);
+	if(value == val && ( !isNaN(val) ))
 		return 'float';
+
 	if(value === Object(value))
 		return 'object';
+
 	if(value instanceof Array)
 		return 'array';
 

@@ -171,6 +171,10 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			this.listenTo(collection, 'click:remove', this.deleteDocument);
 			this.listenTo(collection, 'clickField', this.editDocument);
 
+			// If we have only a document, open it
+			if(collection.collection.length == 1)
+				collection.subViews[collection.collection.at(0).id].edit();
+
 			return collection;
 		},
 

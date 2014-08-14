@@ -328,6 +328,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 		},
 
 		onOk: function(e) {
+			e.preventDefault();
+
 			var fieldData = {
 				datatype: this.typeView.save().model.get('value'),
 				key: this.$('.js-DECinput').val()
@@ -337,6 +339,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 		},
 
 		onCancel: function(e) {
+			e.preventDefault();
+
 			this.trigger('cancel');
 		}
 	});

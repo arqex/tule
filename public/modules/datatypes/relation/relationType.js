@@ -4,7 +4,7 @@ var deps = [
 	'modules/datatypes/datatypeViews',
 	'services',
 	'events',
-	'modules/datatypes/relation/jquery.autocomplete'
+	'autocomplete'
 ];
 
 define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
@@ -69,7 +69,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 					.get(this.value.id)
 						.then(
 							function(related){
-								me.related = related;
+								me.related = related.toJSON();
 								me.value.display = related.get(me.typeOptions.displayField);
 								me.render();
 							},
@@ -134,7 +134,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 		 */
 		renderDisplayMode: function(){
 			var templateData = {
-					value: this.value.display || this.value.id,
+					value: this.value,
 					related: this.related,
 					options: this.typeOptions
 				}
@@ -145,6 +145,8 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 				this.loadingRelated.then(_.bind(this.render, this), _.bind(this.render, this));
 
 			this.$el.html(this.displayTpl(templateData));
+
+			this.selected = false;
 		},
 
 		/**
@@ -158,6 +160,9 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 					controls: this.getControlsTpl()
 				}
 			;
+
+			if(this.related)
+				this.selected = this.related;
 
 			this.$el.html(this.editTpl(templateData));
 
@@ -176,8 +181,6 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 				options = this.typeOptions,
 				input = this.$('.relation-field')
 			;
-
-			me.selected = false;
 
 			input.autocomplete({
 				serviceUrl: '/api/docs/' + options.relatedCollection,
@@ -249,6 +252,9 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 		]
 	};
 
+	// A shortcut to handle the collection names
+	var relatedOptions = definition.typeOptionsDefinition[0].datatype.options;
+
 	// Get all the collection names and add it to the select options for the
 	// relation type.
 	Events.on('service:ready:collection', function(){
@@ -262,8 +268,24 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 					collections.push({value: c, label: c});
 			});
 
-			definition.typeOptionsDefinition[0].datatype.options.selectOptions = collections;
+			relatedOptions.selectOptions = collections;
 		});
+	});
+
+	// Update the collection on creation and delete
+	Events.on('collection:updated', function(collectionName) {
+		var index = relatedOptions.selectOptions.indexOf(collectionName);
+		if(index == -1){
+			relatedOptions.selectOptions.push(collectionName);
+			relatedOptions.selectOptions.sort();
+		}
+	});
+
+	Events.on('collection:deleted', function(collectionName) {
+		var index = relatedOptions.selectOptions.indexOf(collectionName);
+		if(index != -1){
+			relatedOptions.selectOptions.splice(index, 1);
+		}
 	});
 
 	return definition;

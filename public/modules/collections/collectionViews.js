@@ -191,7 +191,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		onClickCancel: function(e){
 			e.preventDefault();
 
-			var	docId = $(e.target).closest('.tule-doc-content').data('id'),
+			var docId = $(e.target).closest('.tule-doc-content').data('id'),
 				view = this.subViews[docId]
 			;
 

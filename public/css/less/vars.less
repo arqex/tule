@@ -11,7 +11,10 @@
 @color-alt-2: #720838;
 @color-alt-3: #530221;
 
+
 @shadow: -5px 5px rgba(0,0,0,.05);
+@shadow-v: 0 5px rgba(0,0,0,.05);
+@shadow-h: -5px 0 rgba(0,0,0,.05);
 @shadow-inset: inset -5px 5px rgba(0,0,0,.05);
 
 @margin: 15px;
@@ -29,4 +32,16 @@
 		margin-top: 0;
 	}
 
+}
+
+.mixin-fa() {
+	display:inline-block;font-family:FontAwesome;font-style:normal;font-weight:normal;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+
+.mixin-clearfix() {
+	&:after {
+		content: "";
+		display: table;
+		clear: both;
+	}
 }

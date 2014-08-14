@@ -28,6 +28,7 @@ var datatypesPath = 'modules/datatypes/',
 			{ path: datatypesPath + 'float/floatType' },
 			{ path: datatypesPath + 'array/arrayType' },
 			{ path: datatypesPath + 'select/selectType' },
+			{ path: datatypesPath + 'date/dateType' },
 			{ path: datatypesPath + 'relation/relationType' }
 		]
 	},
@@ -44,7 +45,10 @@ var datatypesPath = 'modules/datatypes/',
 	defaultTuleSettings = {
 		siteTitle: 'Tule',
 		pageSize: 10,
-		compositeRelated: false
+		compositeRelated: false,
+		dateFormat: 'd/mm/yy',
+		timeFormat: 'h:mm',
+		firstDayOfWeek: 1
 	},
 	hooks
 ;
@@ -151,11 +155,9 @@ module.exports = {
 		// If there is no navigation saved, generate one
 		hooks.addFilter('settings:get:tuleNavigation', generateDefaultNavigation);
 
-		// If there is no settings saved, generate them on the fly
+		// Apply defaults for mandatory settings
 		hooks.addFilter('settings:get:tule', function(settings){
-			if(!settings)
-				return _.clone(defaultTuleSettings);
-			return settings;
+			return _.extend({}, defaultTuleSettings, settings || {});
 		});
 	},
 

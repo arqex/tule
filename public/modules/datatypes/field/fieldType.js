@@ -81,7 +81,8 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		},
 		prepareAdvancedOptions: function(datatype){
 			var options = this.types[datatype],
-				$advanced = this.$('.element-form-advanced-options')
+				$advanced = this.$('.element-form-advanced-options'),
+				value = this.model.get('value')
 			;
 			if(!options)
 				return $advanced.html('Unknown datatype: ' + datatype);
@@ -94,14 +95,23 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 				this.advanced.remove();
 
 			var objectOptions = {
-				propertyDefinitions: options,
-				mandatoryProperties: _.map(options, function(prop){return prop.key;}),
-				customProperties: false
-			};
+					propertyDefinitions: options,
+					mandatoryProperties: _.map(options, function(prop){return prop.key;}),
+					customProperties: false
+				},
+				objectValue = false
+			;
+
+			// Set the model value for the advanced options
+			// if the datatype matches
+			if(value && datatype == value.id){
+				objectValue = value.options;
+			}
 
 			this.advanced = this.service.get({
 				datatype: {id: 'object', options: objectOptions},
-				viewOptions: {closeable: false}
+				viewOptions: {closeable: false},
+				value: objectValue
 			});
 
 			this.advanced.state('mode', 'edit');

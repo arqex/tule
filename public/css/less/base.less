@@ -92,3 +92,155 @@ input[type=text]:focus, input[type=number]:focus, textarea:focus, select:focus {
 	background: #e0f0f0;
 	cursor: pointer;
 }
+
+
+/* Datepicker */
+
+.ui-datepicker {
+	.mixin-box(@color-main-0);
+	padding:0;
+	width: 180px;
+
+	.ui-icon {
+		.mixin-fa();
+		width: 20px;
+		text-align: center;
+
+		&:before {
+			display: inline-block;
+			line-height: 26px;
+			text-align: center;
+		}
+
+		&.ui-icon-circle-triangle-w:before {
+			content:"\f053";
+		}
+
+		&.ui-icon-circle-triangle-e:before {
+			content:"\f054";
+		}
+	}
+}
+
+.ui-datepicker-calendar {
+	width: 100%;
+	background: #fff;
+	box-shadow: @shadow-v;
+
+	th, td {
+		width: 24px;
+		text-align: center;
+	}
+
+	thead {
+		background: @color-main-0;
+	}
+
+	a {
+		display: block;
+		width: 100%;
+
+		&.ui-state-active {
+			background: @color-main-1;
+			color: #fff;
+		}
+	}
+
+	td:hover {
+		a {
+			background: @color-alt-2;
+			color: #fff;
+		}
+	}
+
+	tbody {
+		tr:first-child {
+			border-top: 5px solid #fff;
+		}
+		tr:last-child {
+			border-bottom: 5px solid #fff;
+		}
+	}
+}
+
+.ui-datepicker-prev {
+	float: left;
+	width: 20px;
+	display: block;
+	overflow: hidden;
+	height: 26px;
+}
+
+.ui-datepicker-next {
+	float: right;
+	width: 20px;
+	display: block;
+	overflow: hidden;
+	height: 26px;
+}
+
+.ui-datepicker-title {
+	margin: @margin-narrow 0;
+	select {
+		width: 70px;
+		padding: 1px 2px;
+	}
+
+	.ui-datepicker-month {
+		position: relative; /* Makes year shadow don't be over */
+	}
+
+	.ui-datepicker-year {
+		margin-left: -2px; /* Makes month and year share the border */
+		&:focus {
+			position: relative;
+		}
+	}
+}
+
+a.ui-priority-secondary {
+	opacity: .4;
+	&:hover {
+		opacity: 1;
+	}
+}
+
+.ui-timepicker-div {
+	padding: @margin-narrow;
+
+	dl {
+		text-align: center;
+		margin: 0;
+	}
+
+	dt {
+		display: none;
+	}
+
+	dd {
+		margin: 0;
+		display: inline-block;
+	}
+
+	select {
+		width: 50px;
+		padding: 0 2px;
+	}
+}
+
+.ui_tpicker_hour_slider:after {
+	content: ':';
+}
+
+.ui_tpicker_second_slider:before {
+	content: ':';
+}
+
+.ui-datepicker-buttonpane {
+	padding: @margin-narrow;
+	text-align: right;
+}
+
+.ui-datepicker-current {
+	display: none;
+}

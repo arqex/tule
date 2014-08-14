@@ -45,7 +45,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 				close: '.js-array-close[data-cid=' + this.cid + ']'
 			};
 
-			this.listenTo(this.model, 'change', this.render);
+			// this.listenTo(this.model, 'change', this.render);
 
 		},
 
@@ -173,9 +173,6 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 				controls.append(templates.addElement({cid: this.cid}));
 
 				this.addElement(elementData.datatype);
-
-				// Update the counter
-				this.$(this.selector.close).html(templates.elementCount({value: this.model.get('value')}));
 			});
 
 			this.listenTo(newElement, 'cancel', function(){
@@ -204,10 +201,19 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 
 			// Add the value to the model
 			this.updateElement(index, value);
+
+			this.updateCounter();
+
 		},
 
 		deleteElement: function(idx){
+			var view = this.subViews[idx];
+
+			// Remove the view
 			this.subViews.splice(idx,1);
+			this.stopListening(view);
+			view.remove();
+
 			this.reindex(idx);
 
 			// If there is no elements change to display mode
@@ -215,13 +221,20 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 				this.trigger('edit:cancel');
 
 			this.model.set('value', this.getValue());
-			console.log(this.model.get('value'));
+			// console.log(this.model.get('value'));
+
+			this.updateCounter();
 		},
 
 		updateElement: function(index, value){
 			var modelValue = this.model.get('value').splice(0);
 			modelValue[index] = value;
 			this.model.set('value', modelValue);
+		},
+
+		updateCounter: function() {
+			// Update the counter
+			this.$(this.selector.close).html(templates.elementCount({value: this.model.get('value')}));
 		},
 
 		onClickClose: function(e){
