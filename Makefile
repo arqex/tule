@@ -1,4 +1,4 @@
 test:
-		jasmine-node .
+		jasmine-node . --forceexit
 
 .PHONY: test
