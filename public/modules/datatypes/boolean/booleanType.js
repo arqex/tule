@@ -30,7 +30,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		},
 
 		saveBoolean: function(){
-			var value = this.$('input:checked').length;
+			var value = !!this.$('input:checked').length;
 
 			this.model.set('value', value);
 		},

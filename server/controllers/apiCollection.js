@@ -238,6 +238,19 @@ module.exports = {
 
 }
 
+
+// HELPER FUNCTIONS
+
+
+/**
+ * Check errors in the collection creation process and send the response
+ * to the client.
+ *
+ * @param  {Object} errors Object with errors for the collection and setting creation
+ *                         process.
+ * @param  {Object} doc    The settings object.
+ * @param  {HttpClentResponse} res    The response to be sent to the client.
+ */
 function resolveCollectionCreation(errors, doc, res) {
 	if(errors.collection && errors.settings)
 		return res.send(400, errors.collection + ' and ' + errors.settings);
@@ -247,6 +260,15 @@ function resolveCollectionCreation(errors, doc, res) {
 	res.json(doc);
 }
 
+/**
+ * This method is called when there is a collection without settings.
+ * It goes through a document of the collection and create a field definition
+ * for every document field, depending of its value format.
+ *
+ * @param  {String} collectionName The collection name
+ * @param  {Function} clbk         The callback to be called with the definitions as
+ *                                 argument when they are ready.
+ */
 function guessPropertyDefinitions(collectionName, clbk) {
 	var definitions = [];
 
@@ -285,6 +307,17 @@ function guessPropertyDefinitions(collectionName, clbk) {
 	});
 }
 
+/**
+ * Given a definition array, take the fields with datatype 'relation' and look for
+ * related collections in the current database comparing the name of fields and collections.
+ * If the method can't find a related collection, remove the definition from the output
+ * definition array.
+ *
+ * @param  {Array} definitions     Field definitions
+ * @param  {Array} collectionNames The names of the collections in the database
+ * @return {Promise}               A promise to be resolved with the definitions after
+ *                                   the relation guessing.
+ */
 function guessRelations(definitions, collectionNames) {
 	var relDefinitions = [],
 		promises = [],
@@ -339,6 +372,14 @@ function guessRelations(definitions, collectionNames) {
 	return deferred.promise;
 }
 
+/**
+ * Guess the related collection and the display field for a relation field definition.
+ *
+ * @param  {Object} definition      A relation field definition
+ * @param  {Array} collectionNames All the collection names of the current database.
+ * @return {Promise}                 A promise to be resolved with the updated definition
+ *                                     after the relation guessing.
+ */
 function guessRelation(definition, collectionNames) {
 	var found = false,
 		i = 0,
@@ -410,6 +451,13 @@ function guessRelation(definition, collectionNames) {
 	return deferred.promise;
 }
 
+/**
+ * Guess the datatype of a database value.
+ *
+ * @param  {Mixed} value A value to guess its datatype
+ * @return {String}       Datatype id or false if it wasn't possible to
+ *                                 guess a datatype.
+ */
 function guessDataType(value) {
 	if(_.isString(value)){
 		// If matches MongoDB ObjectID format is a relation.

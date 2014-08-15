@@ -40,20 +40,41 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 
 		initialize: function(){
 
-			//Make sure the value is an object
-			var value = this.model.get('value') || _.clone(this.defaultModelValue);
+			this.createPropertyDefinitions();
 
-			// And re-set it
-			if(!this.model)
-				this.model.set('value', value, {silent: true});
+			this.initializeModel();
 
+			// Shortcut for object selectors
 			this.selector = {
 				controls: '.js-object-controls[data-cid=' + this.cid + ']',
 				props: '.js-object-properties[data-cid=' + this.cid + ']',
 				close: '.js-object-close[data-cid=' + this.cid + ']'
 			};
+		},
 
-			this.createPropertyDefinitions();
+		/**
+		 * Makes sure that the model exists and its value is an object.
+		 * Add the mandatory fields to the model too.
+		 */
+		initializeModel: function() {
+			//Make sure the value is an object
+			var value = this.model.get('value') || _.clone(this.defaultModelValue),
+				mandatory = this.typeOptions.mandatoryProperties
+			;
+
+			// Add the mandatory fields to the model
+			if(mandatory && mandatory.length){
+				_.each(mandatory, function(field){
+
+					// Setting the value to false will make the subview
+					// have the default value in its model.
+					if(typeof value[field] == 'undefined')
+						value[field] = undefined;
+				});
+			}
+
+			// And re-set it
+			this.model.set('value', value, {silent: true});
 		},
 
 		/**
@@ -232,20 +253,18 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 		},
 
 		addProperty: function(elementData) {
-			var key = $.trim(elementData.key),
-				value = elementData.datatype.defaultValue
-			;
+			var key = $.trim(elementData.key);
 
 			// Update property definitions
 			this.propertyDefinitions[key] = elementData;
 			this.typeOptions.propertyDefinitions.push(elementData);
 
 			// Create subview
-			var newPropertyView = this.createSubView(key, value);
+			var newPropertyView = this.createSubView(key);
 			this.subViews[key] = newPropertyView;
 
 			// Update model
-			this.updateProperty(key, value);
+			this.updateProperty(key, newPropertyView.typeView.model.get('value'));
 
 			// Add the new view to the DOM
 			this.$(this.selector.props).append(newPropertyView.el);

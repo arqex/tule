@@ -459,6 +459,9 @@ function convertToDatatype(value, datatype) {
 	if(datatype == 'date')
 		return new Date(parseInt(value, 10));
 
+	if(datatype == 'boolean')
+		return !!value;
+
 	return value;
 }
 
@@ -486,6 +489,9 @@ function guessDatatype(value) {
 
 	if(value instanceof Array)
 		return 'array';
+
+	if(value === true || value === false)
+		return 'boolean';
 
 	return 'string';
 }

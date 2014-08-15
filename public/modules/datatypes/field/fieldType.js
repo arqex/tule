@@ -27,10 +27,14 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 
 			if(this.typeOptions.allowAnyType)
 				this.types.any = {id: '', name: 'Any'};
+
 		},
 
 		getTemplateData: function(){
 			var value = this.model.get('value');
+
+			if(!value.id)
+				value = this.types.any || this.types.string;
 
 			return {
 				types: this.types,
@@ -46,6 +50,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 
 			return found ? found.name : 'Not defined';
 		},
+
 		render: function(){
 			DatatypeViews.DataTypeView.prototype.render.call(this);
 			this.prepareAdvancedOptions(this.$('.element-form-type').val());

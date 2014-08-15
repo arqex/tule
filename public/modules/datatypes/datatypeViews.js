@@ -19,6 +19,7 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 
 		events: {
 			'click .js-DEok': 'onOk',
+			'keydown input': 'onPressKey',
 			'click .js-DEcancel': 'onCancel'
 		},
 
@@ -92,6 +93,11 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 		onOk: function(e){
 			e.preventDefault();
 			this.save();
+		},
+
+		onPressKey: function(e) {
+			if(e.which == 13) // Press enter is like hit ok
+				this.onOk(e);
 		},
 
 		save: function(e) {
@@ -208,7 +214,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			});
 
 			this.listenTo(this.typeView, 'edit:ok', function(value){
-				me.state('mode', 'display');
+				if(me.model.get('singleEditable'))
+					me.state('mode', 'display');
 			});
 
 			// Trigger an event to let the parent know any value update
@@ -217,7 +224,8 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			});
 
 			this.listenTo(this.typeView, 'edit:cancel', function(){
-				me.state('mode', 'display');
+				if(me.model.get('singleEditable'))
+					me.state('mode', 'display');
 			});
 
 			//If some change is detected in the model (key updated), re-render
