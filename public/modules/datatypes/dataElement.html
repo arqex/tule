@@ -28,22 +28,6 @@
 	</td>
 </script>
 
-<script type="text/template" id="dataElementCreationOld">
-	<div class="tuleDECTitle"><%= title %></div>
-	<div class="tuleDECKey">
-		<% if(editKey) { %>
-			<input type="text" class="js-DECinput" value="<%= key %>" placeholder="Property name">
-		<% }else{ %>
-			<strong><%= key %></strong>
-		<% } %><strong>:</strong>
-	</div>
-	<div class="tuleDECType js-DEC-type"></div>
-	<div class="tuleDECControls">
-		<a href="#" class="js-DEC-cancel">Cancel</a>
-		<button class="js-DEC-ok">Add</button>
-	</div>
-</script>
-
 <script type="text/template" id="DataElementDisplay">
 	<div class="element element-datatype-<%= datatype %><%= inline ? ' element-inline' : '' %><%= isNew ? ' element-new' : '' %>" data-key="<%= key %>" data-cid="<%= cid %>">
 		<div class="element-key">

@@ -71,7 +71,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		onChangeFieldType: function(e){
 			e.preventDefault();
 
-			var cid = $(e.target).closest('form').data('cid');
+			var cid = $(e.target).closest('.js-field-form').data('cid');
 			if(cid == this.cid){
 				var type = this.$('.element-form-type').val();
 				this.prepareAdvancedOptions(type);
@@ -80,7 +80,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		onAdvancedToggle: function(e){
 			e.preventDefault();
 
-			var cid = $(e.target).closest('form').data('cid');
+			var cid = $(e.target).closest('.js-field-form').data('cid');
 			if(cid == this.cid)
 				this.$('.element-form-advanced-options').toggle();
 		},

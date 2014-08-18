@@ -246,9 +246,11 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 				if(_.isEmpty(this.subViews))
 					this.trigger('edit:cancel');
 
-				// this.render();
 				this.stopListening(newElement);
 				newElement.remove();
+
+				// Restore the controls
+				controls.append(templates.addProperty({cid: this.cid}));
 			});
 		},
 
@@ -257,7 +259,10 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 
 			// Update property definitions
 			this.propertyDefinitions[key] = elementData;
-			this.typeOptions.propertyDefinitions.push(elementData);
+
+			// Use concat instead of push to create a new array and
+			// not alterate any shared definitions
+			this.typeOptions.propertyDefinitions = this.typeOptions.propertyDefinitions.concat([elementData]);
 
 			// Create subview
 			var newPropertyView = this.createSubView(key);
@@ -273,8 +278,22 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 		},
 
 		createNewElementForm: function(){
-			var newElement = new DatatypeViews.DataElementCreationView({
-				datatype: this.typeOptions.propertyType
+			var me = this,
+				value = this.model.get('value'),
+				definitions = {},
+				newElement
+			;
+
+			// Filter definitions that are not ready used
+			// to use them for the autocompletion
+			_.each(this.propertyDefinitions, function(def, key){
+				if(typeof value[key] == 'undefined')
+					definitions[key] = def;
+			});
+
+			newElement = new DatatypeViews.DataElementCreationView({
+				datatype: this.typeOptions.propertyType,
+				propertyDefinitions: definitions
 			});
 
 			newElement.render();

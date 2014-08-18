@@ -341,7 +341,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 					// Open the brand new document
 					itemsView.subViews[doc.id].edit();
 
-					me.updateFieldDefinitions(fieldDefinitions);
+					me.updateFieldDefinitions(doc, fieldDefinitions);
 
 					Alerts.add({
 						message: 'Document created.',
@@ -375,7 +375,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			return this.service.save(docView.model)
 				.then(function(){
 					Alerts.add({message: 'Saved successfully!', autoclose: 5000});
-					me.updateFieldDefinitions(fieldDefinitions);
+					me.updateFieldDefinitions(docView.model, fieldDefinitions);
 				})
 				.fail(function(){
 					Alerts.add({message: 'There was an error saving the document. Please, try again.', level: 'error'});
@@ -424,7 +424,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		 * @param  {Object} fieldDefinitions Field definition as stored in collection settings.
 		 * @return {undefined}
 		 */
-		updateFieldDefinitions: function(fieldDefinitions) {
+		updateFieldDefinitions: function(model, fieldDefinitions) {
 			var currentDefinitions = this.collectionSettings.propertyDefinitions,
 				// Mark for update if the settings are not already stored
 				update = !this.collectionSettings._id,
@@ -439,9 +439,9 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			if(!currentDefinitions)
 				currentDefinitions = (this.collectionSettings.propertyDefinitions = []);
 
-			// Check every field and add the new ones.
+			// Check every field and add the new ones if they are in the model
 			_.each(fieldDefinitions, function(targetDefinition){
-				if(!_.find(currentDefinitions, equalsKey(targetDefinition))){
+				if(!_.find(currentDefinitions, equalsKey(targetDefinition)) && (typeof model.get(targetDefinition.key) != 'undefined') ){
 					currentDefinitions.push(targetDefinition);
 					update = true;
 				}

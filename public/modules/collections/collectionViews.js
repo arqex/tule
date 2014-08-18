@@ -175,14 +175,12 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			e.preventDefault();
 			var	docId = $(e.target).closest('.tule-doc-content').data('id'),
 				subView = this.subViews[docId],
-				definitions
+				definitions = {}
 			;
 
 			if(subView){
-				definitions = subView.objectView.typeOptions ?
-					subView.objectView.typeOptions.propertyDefinitions :
-					{}
-				;
+				if(subView.objectView.typeOptions)
+					definitions = subView.objectView.typeOptions.propertyDefinitions;
 
 				this.trigger('saveDocument', subView, definitions);
 			}

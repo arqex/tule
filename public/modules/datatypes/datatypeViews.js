@@ -1,5 +1,6 @@
 var deps = [
-	'jquery', 'underscore', 'backbone', 'baseView', 'text!./dataElement.html', 'services', 'events'
+	'jquery', 'underscore', 'backbone', 'baseView', 'text!./dataElement.html', 'services', 'events',
+	'autocomplete'
 ];
 define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 	'use strict';
@@ -159,6 +160,9 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			// Shortcut to the datatype service.
 			this.service = service;
 
+			// If some property definitions are given, use them for autocompletion
+			this.propertyDefinitions = options.propertyDefinitions ? _.keys(options.propertyDefinitions) : [];
+
 			// Create the type view using the value
 			this.typeView = options.datatype ?
 				service.get({
@@ -293,6 +297,12 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 		initialize: function(options){
 			this.initModel(options);
 
+			// Save the definitions for autocomplete
+			if(options.propertyDefinitions){
+				this.propertyNames = _.keys(options.propertyDefinitions);
+				this.propertyDefinitions = options.propertyDefinitions;
+			}
+
 			this.typeView = service.get({
 				datatype: {id: 'field',	options: {}},
 				viewOptions: {singleEditable: false}
@@ -325,9 +335,26 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			this.typeView.render().delegateEvents();
 
 			setTimeout(function(){
-				var input = me.$('input');
-				if(input.length)
+				var input = me.$('input'),
+					select = me.$('select')
+				;
+
+
+				if(input.length) {
+					if(me.propertyNames){
+						input.autocomplete({
+							lookup: me.propertyNames,
+							onSelect: function(selected) {
+								if(me.typeView){
+									// Set the value in the type view
+									me.typeView.model.set('value', me.propertyDefinitions[selected.value].datatype);
+									me.typeView.render();
+								}
+							}
+						});
+					}
 					input.focus();
+				}
 				else
 					me.$('select').focus();
 			}, 50);
