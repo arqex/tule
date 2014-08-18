@@ -188,7 +188,6 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 				dataType: 'json',
 				minChars: 2,
 				deferRequestBy: 500,
-				params: {clause: ''},
 				autoSelectFirst: 1,
 				onSearchStart: function(query){
 					query.query = options.displayField + '|like|' + encodeURIComponent(query.q);

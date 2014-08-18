@@ -116,19 +116,20 @@
 			<option value="or" <%= operator === "or" ? 'selected' : '' %>>Or</option>
 		</select>
 		<input class="js-search-key tule-search-key" type="text" placeholder="Key" <% if(key){ %> value="<%= key %>" <% } %> />
-		<select class="js-search-op-comparison">
-			<option value="eq" <%= comparison === "eq" ? 'selected' : '' %>>   ==  </option>
-			<option value="ne" <%= comparison === "ne" ? 'selected' : '' %>>   !=  </option>
-			<option value="gt" <%= comparison === "gt" ? 'selected' : '' %>>   &gt;   </option>
-			<option value="gte" <%= comparison === "gte" ? 'selected' : '' %>> &gt;=  </option>
-			<option value="lt" <%= comparison === "lt" ? 'selected' : '' %>>   &lt;   </option>
-			<option value="lte" <%= comparison === "lte" ? 'selected' : '' %>> &lt;=  </option>
-		</select>
+		<select class="js-search-op-comparison"></select>
 		<input class="js-search-value tule-search-value" type="text" placeholder="Value" <% if(value){ %> value="<%= value %>" <% } %> />
 		<a href="#" class="tule-search-delete js-search-delete" title="Delete clause">
 			<i class="fa fa-minus-circle"></i>
 		</a>
 	</div>
+</script>
+
+<script type="text/template" id="searchComparison">
+	<select class="js-search-op-comparison">
+		<% _.each(operators, function(op){ %>
+			<option value="<%= op.value %>" <%= comparison === op.value ? 'selected' : '' %>><%= op.label %></option>
+		<% }); %>
+	</select>
 </script>
 
 <script type="text/template" id="docCount">

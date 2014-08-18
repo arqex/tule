@@ -48,6 +48,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 
 			this.collectionName = options.args[0];
 			this.params = options.args[2] || {};
+			this.tuleSettings = options.tuleSettings;
 
 			this.initCollectionSettings()
 				.then(function(){
@@ -74,6 +75,9 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 							me.initViews();
 						})
 					;
+
+					// Create a shortcut for property definitions
+					me.createPropertyDefinitions();
 
 					$('.js-pagetitle').text('Collection ' + me.collectionName);
 				})
@@ -118,7 +122,8 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		 * @return {undefined}
 		 */
 		guessHeaderFields: function() {
-			if(this.collectionSettings.headerFields)
+			var settings = this.collectionSettings;
+			if(settings.headerFields && settings.headerFields.length)
 				return;
 
 			var headerFields = [],
@@ -135,7 +140,22 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			else if(doc.get('name'))
 				headerFields.push('name');
 
-			this.collectionSettings.headerFields = headerFields;
+			settings.headerFields = headerFields;
+		},
+
+
+		/**
+		 * Creates a shortcut to the property definitions to fast access.
+		 * @return {undefined}
+		 */
+		createPropertyDefinitions: function() {
+			var me = this;
+
+			//Let's make the property definitions quicky accesible
+			this.propertyDefinitions = {};
+			_.each(this.collectionSettings.propertyDefinitions, function(definition){
+				me.propertyDefinitions[definition.key] = definition;
+			});
 		},
 
 		/**
@@ -220,7 +240,11 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		},
 
 		createSearchView: function() {
-			var searchView = new CollectionViews.SearchView({query: this.currentQuery.query});
+			var searchView = new CollectionViews.SearchView({
+				query: this.currentQuery.query,
+				propertyDefinitions: this.propertyDefinitions,
+				tuleSettings: this.tuleSettings
+			});
 
 			this.listenTo(searchView, 'searchCancel', this.closeSearch);
 			this.listenTo(searchView, 'searchOk', this.doQuery);

@@ -523,6 +523,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 	var SearchView = BaseView.extend({
 		tpl: templates.search,
 		clauseTpl: templates.searchClause,
+		comparisonTpl: templates.searchComparison,
 
 		className: 'tule-search',
 
@@ -539,6 +540,13 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 		initialize: function(opts) {
 			this.query = opts.query || {};
+
+			if(opts.propertyDefinitions) {
+				this.propertyNames = _.keys(opts.propertyDefinitions);
+				this.propertyDefinitions = opts.propertyDefinitions;
+			}
+
+			this.tuleSettings = opts.tuleSettings;
 		},
 
 		/**
@@ -587,13 +595,14 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			var me = this,
 				clauses = this.queryToClauses(this.query)
 			;
+
 			this.$el.html(this.tpl(this.getTemplateData()));
 
 			if(!clauses.length)
 				return this.addClause();
 
 			_.each(clauses, function(clause){
-				this.$('.js-search-clauses').append(this.clauseTpl(clause));
+				me.$('.js-search-clauses').append(me.clauseTpl(clause));
 			});
 
 			return this;
@@ -643,12 +652,17 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		 */
 		clauseToMongo: function(clause) {
 			var mongoClause = {},
-				logical = clause.value
+				logical = clause.value,
+				operator = clause.comparison,
+				key
 			;
 
-			if(clause.comparison != 'eq'){
+			if(operator != 'eq'){
 				logical = {};
-				logical['$' + clause.comparison] = clause.value;
+
+				key = operator == 'like' ? operator : '$' + operator;
+
+				logical[key] = clause.value;
 			}
 
 			mongoClause[clause.key] = logical;
@@ -661,13 +675,14 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 		 * @param {String} operator The logical operator to be selected out of the box.
 		 */
 		addClause: function(operator) {
-			var clause = {
+			var me = this,
+				clause = {
 					operator:operator,
 					key: '',
 					value: '',
 					comparison: ''
 				},
-				$clauses
+				$clauses, $clause
 			;
 
 			// Add the new clause
@@ -679,7 +694,29 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			if($clauses.length > 1)
 				this.enableDeleteClauses();
 
-			$clauses.last().find('.js-search-key').focus();
+			$clause = $clauses.last();
+
+			if(this.propertyNames){
+				$clause.find('.js-search-key')
+					.autocomplete({
+						lookup: this.propertyNames,
+						onSelect: function(selected) {
+							var definition = me.propertyDefinitions[selected.value];
+
+							me.setSearchType(definition.datatype, $clause);
+						},
+						onInvalidateSelection: function() {
+							me.setSearchType(false, $clause);
+						}
+					})
+					.focus()
+				;
+			}
+			else {
+				$clause.find('.js-search-key').focus();
+			}
+
+			this.setSearchType(false, $clause);
 		},
 
 		/**
@@ -708,6 +745,71 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			});
 
 			return clauses;
+		},
+
+		/**
+		 * Adapts the clause inputs to a datatype, filtering the operators and updating
+		 * the value input to make easier searches, for example adding a datepicker for
+		 * date-type fields.
+		 *
+		 * @param {Object} datatype A tule datatype definition {id, options}
+		 * @param {jQuery} $clause  The jQuery object for the clause.
+		 */
+		setSearchType: function(datatype, $clause) {
+			var all = {
+					eq: {value: 'eq', label: '='},
+					ne: {value: 'ne', label: '!='},
+					like: {value: 'like', label: 'like'},
+					gt: {value: 'gt', label: '&gt;'},
+					gte: {value: 'gte', label: '&gt;='},
+					lt: {value: 'lt', label: '&lt;'},
+					lte: {value: 'lte', label: '&lt;='}
+				},
+				typeId = datatype ? datatype.id : false,
+				datepicker = false,
+				$value = $clause.find('.js-search-value'),
+				operators
+			;
+
+			if(typeId == 'date') {
+				operators = [all.eq, all.gt, all.lt];
+
+				// Add datepicker
+				if(! $value.hasClass('hasDatepicker')){
+					$value.datetimepicker({
+						showOtherMonths: true,
+						selectOtherMonths: true,
+						changeMonth: true,
+						changeYear: true,
+						showTime: false,
+						dateFormat: this.tuleSettings.dateFormat,
+						timeFormat: this.tuleSettings.timeFormat,
+						firstDay: this.tuleSettings.firstDay,
+						showButtonPanel: false
+					});
+				}
+
+				datepicker = true;
+			}
+			else if(typeId == 'string') {
+				operators = [all.eq, all.ne, all.like];
+			}
+			else if(typeId == 'integer' || typeId == 'float') {
+				operators = [all.eq, all.ne, all.gt, all.gte, all.lt, all.lte];
+			}
+			else {
+				operators = _.values(all);
+			}
+
+			if(!datepicker && $value.hasClass('hasDatepicker'))
+				$value.datetimepicker('destroy');
+
+			$clause.find('.js-search-op-comparison')
+				.replaceWith(this.comparisonTpl({
+					operators: operators,
+					comparison: ''
+				}))
+			;
 		},
 
 		onAddClause: function(e){
