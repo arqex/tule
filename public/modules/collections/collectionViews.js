@@ -654,8 +654,14 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 			var mongoClause = {},
 				logical = clause.value,
 				operator = clause.comparison,
+				definition = this.propertyDefinitions[clause.key],
 				key
 			;
+
+			if(definition && definition.datatype.id == 'date'){
+				clause.value = $.datepicker.parseDateTime(this.tuleSettings.dateFormat, this.tuleSettings.timeFormat, clause.value).getTime();
+			}
+
 
 			if(operator != 'eq'){
 				logical = {};

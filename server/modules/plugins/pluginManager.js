@@ -184,8 +184,7 @@ PluginManager.prototype = {
 	getPluginDefinitions: function(pluginList){
 		var me = this,
 			deferred = when.defer(),
-			promises = [],
-			definitions = []
+			promises = []
 		;
 
 		if(!pluginList.length)
@@ -195,17 +194,16 @@ PluginManager.prototype = {
 			promises.push(me.getPluginDefinition(pluginDir));
 		});
 
-		var addDefinitions = function(){
-			_.each(promises, function(promise){
-				var status = promise.inspect();
-
-				if(status.state == 'fulfilled')
-					definitions.push(status.value);
-			});
-			deferred.resolve(definitions);
-		};
-
-		when.all(promises).then(addDefinitions, addDefinitions);
+		when.settle(promises)
+			.then(function(descriptors){
+				var definitions = [];
+				descriptors.forEach(function(d){
+					if(d.state == 'fulfilled')
+						definitions.push(d.value);
+				});
+				deferred.resolve(definitions);
+			})
+		;
 
 		return deferred.promise;
 	},

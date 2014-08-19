@@ -101,8 +101,10 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 		render: function() {
 			var me = this;
 
-			if(!this.subViews)
-				this.$el.html('Loading...');
+			if(!this.subViews || _.isEmpty(this.subViews)){
+				this.$el.append('<li>There are no plugins installed.</li>');
+				return this;
+			}
 
 			_.each(this.subViews, function(pluginView){
 				pluginView.render();
