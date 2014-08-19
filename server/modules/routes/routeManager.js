@@ -1,3 +1,5 @@
+'use strict';
+
 var routes = require('./routes.js'),
 	_ = require('underscore'),
 	config = require('config'),
@@ -99,11 +101,8 @@ RouteManager.prototype = {
 	},
 
 	resetRoutes: function(){
-		var me = this,
-			routesClone = JSON.parse(JSON.stringify(routes))
-		;
+		var me = this;
 
-		console.log('Here we are: ROUTING');
 		//Reset all the routes;
 		['get', 'post', 'put', 'delete'].forEach(function(method){
 			app.routes[method] = [];
@@ -112,7 +111,6 @@ RouteManager.prototype = {
 		settings.get('routes:server')
 			.then(function(allRoutes){
 				console.log('Adding routes:');
-				console.log(allRoutes);
 				_.each(allRoutes, me.addRoute);
 			})
 		;

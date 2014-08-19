@@ -1,3 +1,5 @@
+'use strict';
+
 // Config * Hack, this should be an enviroment variable
 process.env.NODE_CONFIG_DIR = __dirname + '/server/config';
 var config = require('config');
@@ -55,8 +57,8 @@ pluginManager.init(app).then(function(){
 		routeManager.init(app);
 		console.log('ROUTES OK!');
 
-		server.listen(3000);
-		console.log('Listening on port 3000');
+		server.listen(config.portNumber);
+		console.log('Listening on port ' + config.portNumber);
 	});
 
 }).catch(function(err){

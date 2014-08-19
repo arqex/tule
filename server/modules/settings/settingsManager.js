@@ -1,16 +1,19 @@
 'use strict';
 
 var config = require('config'),
-	db = require(config.path.modules + '/db/dbManager').getInstance(),
+	db = require(config.path.modules + '/db/dbManager').getInstance('settings'),
 	when = require('when')
 ;
 
 console.log(config.tule.settingsCollection);
+console.log(db);
 
 var settings = db.collection(config.tule.settingsCollection),
 	staticSettings = {},
 	hooks
 ;
+
+console.log('We have the settings collection!');
 
 /**
  * Applies filters to the settings value returned by the get and getPublic methods.
@@ -42,6 +45,7 @@ var filter = function(settingName, settingValue, deferred) {
  */
 module.exports = {
 	init: function(appObject) {
+		console.log('Init settings');
 		hooks = appObject.hooks;
 	},
 

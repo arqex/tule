@@ -186,7 +186,7 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 		updateSettings: function(collectionName, settings) {
 			var deferred = $.Deferred();
 
-			$.ajax('/api/collections/' + collectionName, {type: 'put', data: settings})
+			$.ajax('/api/collections/' + collectionName, {type: 'put', data: JSON.stringify(settings), contentType: 'application/json;charset=utf-8'})
 				.then(function(updatedData){
 					deferred.resolve(updatedData);
 					Events.trigger('collection:updated', collectionName, settings);
@@ -213,7 +213,7 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 
 			settings = settings || {};
 
-			$.ajax('/api/collections', {type: 'post', data: settings})
+			$.ajax('/api/collections', {type: 'post', data: JSON.stringify(settings), contentType: 'application/json;charset=utf-8'})
 				.then(function(settings){
 					deferred.resolve(settings);
 					Events.trigger('collection:updated', collectionName, settings);

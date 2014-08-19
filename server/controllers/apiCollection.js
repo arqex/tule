@@ -3,6 +3,7 @@
 var _ = require('underscore'),
 	config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance(),
+	settingsDb = require(config.path.modules + '/db/dbManager').getInstance('settings'),
 	when = require('when')
 ;
 
@@ -53,7 +54,7 @@ module.exports = {
 		if(!collectionName)
 			res.send(400, {error: 'No collection name given.'});
 
-		db.collection(config.tule.settingsCollection)
+		settingsDb.collection(config.tule.settingsCollection)
 			.findOne({name: collectionPrefix + collectionName}, function(err, collectionSettings){
 					if(err)
 						return res.send(400, {error: 'There where an error fetching the collection settings.'});
@@ -140,7 +141,7 @@ module.exports = {
 		});
 
 		// Create the settings
-		db.collection(config.tule.settingsCollection).insert(properties, function(err, props){
+		settingsDb.collection(config.tule.settingsCollection).insert(properties, function(err, props){
 			if(err){
 				console.log(err);
 				errors.collection = err;
@@ -191,7 +192,7 @@ module.exports = {
 
 		console.log(doc);
 
-		db.collection(config.tule.settingsCollection)
+		settingsDb.collection(config.tule.settingsCollection)
 			.update({_id: id, name: collectionPrefix + collectionName}, doc, function(err, updated){
 					if(err)
 						return res.send(400, 'Error updating the collection settings: ' + err);
@@ -221,7 +222,7 @@ module.exports = {
 		}
 
 		// Remove the settings. Don't care about the result.
-		db.collection(config.tule.settingsCollection)
+		settingsDb.collection(config.tule.settingsCollection)
 			.remove({name: collectionPrefix + collectionName}, function(){});
 
 		// Drop the collection
@@ -488,7 +489,7 @@ function guessDataType(value) {
 		return 'array';
 
 	if(_.isBoolean(value))
-		return 'boolean';
+		return 'bool';
 
 
 	if(value == parseFloat(value))

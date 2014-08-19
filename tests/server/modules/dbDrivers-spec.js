@@ -1,26 +1,25 @@
-var path = require('path'),
-	when = require('when'),
-	config = require('config'),
-	db = require(path.join(__dirname, '../../..', 'server/modules/db/mongoDriver')),
-	//db = require(path.join(__dirname, '../../..', 'server/plugins/nedb/nedbDriver')),
+"use strict";
+
+var path = require("path"),
+	db = require(path.join(__dirname, "../../..", "server/modules/db/mongoDriver")),
+	options = {url: "mongodb://localhost:27017/tuleTest"},
+
+	// nedb options
+	// db = require(path.join(__dirname, "../../..", "server/plugins/nedb/nedbDriver")),
+	// options = {dataPath: path.join(__dirname, "nedb")},
 	promise
 ;
 
-console.log('DB');
-console.log(db.init);
-config.mongo = 'mongodb://localhost:27017/tule';
-//config.nedb = {dataPath: path.join(__dirname, 'nedb')};
-promise = db.init();
+promise = db.init(options);
 
-describe('Driver API', function() {
-	var cname = 'testCollectionName',
+describe("Driver API", function() {
+	var cname = "testCollectionName",
 		collectionCount, driver, collection, savedDoc, docCount
 	;
 
-	it('getCollectionNames()', function(done){
+	it("getCollectionNames()", function(done){
 		promise.then(function(d){
 			driver = d;
-			console.log(driver);
 			driver.getCollectionNames(function(err, names){
 				expect(err).toBeNull();
 				console.log(names);
@@ -28,7 +27,7 @@ describe('Driver API', function() {
 				done();
 			});
 		}).catch(function(err){
-			console.log('ERRROR GORDO: ' + err);
+			console.log("ERRROR GORDO: " + err);
 			done();
 		});
 	});
@@ -43,33 +42,32 @@ describe('Driver API', function() {
 				expect(index).not.toBe(-1);
 				done();
 			});
-		})
+		});
 	});
-
 
 	it("collection()", function(done){
 		collection = driver.collection(cname);
-		expect(typeof collection.find).toEqual('function');
-		expect(typeof collection.findOne).toEqual('function');
-		expect(typeof collection.insert).toEqual('function');
-		expect(typeof collection.update).toEqual('function');
-		expect(typeof collection.save).toEqual('function');
-		expect(typeof collection.remove).toEqual('function');
-		expect(typeof collection.count).toEqual('function');
+		expect(typeof collection.find).toEqual("function");
+		expect(typeof collection.findOne).toEqual("function");
+		expect(typeof collection.insert).toEqual("function");
+		expect(typeof collection.update).toEqual("function");
+		expect(typeof collection.save).toEqual("function");
+		expect(typeof collection.remove).toEqual("function");
+		expect(typeof collection.count).toEqual("function");
 		done();
 	});
 
 
 	it("collection.count() works without parameters", function(done){
 		collection.count(function(err, count){
-			console.log('COOOOUNT');
+			console.log("COOOOUNT");
 			expect(count).toBe(0);
 			done();
 		});
 	});
 
 	it("single collection.insert()", function(done){
-		collection.insert({msg: 'hello', integer: 0}, function(err, docs){
+		collection.insert({msg: "hello", integer: 0}, function(err, docs){
 			collection.count(function(err, count){
 				expect(count).toBe(1);
 				done();
@@ -79,7 +77,7 @@ describe('Driver API', function() {
 
 
 	it("multiple collection.insert()", function(done){
-		collection.insert([{msg: 'hello', integer: 1}, {msg: 'tule', integer: 2},{msg: 'great', integer: 3}], function(err, docs){
+		collection.insert([{msg: "hello", integer: 1}, {msg: "tule", integer: 2},{msg: "great", integer: 3}], function(err, docs){
 			collection.count(function(err, count){
 				expect(count).toBe(4);
 				done();
@@ -97,7 +95,7 @@ describe('Driver API', function() {
 	});
 
 	it("find({msg: 'hello'}) expect 2 documents", function(done){
-		collection.find({msg: 'hello'}, function(err, docs){
+		collection.find({msg: "hello"}, function(err, docs){
 			if(err)
 				console.log(err);
 			expect(docs.length).toBe(2);
@@ -106,14 +104,14 @@ describe('Driver API', function() {
 	});
 
 	it("collection.count({msg: 'hello'})", function(done){
-		collection.count({msg: 'hello'}, function(err, count){
+		collection.count({msg: "hello"}, function(err, count){
 			expect(count).toBe(2);
 			done();
 		});
 	});
 
 	it("find({msg: 'bye'}) expect 0 documents", function(done){
-		collection.find({msg: 'bye'}, function(err, docs){
+		collection.find({msg: "bye"}, function(err, docs){
 			if(err)
 				console.log(err);
 			expect(err).toBeNull();

@@ -1,10 +1,12 @@
+'use strict';
+
 var when = require('when'),
 	_ = require('underscore'),
 	config = require('config')
 ;
 
 
-var app, driverInstance, hooks;
+var app, hooks, dbInstance, settingsInstance;
 
 module.exports = {
 	defaultDriver: __dirname + '/mongoDriver.js',
@@ -14,27 +16,54 @@ module.exports = {
 		;
 		app = appObject;
 		hooks = app.hooks;
-		console.log("Init Driver");
-		hooks.filter('db:driverpath', this.defaultDriver).then(function(driverPath){
-			me.initDriver(driverPath).then(
-				function(driver){
-					console.log("Driver resolved");
-					deferred.resolve(driver);
-					//me.checkSettings();
+
+		// Plugins can install new db drivers, but the activation of them is
+		// made by setting them up in the config file.
+		hooks.filter('db:drivers', {mongo: this.defaultDriver}).then(function(drivers){
+			var dbDriver = config.db.driver,
+				dbDriverPath = drivers[dbDriver],
+				tuleDriver = config.tule.db.driver,
+				tuleDriverPath = drivers[tuleDriver],
+				dbPromise, tulePromise
+			;
+
+			if(!tuleDriverPath || !tuleDriverPath)
+				return deferred.reject('Unknown driver: ' + dbDriver + ', ' + tuleDriver);
+
+			// There are two instances that may be different, collections and settings db.
+			// The options in the config are passed as arguments for driver initialization.
+			dbPromise = me.initDriver(dbDriverPath, config.db.options);
+			tulePromise = me.initDriver(tuleDriverPath, config.tule.db.options);
+
+			when.join(dbPromise, tulePromise)
+				.then(function(drivers){
+					dbInstance = drivers[0];
+					settingsInstance = drivers[1];
+					deferred.resolve(drivers);
 					hooks.trigger('db:ready');
-				},
-				function(error){
-					deferred.reject(error);
-				}
-			);
+				})
+				.catch(function(err){
+					deferred.reject(err);
+				})
+			;
 		});
+
 		return deferred.promise;
 	},
-	initDriver: function(driverFile){
+
+	/**
+	 * Inits a db driver.
+	 *
+	 * @param  {String} driverFile The path to the js file that export the driver
+	 * @param  {Object} options    Options for initializating the driver.
+	 * @return {Promise} To be resolved with the driver when it is ready.
+	 */
+	initDriver: function(driverFile, options){
 		var deferred = when.defer(),
 			driver = require(driverFile),
-			promise = driver.init()
+			promise = driver.init(options)
 		;
+
 
 		if(!_.isObject(promise) || !_.isFunction(promise.then)){
 			console.log('Driver error');
@@ -44,50 +73,21 @@ module.exports = {
 
 		console.log('Waiting by the driver');
 
-		promise.then(function(db){
-			driverInstance = db;
-			console.log('Driver received');
-		}, function(err){
-			throw err;
-		});
-
 		return promise;
 	},
-	getInstance: function(){
-		console.log('Requesting instance');
-		return driverInstance;
-	},
-	checkSettings: function(){
 
-		console.log('Checking settings');
-		driverInstance.collection(config.tule.settingsCollection).find({}, function(err, settings){
-			if(err || settings.length === 0){
-				console.log("Database doesn't exists. Creating an empty new one.");
-				driverInstance.collection(config.tule.settingsCollection).insert([
-					{
-						name: 'navData',
-						routes: [
-							{text: 'Collection', url: '/collection/list/test'},
-							{text: 'Settings', url: '/settings/general', subItems: [
-								{text: 'General', url: '/settings/general'},
-								{text: 'Navigation', url: '/settings/navigation'},
-								{text: 'Collections', url: '/settings/collections'}
-							]}
-						]
-					},
-					{
-						name: 'globals',
-						settingsCollection: 'monSettings',
-						datatypes: ['string', 'array', 'boolean', 'float', 'integer', 'object', 'field', 'select'],
-						datatypesPath: 'modules/datatypes/'
-					}
-				], function(err, clbk){
-					if(err)
-						console.log("Error creating new settings.");
-					else
-						console.log("New settings setted correctly.");
-				});
-			}
-		});
+	/**
+	 * Get a DB instance.
+	 * @param  {String} type If equals to 'settings' the settings db instance will be
+	 *                       returned. Otherwise the collections instance.
+	 * @return {DBDriver} The requested db driver instance.
+	 */
+	getInstance: function(type){
+		console.log('Requesting db instance ' + (type || 'collections'));
+
+		if(type == 'settings')
+			return settingsInstance;
+
+		return dbInstance;
 	}
-}
+};

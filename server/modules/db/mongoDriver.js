@@ -1,5 +1,6 @@
+'use strict';
+
 var mongo = require('mongodb'),
-	config = require('config'),
 	when = require('when'),
 	_ = require('underscore')
 ;
@@ -14,8 +15,13 @@ MongoDriver.prototype = {
 	// Following method to complete Tule DB API
 	getCollectionNames: function(callback){
 		return this.db.collectionNames(function(err, names){
-			// WTF: Mongo native driver includes the db name: dbName.collectionName. Remove it!
-			var simpleNames = names ? names.map(function(name){return name.name.split('.').slice(1).join('.');}) : [];
+
+			var simpleNames = [];
+			if(names){
+				simpleNames = names.map(function(name){
+					return name.name.split('.').slice(1).join('.');
+				});
+			}
 			callback(err, simpleNames);
 		});
 	},
@@ -25,7 +31,6 @@ MongoDriver.prototype = {
 		var index = callbackIndex(arguments),
 			original
 		;
-
 
 		if(index != -1){
 			original = arguments[index];
@@ -96,10 +101,12 @@ var TuleCollection = {
 		arguments[index] = function(err, cursor){
 			if(err)
 				return original(err, cursor);
+
 			cursor.toArray(function(err, results){
 				original(err, results);
 			});
-		}
+		};
+
 		return toObjectID(this, 'find', arguments);
 	},
 
@@ -129,16 +136,13 @@ var TuleCollection = {
 };
 
 
-
-var driver;
-
 module.exports = {
-	init: function(){
+	init: function(options){
 		var me = this,
 			deferred = when.defer()
 		;
 
-		mongo.MongoClient.connect(config.mongo, function(err, db){
+		mongo.MongoClient.connect(options.url, function(err, db){
 			if(err)
 				deferred.reject(err);
 			else {
