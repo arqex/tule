@@ -6,7 +6,6 @@ var config = require('config'),
 ;
 
 console.log(config.tule.settingsCollection);
-console.log(db);
 
 var settings = db.collection(config.tule.settingsCollection),
 	staticSettings = {},
