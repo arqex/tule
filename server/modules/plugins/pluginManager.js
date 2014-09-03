@@ -301,7 +301,6 @@ PluginManager.prototype = {
 			// Read the definitions of the plugins
 			me.getPluginDefinitions(pluginList).then(function(definitions){
 				me.active = definitions;
-				console.log(definitions);
 
 				// If some plugin couldn't be loaded, remove it from the active list
 				if(pluginList.length != definitions.length){

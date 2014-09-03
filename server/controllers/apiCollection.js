@@ -19,7 +19,6 @@ var defaultSettings = {
 
 module.exports = {
 	list: function(req, res){
-		console.log(db);
 		db.getCollectionNames(function(err, names){
 			if(err){
 				console.log(err);
@@ -189,8 +188,6 @@ module.exports = {
 		// Remove the _id in order to update the document successfully
 		id = doc._id;
 		delete doc._id;
-
-		console.log(doc);
 
 		settingsDb.collection(config.tule.settingsCollection)
 			.update({_id: id, name: collectionPrefix + collectionName}, doc, function(err, updated){
