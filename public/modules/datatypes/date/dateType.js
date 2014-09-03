@@ -21,7 +21,7 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services){
 
 			// Apply some defaults while the settings are loaded
 			me.dateFormat = 'd/mm/yy';
-			me.timeFormat = 'h:mm';
+			me.timeFormat = 'H:mm';
 			me.firstDay = 1; // Monday
 
 			me.setDate();

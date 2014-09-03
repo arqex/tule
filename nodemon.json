@@ -6,7 +6,7 @@
 		"batch",
 		"mongodb",
 		"tests",
-		"server/plugins",
+		"node_modules",
 		"server/modules/plugins/activePlugins.json"
 	]
 }
