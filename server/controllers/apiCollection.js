@@ -4,7 +4,8 @@ var _ = require('underscore'),
 	config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance(),
 	settingsDb = require(config.path.modules + '/db/dbManager').getInstance('settings'),
-	when = require('when')
+	when = require('when'),
+	log = require('winston')
 ;
 
 var defaultSettings = {
@@ -21,7 +22,7 @@ module.exports = {
 	list: function(req, res){
 		db.getCollectionNames(function(err, names){
 			if(err){
-				console.log(err);
+				log.error( err );
 				return res.send(400, {error: 'Internal error.'});
 			}
 
@@ -62,7 +63,7 @@ module.exports = {
 							// Check not found
 							if(err == Object(err) && err.errmsg == 'ns not found')
 								return res.send(404);
-							console.log(err);
+							log.error( err );
 							return res.send(400, {error: 'There where an error fetching the collection stats: ' + err});
 						}
 
@@ -127,7 +128,7 @@ module.exports = {
 		// Create the collection
 		db.createCollection(name, function(err, newDoc){
 			if(err){
-				console.log(err);
+				log.error( err );
 				errors.collection = err;
 			}
 			else {
@@ -142,7 +143,7 @@ module.exports = {
 		// Create the settings
 		settingsDb.collection(config.tule.settingsCollection).insert(properties, function(err, props){
 			if(err){
-				console.log(err);
+				log.error( err );
 				errors.collection = err;
 			}
 			else{

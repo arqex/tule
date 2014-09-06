@@ -598,8 +598,12 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 
 			this.$el.html(this.tpl(this.getTemplateData()));
 
-			if(!clauses.length)
-				return this.addClause();
+			if(!clauses.length) {
+				this.addClause();
+				if(this.state('open'))
+					this.open();
+				return this;
+			}
 
 			_.each(clauses, function(clause){
 				me.$('.js-search-clauses').append(me.clauseTpl(clause));
@@ -706,6 +710,7 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 				$clause.find('.js-search-key')
 					.autocomplete({
 						lookup: this.propertyNames,
+						autoSelectFirst: true,
 						onSelect: function(selected) {
 							var definition = me.propertyDefinitions[selected.value];
 

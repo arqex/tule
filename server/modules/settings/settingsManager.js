@@ -2,17 +2,14 @@
 
 var config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance('settings'),
-	when = require('when')
+	when = require('when'),
+	log = require('winston')
 ;
-
-console.log(config.tule.settingsCollection);
 
 var settings = db.collection(config.tule.settingsCollection),
 	staticSettings = {},
 	hooks
 ;
-
-console.log('We have the settings collection!');
 
 /**
  * Applies filters to the settings value returned by the get and getPublic methods.
@@ -44,7 +41,7 @@ var filter = function(settingName, settingValue, deferred) {
  */
 module.exports = {
 	init: function(appObject) {
-		console.log('Init settings');
+		log.debug('Init settings');
 		hooks = appObject.hooks;
 	},
 

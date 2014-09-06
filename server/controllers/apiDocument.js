@@ -4,7 +4,8 @@ var url = require('url'),
 	config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance(),
 	when = require('when'),
-	queryTranslator = require(config.path.public + '/modules/collections/queryTranslator')
+	queryTranslator = require(config.path.public + '/modules/collections/queryTranslator'),
+	log = require('')
 ;
 
 module.exports = {
@@ -128,7 +129,7 @@ module.exports = {
 
 		db.collection(collectionName).remove({_id: id}, function(err, removed){
 				if(err){
-					console.log(err);
+					log.error( err );
 					res.send(400, {error: 'Internal Error'});
 				}
 
@@ -181,7 +182,7 @@ module.exports = {
 
 		db.getCollectionNames(function(err, names){
 			if(err){
-				console.log(err);
+				log.error( err );
 				return res.send(400, {error: 'Internal error.'});
 			}
 
@@ -190,7 +191,7 @@ module.exports = {
 
 			queryPromise
 				.then(function(queryOptions){
-					var limit = queryOptions.modifiers.limit || 10, // default value
+					var limit = typeof queryOptions.modifiers.limit  == 'undefined' ? 10 : queryOptions.modifiers.limit, // default value
 						skip = queryOptions.modifiers.skip || 0,
 						sort = queryOptions.modifiers.sort || {},
 						collection = db.collection(collectionName)

@@ -7,7 +7,8 @@ var fs = require('fs'),
 	promisify = require('when/node/function'),
 	pluginsPath = config.path.plugins,
 	_ = require('underscore'),
-	hooksManager = require('./hooksManager.js')
+	hooksManager = require('./hooksManager.js'),
+	log = require('winston')
 ;
 
 // Objects to store hook callbacks
@@ -107,7 +108,7 @@ PluginManager.prototype = {
 			plugin.init(hooks);
 
 		} catch (e) {
-			console.error(e);
+			log.error(e);
 			plugin = {error: e};
 		}
 
@@ -255,8 +256,9 @@ PluginManager.prototype = {
 				def.id = dirName;
 				definitions.push(def);
 			}
-			else
-				console.log('Definition error for ' + dirName + ': ' + status.reason);
+			else{
+				log.error('Definition error for ' + dirName + ': ' + status.reason);
+			}
 		});
 		return definitions;
 	},
@@ -283,13 +285,13 @@ PluginManager.prototype = {
 			var pluginList = [];
 
 			if(err){
-				console.log(err);
+				log.error(err);
 				contents = '[]';
 			}
 			try {
 				pluginList = JSON.parse(contents);
 			} catch(e) {
-				console.log('Cant parse ' + contents);
+				log.error('Cant parse ' + contents);
 				pluginList = [];
 			}
 
@@ -325,7 +327,7 @@ PluginManager.prototype = {
 		pluginList.sort();
 		fs.writeFile(this.activePluginsFile, JSON.stringify(pluginList), 'utf8', function(err){
 			if(err){
-				console.log('Can\'t write activePlugins.json');
+				log.error('Can\'t write activePlugins.json');
 				return deferred.reject('Can\'t write activePlugins.json');
 			}
 			return deferred.resolve(pluginList);

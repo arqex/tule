@@ -1,6 +1,8 @@
 'use strict';
 
-var when = require('when');
+var when = require('when'),
+	log = require('winston')
+;
 
 var resolve = function(queue, returnValue, args){
 	var callbacks = queue.shift(),
@@ -114,7 +116,7 @@ module.exports = {
 			return deferred.promise;
 		}
 
-		// console.log('TRIGGER ' + hookName);
+		log.debug('Triggering ' + hookName);
 
 		var priorityStack = hooks[hookName];
 		if(!priorityStack){

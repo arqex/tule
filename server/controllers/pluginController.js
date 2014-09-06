@@ -3,7 +3,8 @@
 var when = require('when'),
 	config = require('config'),
 	path = require('path'),
-	pluginManager = require(path.join(config.path.modules, 'plugins/pluginManager.js'))
+	pluginManager = require(path.join(config.path.modules, 'plugins/pluginManager.js')),
+	log = require('winston')
 ;
 
 module.exports = {
@@ -21,7 +22,8 @@ module.exports = {
 		var id = req.params.id;
 		if(!id)
 			res.send(400, {error: 'No plugin id given.'});
-		console.log('activation requested');
+
+		log.info('Activating plugin.', {pluginId: id});
 
 		pluginManager.activate(id)
 			.then(function(){

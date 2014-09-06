@@ -40,6 +40,31 @@ define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, 
 				var args = [eventName].concat(Array.prototype.slice.call(arguments, 0));
 				me.trigger.apply(me, args);
 			};
+		},
+
+		getInputs: function() {
+			var i = 1,
+				noName = 'noName',
+				data = {}
+			;
+
+			this.$('input, select, textarea').each(function(){
+				var $input = $(this),
+					name = $input.attr('name') || noName + i++,
+					val
+				;
+
+				if( $input.attr('type') == 'checkbox') {
+					val = $input.is(':checked');
+				}
+				else {
+					val = $input.val();
+				}
+
+				data[name] = val;
+			});
+
+			return data;
 		}
 	});
 

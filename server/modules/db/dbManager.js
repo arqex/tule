@@ -2,7 +2,8 @@
 
 var when = require('when'),
 	_ = require('underscore'),
-	config = require('config')
+	config = require('config'),
+	log = require('winston')
 ;
 
 
@@ -66,12 +67,13 @@ module.exports = {
 
 
 		if(!_.isObject(promise) || !_.isFunction(promise.then)){
-			console.log('Driver error');
-			deferred.reject('DB driver is not compatible with Tule');
+			var errorMsg = 'DB driver is not compatible with Tule';
+			log.error('Driver error', {error: errorMsg});
+			deferred.reject(errorMsg);
 			return deferred.promise;
 		}
 
-		console.log('Waiting by the driver');
+		log.info('Waiting by the driver');
 
 		return promise;
 	},
@@ -83,7 +85,7 @@ module.exports = {
 	 * @return {DBDriver} The requested db driver instance.
 	 */
 	getInstance: function(type){
-		console.log('Requesting db instance ' + (type || 'collections'));
+		log.debug('Requesting db instance ' + (type || 'collections'));
 
 		if(type == 'settings')
 			return settingsInstance;

@@ -5,7 +5,8 @@ var routes = require('./routes.js'),
 	config = require('config'),
 	express = require('express'),
 	Path = require('path'),
-	settings = require(config.path.modules + '/settings/settingsManager')
+	settings = require(config.path.modules + '/settings/settingsManager'),
+	log = require('winston')
 ;
 
 var app = false, hooks;
@@ -54,7 +55,7 @@ RouteManager.prototype = {
 			route = '/api' +  route;
 		}
 
-		console.log('**Added route: ' + method + ' ' + route); //+ ' ' + controller);
+		log.info('**Added route ', {method: method, route: route});
 
 		if(baseUrl[baseUrl.length - 1] == '/')
 			baseUrl = baseUrl.substring(0, baseUrl.length -1);
@@ -64,7 +65,7 @@ RouteManager.prototype = {
 
 	addStaticDirectory: function(route){
 		if(!route.url || !route.path)
-			return console.log('Cant add route ' + route);
+			return log.error('Cant add route ' + route);
 
 		if(route.url[0] && route.url[0] != '/')
 			route.url = '/' + route.url;
@@ -73,10 +74,10 @@ RouteManager.prototype = {
 			path = Path.join(config.path.plugins, route.path)
 		;
 
-		console.log('Adding static route! ' + route);
 		var middleware = express.static(path, {maxAge: 0});
 		this.statics.push(middleware);
 		app.stack.unshift({route: url, handle: middleware });
+		log.info('**Added static route', route);
 	},
 
 	resetStaticRoutes: function(){
@@ -108,9 +109,10 @@ RouteManager.prototype = {
 			app.routes[method] = [];
 		});
 
+		log.info('Reseting routes');
+
 		settings.get('routes:server')
 			.then(function(allRoutes){
-				console.log('Adding routes:');
 				_.each(allRoutes, me.addRoute);
 			})
 		;

@@ -1,3 +1,4 @@
+/* jshint node: true */
 'use strict';
 
 // Config * Hack, this should be an enviroment variable
@@ -7,6 +8,10 @@ if(!config.tule.settingsCollection){
 	console.error('\r\n*** There is not a collection name for the settings. ***');
 	process.exit(1);
 }
+
+// Logger set up, after this all the files can require('wiston')
+// directly to get the configured logger.
+var log = require(config.path.server + '/config/logger');
 
 //Start express
 var express = require('express');
@@ -21,7 +26,7 @@ pluginManager.init(app).then(function(){
 	//Start database
 	var dbManager = require(config.path.modules + '/db/dbManager.js');
 	dbManager.init(app).then(function(){
-		console.log('DATABASE OK!');
+		log.debug('DATABASE OK!');
 		var http = require('http');
 		var server = http.createServer(app);
 		var _u = require('underscore');
@@ -29,13 +34,13 @@ pluginManager.init(app).then(function(){
 		//Settings manager
 		var settingsManager = require(config.path.modules + '/settings/settingsManager.js');
 		settingsManager.init(app);
-		console.log('SETTINGS OK!');
+		log.debug('SETTINGS OK!');
 
 		//app.use(express.static('public'), {maxAge: 0});
 		app.use(express.bodyParser());
 		app.use(express.methodOverride());
 
-		console.log(app.stack);
+		log.debug(app.stack);
 
 		//Templates
 		var UTA = require('underscore-template-additions'),
@@ -45,20 +50,23 @@ pluginManager.init(app).then(function(){
 		app.engine('html', templates.forExpress());
 
 		//Init frontend settings
-		console.log('Pre frontend');
+		log.debug('Pre frontend');
 		var frontendManager = require(config.path.modules + '/frontend/frontendManager.js');
-		console.log('Init frontend');
+		log.debug('Init frontend');
 		frontendManager.init(app);
-		console.log('FRONTEND OK!');
+		log.debug('FRONTEND OK!');
 
 		//Init routes
-		console.log('Pre routes');
+		log.debug('Pre routes');
 		var routeManager = require(config.path.modules + '/routes/routeManager.js');
 		routeManager.init(app);
-		console.log('ROUTES OK!');
+		log.debug('ROUTES OK!');
 
 		server.listen(config.portNumber);
-		console.log('Listening on port ' + config.portNumber);
+		log.info('Listening on port ' + config.portNumber);
+	})
+	.catch( function( err ){
+		throw err;
 	});
 
 }).catch(function(err){

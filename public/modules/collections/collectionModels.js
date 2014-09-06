@@ -94,7 +94,7 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 			var modifiers = {};
 			for (var i = 0; i < this.validModifiers.length; i++) {
 				var modifier = this.validModifiers[i];
-				if(options[modifier])
+				if( 'undefined' != typeof options[modifier] )
 					modifiers[modifier] = options[modifier];
 			}
 
@@ -142,7 +142,7 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 				}
 			}
 
-			if(modifiers.limit){
+			if( 'undefined' != typeof modifiers.limit ){
 				urlParts.push('limit=' + modifiers.limit);
 			}
 

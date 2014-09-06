@@ -143,7 +143,6 @@ var generateDefaultNavigation = function(navigation) {
 module.exports = {
 	init: function(app){
 		hooks = app.hooks;
-		console.log('ROUTES FOR THE NAVIGATION!! ----------------');
 
 		settings.setStatic('routes:client', defaultClientRoutes, true);
 		settings.setStatic('frontend:settings', defaultFrontendSettings, true);
