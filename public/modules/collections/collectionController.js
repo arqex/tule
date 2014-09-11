@@ -122,25 +122,33 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 		 * @return {undefined}
 		 */
 		guessHeaderFields: function() {
-			var settings = this.collectionSettings;
-			if(settings.headerFields && settings.headerFields.length)
-				return;
-
-			var headerFields = [],
-				docs = this.currentQuery.results
+			var settings = this.collectionSettings,
+				headerFields = [],
+				headersClone = []
 			;
 
-			if(! docs.length)
-				return;
+			if( settings.headerFields && settings.headerFields.length ){
+				headerFields = settings.headerFields;
+			}
+			else {
+				var docs = this.currentQuery.results;
 
-			var doc = docs.at(0);
+				if(! docs.length)
+					return;
 
-			if(doc.get('title'))
-				headerFields.push('title');
-			else if(doc.get('name'))
-				headerFields.push('name');
+				var doc = docs.at(0);
 
-			settings.headerFields = headerFields;
+				if(doc.get('title'))
+					headerFields.push('title');
+				else if(doc.get('name'))
+					headerFields.push('name');
+			}
+
+			headersClone = headerFields.slice(0);
+
+
+			Events.trigger( 'filter:collection:headerFields', headersClone, settings.collectionName );
+			settings.headerFields = headersClone;
 		},
 
 

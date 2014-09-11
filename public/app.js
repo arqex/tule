@@ -20,6 +20,7 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 			new MainController({el: $('html'), initSettings: settings});
 
 			initRouter(settings);
+			initObservers( settings );
 		});
 
 	};
@@ -58,6 +59,29 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 		});
 
 		return deferred.promise();
+	};
+
+	var initObservers = function( settings ) {
+		var observers = settings.observers;
+
+		if( !observers || !observers.length )
+			return;
+
+		_.each( observers, function( o ){
+			require(
+				observers,
+				function( o ){
+					// If there is a init method, give the settings
+					// to it
+					if( o && o.init )
+						o.init( settings );
+
+				},
+				function( err ) {
+					console.log( err );
+				}
+			);
+		});
 	};
 
 	// Let's rock and roll

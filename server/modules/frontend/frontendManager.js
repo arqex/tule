@@ -147,6 +147,8 @@ module.exports = {
 		settings.setStatic('routes:client', defaultClientRoutes, true);
 		settings.setStatic('frontend:settings', defaultFrontendSettings, true);
 
+		settings.setStatic('frontend:observers', [], true);
+
 		// Prepare navigation items
 		settings.setStatic('navigation:items', defaultNavigationItems, true);
 		hooks.addFilter('settings:get:navigation:items', getCollectionNavigationItems);
@@ -161,25 +163,29 @@ module.exports = {
 	},
 
 	getFrontSettings: function(){
-		var settingsPromise = settings.get('frontend:settings'),
-			routesPromise = settings.get('routes:client'),
-			tulePromise = settings.get('tule'),
-			navigationPromise = settings.get('tuleNavigation'),
-			deferred = when.defer()
-		;
+		var deferred = when.defer();
 
-		settingsPromise.then(function(settings){
-			routesPromise.then(function(routes){
-				tulePromise.then(function(tuleSettings){
-					navigationPromise.then(function(navigation){
-						settings.clientRoutes = routes;
-						settings.tule = tuleSettings;
-						settings.navigation = navigation;
-						deferred.resolve(settings);
-					});
+		when.all([
+				settings.get('frontend:settings'),
+				settings.get('routes:client'),
+				settings.get('tule'),
+				settings.get('tuleNavigation'),
+				settings.get('frontend:observers')
+			])
+			.then( function( values ) {
+				var frontSettings = _.extend({}, values[0], {
+					clientRoutes: values[1],
+					tule: values[2],
+					navigation: values[3],
+					observers: values[4]
 				});
-			});
-		});
+
+				deferred.resolve( frontSettings );
+			})
+			.catch( function( err) {
+				deferred.reject( err );
+			})
+		;
 
 		return deferred.promise;
 	}

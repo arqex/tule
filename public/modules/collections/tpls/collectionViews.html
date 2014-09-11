@@ -63,15 +63,15 @@
 <script type="text/template" id="doc">
 <tr data-id="<%= doc._id %>" class="tule-doc-header js-doc-header" id="document-<%= doc._id %>">
 <% var fcount = 0; _.each(fields, function(field){  %>
-	<% if (_.isFunction(field)){ %>// Doc field %>
-		<td class="tule-doc-field tule-doc-field-function<%= ++fcount %>" data-action="function<%= fcount %>"><%= field(doc) %></td>
-	<% } else if(_.isObject(field)){ %>// icon control %>
+	<% if (_.isFunction( field )){ // Function %>
+		<td class="tule-doc-field tule-doc-field-function<%= ++fcount %>" data-action="function<%= fcount %>"><%= field( doc ) %></td>
+	<% } else if(_.isObject( field )){ // icon control %>
 		<td class="tule-doc-control tule-doc-control-<%= field.action %> js-control-<%= field.action %>" data-action="<%= field.action %>">
 			<a href="<%= field.href %>" data-bypass="true">
 				<span class="fa fa-<%= field.icon %>"></span>
 			</a>
 		</td>
-	<% } else { %>
+	<% } else { // the doc field %>
 		<td class="tule-doc-field tule-doc-field-<%= field %>" data-action="<%= field %>"><%= doc[field] %></td>
 	<% } %>
 <%	}) %>

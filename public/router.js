@@ -45,6 +45,6 @@ return {
 		var router = new Router({routeData: options.routes});
 		router.start();
 	}
-}
+};
 
 });
