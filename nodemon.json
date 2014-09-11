@@ -4,6 +4,7 @@
 		".git",
 		"public",
 		"batch",
+		"logs",
 		"mongodb",
 		"tests",
 		"node_modules",

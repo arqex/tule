@@ -383,13 +383,13 @@ function guessRelation(definition, collectionNames) {
 	var found = false,
 		i = 0,
 		deferred = when.defer(),
-		key = definition.key,
+		key = definition.key.toLowerCase(),
 		collection
 	;
 
 	// Try to find the name of the collection in the field key
 	while(i<collectionNames.length && !found) {
-		collection = collectionNames[i];
+		collection = collectionNames[i].toLowerCase();
 
 		if(key.indexOf(collection) != -1)
 			found = collection;

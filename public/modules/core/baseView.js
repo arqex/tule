@@ -42,13 +42,14 @@ define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, 
 			};
 		},
 
-		getInputs: function() {
+		getInputs: function( $element ) {
 			var i = 1,
 				noName = 'noName',
-				data = {}
+				data = {},
+				$el = $element || this.$el
 			;
 
-			this.$('input, select, textarea').each(function(){
+			$el.find('input, select, textarea').each(function(){
 				var $input = $(this),
 					name = $input.attr('name') || noName + i++,
 					val
@@ -65,6 +66,32 @@ define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, 
 			});
 
 			return data;
+		},
+
+		remove: function() {
+			if( this.onRemove )
+				this.onRemove();
+
+			Backbone.View.prototype.remove.apply(this, arguments);
+		},
+
+		// Clear subviews automatically
+		onRemove: function() {
+
+			if( this.regions ) {
+				_.each( this.regions, function( r ){
+					r.remove();
+				});
+
+				delete this.regions;
+			}
+			else if( this.subViews ) {
+				_.each( this.subViews, function( v ){
+					v.remove();
+				});
+
+				delete this.subViews;
+			}
 		}
 	});
 

@@ -1,7 +1,14 @@
 "use strict";
 
-define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, Backbone, Region, mixins){
-	var BaseController = Backbone.View.extend({
+define(['jquery', 'underscore', 'backbone', 'region', 'baseView'], function($, _, Backbone, Region, BaseView){
+
+	/**
+	 * The Base controller must have a HTML template and define some regions in it using the
+	 * regionSelectors properties.
+	 *
+	 * It is used to coordinates subviews.
+	 */
+	var BaseController = BaseView.extend({
 		// Template: selector, string
 		regionSelectors: {},
 
@@ -34,9 +41,6 @@ define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, 
 			});
 		}
 	});
-
-	// Add mixin utilities
-	_.extend(BaseController.prototype, mixins.ExtractTemplates);
 
 	return BaseController;
 });

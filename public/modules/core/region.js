@@ -24,6 +24,13 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone){
 
 			this.$el.html(this.view.el);
 			this.view.render();
+		},
+
+		remove: function() {
+			if( this.view )
+				this.view.remove();
+
+			Backbone.View.prototype.remove.apply(this, arguments);
 		}
 	});
 

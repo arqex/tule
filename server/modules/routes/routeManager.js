@@ -40,12 +40,18 @@ RouteManager.prototype = {
 
 		//The controller may be defined by a path
 		if(typeof controller != 'function'){
-			var opts = controller.split('::'),
-				//If the file starts with / is a plugin route
-				file = opts[0].length && opts[0][0] == '/' ? require(config.path.plugins + opts[0]) :require(config.path.controllers + '/' + opts[0]),
-				func = opts[1]
-			;
-			controller = func ? file[func] : file;
+			try {
+				var opts = controller.split('::'),
+					//If the file starts with / is a plugin route
+					file = opts[0].length && opts[0][0] == '/' ? require(config.path.plugins + opts[0]) :require(config.path.controllers + '/' + opts[0]),
+					func = opts[1]
+				;
+				controller = func ? file[func] : file;
+			}
+			catch ( e ) {
+				return log.error(e.stack);
+			}
+
 		}
 
 		//All the server routes goes to the /api route but the default one
