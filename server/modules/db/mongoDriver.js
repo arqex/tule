@@ -75,10 +75,20 @@ var callbackIndex = function(args){
 	},
 
 	deepToObjectID = function(query){
-		var keys = Object.getOwnPropertyNames(query);
+		var keys = Object.getOwnPropertyNames(query),
+			value
+		;
 		keys.forEach(function(key){
-			if(key == '_id' && typeof query._id == 'string' && query._id.length == 24){
+			if(key == '_id' && typeof query._id == 'string' && query._id.match(/^[a-f0-9]{24}$/i) ){
 				query._id = new mongo.ObjectID(query._id);
+			}
+			else if ( Object.prototype.toString.call( query[key] ) === '[object Array]') {
+				for (var i = 0; i < query[key].length; i++) {
+					value = query[key][i];
+					if( typeof value == 'string' && value.match(/^[a-f0-9]{24}$/i) ){
+						query[key][i] = new mongo.ObjectID( value );
+					}
+				}
 			}
 			else if (typeof query[key] == 'object')
 				query[key] = deepToObjectID(query[key]);

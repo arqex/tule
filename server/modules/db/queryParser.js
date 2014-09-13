@@ -100,7 +100,7 @@ var queryParser = {
 	 * @return {[type]}                [description]
 	 */
 	likeToRegex: function( likeExpression ) {
-		return likeExpression.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\s+/g, '|');
+		return String(likeExpression).replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\s+/g, '|');
 	},
 
 	/**

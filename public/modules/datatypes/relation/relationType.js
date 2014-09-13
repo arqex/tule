@@ -121,6 +121,25 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services, Events){
 			this.trigger('edit:ok', value);
 		},
 
+		getEditValue: function() {
+			if( this.state( 'mode' ) == 'edit' ) {
+				if(this.selected){
+					return {
+						id: this.selected._id,
+						display: this.selected[this.typeOptions.displayField]
+					};
+
+				}
+				else { //Otherwise, get the id value
+					return {
+						id: this.$('.relation-id').val(),
+						display: ''
+					};
+				}
+			}
+			return this.model.get('value');
+		},
+
 		render: function(){
 			if(this.state('mode') == 'display')
 				return this.renderDisplayMode();
