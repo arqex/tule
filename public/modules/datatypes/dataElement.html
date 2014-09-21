@@ -8,7 +8,7 @@
 		<% } %>
 		<%= label %>:
 	</td>
-	<td class="tuleDEValue js-DEValue <%= state.mode == 'edit' ? 'tuleDEEdit' : 'tuleDEDisplay' %>"></td>
+	<td class="tuleDEValue js-DEValue js-DEValue-<%= key %> <%= state.mode == 'edit' ? 'tuleDEEdit' : 'tuleDEDisplay' %>"></td>
 </script>
 
 <script type="text/template" id="dataElementCreation">

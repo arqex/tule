@@ -179,12 +179,12 @@ define(deps, function($,_,Backbone, BaseView, sourceTpl, Services, Events){
 			;
 
 			// Add a class for the data type to allow styling datatypes individually
-			this.$el.addClass('tuleDE-' + this.typeView.datatype.id);
+			this.$el.addClass('tuleDE-' + this.typeView.datatype.id + ' js-tuleDE-' + options.key);
 
 			this.listenToEvents();
 
 			// Datatypes can force the working mode
-			var forceMode = this.typeView.forceMode
+			var forceMode = this.typeView.forceMode;
 			if(forceMode && forceMode != this.state('mode'))
 				this.state('mode', forceMode);
 		},
