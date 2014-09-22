@@ -16,7 +16,8 @@ var actions = {},
 	filters = {},
 	// pluginHashes stores callbacks by plugins, so it is possible
 	// to remove a plugin's actions and filters on deactivation.
-	pluginHashes = {}
+	pluginHashes = {},
+	pluginHooks = {}
 ;
 
 /**
@@ -74,6 +75,17 @@ PluginManager.prototype = {
 			}
 		);
 
+		// Add the hooks object to every request
+		var reqHooks = {
+			trigger: app.hooks.trigger,
+			filter: app.hooks.filter
+		};
+
+		app.use(function(req, res, next){
+			req.hooks = reqHooks;
+			next();
+		});
+
 		return deferred.promise;
 	},
 
@@ -124,11 +136,14 @@ PluginManager.prototype = {
 	 */
 	getHooks: function(pluginId){
 
-		// Every plugin need to be its own hooks, so it is possible
+		if(pluginHooks[pluginId])
+			return pluginHooks[pluginId];
+
+		// Every plugin need to have its own hooks, so it is possible
 		// to remove its filters and actions on deactivate.
 		var pluginHash = 'p' + Math.floor(Math.random() * 10000000);
 		pluginHashes[pluginId] = pluginHash;
-		return {
+		pluginHooks[pluginId] = {
 			on: hooksManager.on.bind(this, actions, pluginHash),
 			off: hooksManager.off.bind(this, actions),
 			trigger: hooksManager.trigger.bind(this, actions, false),
@@ -136,6 +151,8 @@ PluginManager.prototype = {
 			removeFilter: hooksManager.off.bind(this, filters),
 			filter: hooksManager.trigger.bind(this, filters, true)
 		};
+
+		return pluginHooks[pluginId];
 	},
 
 	/**
