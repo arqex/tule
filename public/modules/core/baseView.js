@@ -1,6 +1,6 @@
 "use strict";
 
-define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, Backbone, Region, mixins){
+define(['jquery', 'underscore', 'backbone', 'region', 'mixins', 'services'], function($, _, Backbone, Region, mixins, Services){
 	var BaseView = Backbone.View.extend({
 		constructor: function(options){
 			options = options || {};
@@ -9,8 +9,12 @@ define(['jquery', 'underscore', 'backbone', 'region', 'mixins'], function($, _, 
 			var state = options.state || this.defaultState || {};
 			this.currentState = new Backbone.Model(state);
 
+			this.db = Services.get('collection').collection;
+			this.settings = Services.get('settings');
+
 			Backbone.View.prototype.constructor.apply(this, arguments);
 		},
+
 		state: function(name, value, options){
 			if(typeof value == 'undefined')
 				return this.currentState.get(name);

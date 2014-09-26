@@ -13,6 +13,7 @@ define(['jquery', 'underscore', 'backbone', 'region', 'baseView'], function($, _
 		regionSelectors: {},
 
 		initialize: function(options){
+
 			if(options.template)
 				this.template = options.template;
 

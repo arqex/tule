@@ -9,7 +9,7 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 	/**
 	 * A collection endpoint allows to modify the documents in a given collection.
 	 * It is possible to get the endpoint using the 'collection' method of the
-	 * SollectionService.
+	 * CollectionService.
 	 * @param {String} collectionName The name of the collection to manipulate.
 	 */
 	var CollectionEndpoint = function(collectionName){
@@ -53,7 +53,7 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 		},
 
 		/**
-		 * Fetches document from the server that matches a query.
+		 * Fetches documents from the server that matches a query.
 		 * @param  {Object|String} query  A MongoDB alike query or a string with tule
 		 *                                format for query URLs.
 		 * @param  {Object} modifiers Modifiers for the query. In a MongoDB way
@@ -76,6 +76,25 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 			}
 
 			return docQuery.fetch(queryURL);
+		},
+
+
+		/**
+		 * Fetches a document from the server that matches a query.
+		 * @param  {Object|String} query  A MongoDB alike query or a string with tule
+		 *                                format for query URLs.
+		 * @return {Promise}           A promise to be resolved when the documents are ready.
+		 *                            The success callbacks will get a Query object as argument,
+		 *                            with the documents in the results attribute.
+		 */
+		findOne: function(query){
+			return this.find(query)
+				then( function( response ){
+					if( response.results.length )
+						return response.results[0];
+					return null;
+				})
+			;
 		},
 
 		/**
