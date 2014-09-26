@@ -88,9 +88,11 @@ var callbackIndex = function(args){
 					if( typeof value == 'string' && value.match(/^[a-f0-9]{24}$/i) ){
 						query[key][i] = new mongo.ObjectID( value );
 					}
+					else if (value && typeof value == 'object')
+						query[key][i] = deepToObjectID( query[key][i] );
 				}
 			}
-			else if (typeof query[key] == 'object')
+			else if (query[key] && typeof query[key] == 'object')
 				query[key] = deepToObjectID(query[key]);
 		});
 		return query;

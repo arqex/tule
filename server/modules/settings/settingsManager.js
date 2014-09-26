@@ -43,6 +43,7 @@ module.exports = {
 	init: function(appObject) {
 		log.debug('Init settings');
 		hooks = appObject.hooks;
+		hooks.trigger( 'settings:ready' );
 	},
 
 	/**

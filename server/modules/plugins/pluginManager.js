@@ -105,7 +105,7 @@ PluginManager.prototype = {
 
 			// Definition must have a main attribute with the name of the main script
 			if(!definition.main)
-				throw ('Unknown entry point for plugin ' + definition.id);
+				throw (new Error('Unknown entry point for plugin ' + definition.id));
 
 			var entryPoint = path.join(config.path.plugins, definition.id, definition.main);
 
@@ -113,13 +113,14 @@ PluginManager.prototype = {
 
 			// The plugin must have an init method
 			if(!_.isFunction(plugin.init))
-				throw ('No init function for plugin ' + definition.id);
+				throw (new Error('No init function for plugin ' + definition.id));
 
 			// Create a hook object for the plugin
 			var hooks = me.getHooks(definition.id);
 			plugin.init(hooks);
 
 		} catch (e) {
+			log.error(e.stack);
 			log.error(e);
 			plugin = {error: e};
 		}
