@@ -44,11 +44,18 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 
 		/**
 		 * Get a new document, not stored in the server.
-		 * @param  {Object} properties Document initial properties.
+		 * @param  {Object | Backbone.Model} properties Document initial properties.
 		 * @return {Document} A new document model (not stored)
 		 */
-		getNew: function(properties){
+		getNew: function( properties ){
+
+			// Check object
 			properties = properties || {};
+
+			// Check backbone model
+			if( properties.toJSON )
+				properties = properties.toJSON();
+
 			return new CollectionModels.Document(properties, {collectionName: this.collectionName});
 		},
 
@@ -88,10 +95,10 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 		 *                            with the documents in the results attribute.
 		 */
 		findOne: function(query){
-			return this.find(query)
-				then( function( response ){
+			return this.find(query, {limit:1})
+				.then( function( response ){
 					if( response.results.length )
-						return response.results[0];
+						return response.results.first();
 					return null;
 				})
 			;
@@ -103,6 +110,9 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 		 * @return {Promise}     A promise to be resolved when the document is saved.
 		 */
 		save: function(doc){
+			if( ! (doc instanceof CollectionModels.Document) )
+				doc = this.getNew( doc );
+
 			var deferred = $.Deferred();
 			doc.save(null, {
 				success: function(){
@@ -122,6 +132,9 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 		 * @return {Promise}     A promise to be resolved when the document is saved.
 		*/
 		remove: function(doc) {
+			if( ! (doc instanceof CollectionModels.Document) )
+				doc = this.getNew( doc );
+
 			var deferred = $.Deferred();
 
 			doc.destroy({
