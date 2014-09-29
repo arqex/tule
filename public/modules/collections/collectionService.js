@@ -88,14 +88,19 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 
 		/**
 		 * Fetches a document from the server that matches a query.
-		 * @param  {Object|String} query  A MongoDB alike query or a string with tule
-		 *                                format for query URLs.
+		 * @param  {Object|String} query  A MongoDB alike query or a string with the _id attribute.
 		 * @return {Promise}           A promise to be resolved when the documents are ready.
 		 *                            The success callbacks will get a Query object as argument,
 		 *                            with the documents in the results attribute.
 		 */
-		findOne: function(query){
-			return this.find(query, {limit:1})
+		findOne: function(query, modifiers){
+			if(_.isString( query ))
+				query = {_id: query};
+
+			modifiers = modifiers || {};
+			modifiers.limit = 1;
+
+			return this.find(query, modifiers)
 				.then( function( response ){
 					if( response.results.length )
 						return response.results.first();
