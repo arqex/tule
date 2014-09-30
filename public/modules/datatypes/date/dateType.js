@@ -130,6 +130,16 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services){
 			this.model.set('value', value);
 			this.setDate();
 			this.trigger('edit:ok', value);
+		},
+
+		getEditValue: function() {
+			if(this.state('mode') == 'edit') {
+				var stringDate = this.$('input').val();
+
+				return this.parseDate(stringDate).getTime();
+			}
+			return this.model.get('value');
+
 		}
 	});
 
