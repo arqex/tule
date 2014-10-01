@@ -202,8 +202,14 @@ var queryParser = {
 			// A real document field
 			else {
 
+				// an array of values
+				if( Array.isArray( value ) ){
+					// Leave it as it was
+					updated[field] = value;
+				}
+
 				// Comparison operator?
-				if(value === Object(value)) {
+				else if(value === Object(value)) {
 					newValue = {};
 
 					for(var key in value) {
