@@ -22,6 +22,7 @@ batch
 public/bower_components
 
 server/modules/plugins/activePlugins.json
+server/config/default.js
 
 public/app-old
 public/css-old
