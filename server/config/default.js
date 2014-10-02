@@ -12,7 +12,7 @@ module.exports = {
 		db: {
 			driver: 'mongo',
 			options: {
-				url: 'mongodb://localhost:27017/tuleSettings'
+				url: 'mongodb://localhost:27017/quinieloSettings'
 			}
 		}
 	},
@@ -24,7 +24,7 @@ module.exports = {
 		}
 	},
 
-	portNumber: 3000,
+	portNumber: 3030,
 
 	path: {
 		base: basepath,
