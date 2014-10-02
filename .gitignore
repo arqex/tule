@@ -17,6 +17,8 @@ node_modules
 mongodb
 batch
 
+
+
 public/bower_components
 
 server/modules/plugins/activePlugins.json
