@@ -26,7 +26,7 @@ module.exports = {
 		}
 	},
 
-	portNumber: 3030,
+	portNumber: 3000,
 
 	path: {
 		base: basepath,
