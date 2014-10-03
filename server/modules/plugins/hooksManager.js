@@ -49,16 +49,29 @@ var createArray = function(ob){
 
 var cloneArguments = function(args) {
 	return args.map(function(arg){
-		if(Object.prototype.toString.call( arg ) === '[object Array]'){
+
+		// Falsy and functions don't need cloning
+		if( !arg || typeof arg == 'function' )
+			return arg;
+
+		// Array
+		if(Array.isArray(arg)){
 			return arg.slice(0);
 		}
-		// Object
-		if(arg === Object(arg)) {
-			return JSON.parse(JSON.stringify(arg));
-		}
+
 		// Date
 		if(arg instanceof Date)
 			return new Date(arg.getTime());
+
+		// Object
+		if(arg === Object(arg)) {
+			try {
+				return JSON.parse(JSON.stringify(arg));
+			}
+			catch( e ) {
+				return arg;
+			}
+		}
 
 		// Others don't need a copy
 		else

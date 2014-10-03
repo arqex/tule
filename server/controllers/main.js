@@ -3,8 +3,8 @@ var config = require('config'),
 ;
 
 
-module.exports = function(req, res){
-	'use strict';
+var tuleController = function(req, res) {
+	req.hooks.trigger( 'controller:tule:pre' );
 
 	// If it is a file request (have extension), 404
 	if(req.path.match(/\.\w{2,4}$/))
@@ -12,12 +12,32 @@ module.exports = function(req, res){
 
 	// Route request, send the template
 	frontendManager.getFrontSettings().then(function(settings){
-		if(!settings)
-			settings = {};
+			if(!settings)
+				settings = {};
 
-		res.render('main.html', {frontSettings: JSON.stringify(settings)});
+			res.render('main.html', {frontSettings: JSON.stringify(settings)});
 
-		}).catch(function(err){
-		res.send('400', {error: 'Can\'t find front settings: ' + err});
-	});
+		})
+		.catch(function(err){
+			res.send('400', {error: 'Can\'t find front settings: ' + err});
+		})
+	;
+};
+
+
+module.exports = {
+	tule: tuleController,
+
+	entry: function(req, res){
+		'use strict';
+
+		req.hooks.trigger( 'controller:main:pre', req );
+
+		// Allow to override the main controller function
+		req.hooks.filter( 'controller:main', tuleController )
+			.then( function( controller ){
+				controller( req, res );
+			})
+		;
+	}
 };

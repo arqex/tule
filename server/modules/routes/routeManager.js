@@ -3,36 +3,48 @@
 var routes = require('./routes.js'),
 	_ = require('underscore'),
 	config = require('config'),
+	settings = config.require('settings'),
 	express = require('express'),
 	Path = require('path'),
-	settings = require(config.path.modules + '/settings/settingsManager'),
 	log = require('winston')
 ;
 
 var app = false, hooks;
 
+var baseUrl, assetsUrl, apiUrl;
+
 var RouteManager = function(){};
 
 RouteManager.prototype = {
 	init: function(appObject){
+		var me = this;
+
 		app = appObject;
 		hooks = app.hooks;
 		this.statics = [];
 
-
 		settings.setStatic('routes:server', routes);
 		settings.setStatic('routes:static', []);
 
-		this.resetRoutes();
-		//add first mandatory static route
-		app.use('/r/tule', express.static('public'));
-		hooks.on('plugin:activated', this.resetRoutes.bind(this));
-		hooks.on('plugin:deactivated', this.resetRoutes.bind(this));
+		settings.get( 'assetsUrl' )
+			.then( function( assetsUrl ){
+
+				// Add tule static as only starting static file
+				app.use( Path.join( assetsUrl,'tule'), express.static('public') );
+
+				me.resetRoutes();
+
+				hooks.on('plugin:activated', me.resetRoutes.bind(me));
+				hooks.on('plugin:deactivated', me.resetRoutes.bind(me));
+			})
+			.catch( function( err ) {
+				log.error( err.stack );
+			})
+		;
 	},
 
 	addRoute: function(routeData){
-		var baseUrl = config.tule.baseUrl,
-			controller = routeData.controller,
+		var controller = routeData.controller,
 			routeOpts = routeData.route.split('::'),
 			route = routeOpts.length == 2 ? routeOpts[1] : routeOpts[0],
 			method = routeOpts.length == 2 ? routeOpts[0] : 'get'
@@ -51,32 +63,31 @@ RouteManager.prototype = {
 			catch ( e ) {
 				return log.error(e.stack);
 			}
-
 		}
 
-		//All the server routes goes to the /api route but the default one
+
+		//All the server routes goes to the api route but the default one
 		if(route && route != '*'){
 			if(route.length && route[0] != '/')
 				route = '/' + route;
-			route = '/api' +  route;
+
+			route = Path.join( apiUrl, route );
 		}
 
 		log.info('**Added route ', {method: method, route: route});
 
-		if(baseUrl[baseUrl.length - 1] == '/')
-			baseUrl = baseUrl.substring(0, baseUrl.length -1);
-
-		app[method](baseUrl + route, controller);
+		app[method]( route, controller );
 	},
 
 	addStaticDirectory: function(route){
 		if(!route.url || !route.path)
 			return log.error('Cant add route ' + route);
 
+		// Safely add a first slash
 		if(route.url[0] && route.url[0] != '/')
 			route.url = '/' + route.url;
 
-		var url = config.tule.baseUrl + 'r' + route.url,
+		var url = assetsUrl + route.url,
 			path = Path.join(config.path.plugins, route.path)
 		;
 
@@ -88,6 +99,7 @@ RouteManager.prototype = {
 
 	resetStaticRoutes: function(){
 		var me = this;
+
 		for (var i = app.stack.length - 1; i >= 0; i--) {
 			var f = app.stack[i].handle,
 				staticIndex = this.statics.indexOf(f)
@@ -98,11 +110,18 @@ RouteManager.prototype = {
 			}
 		}
 
-		settings.get('routes:static')
-			.then(function(statics){
+		settings.get('assetsUrl')
+			.then( function( url ){
+				assetsUrl = url;
+			})
+			.then( settings.get.bind(settings, 'routes:static') )
+			.then( function( statics ){
 				statics.forEach(function(s){
 					me.addStaticDirectory(s);
 				});
+			})
+			.catch( function( err ){
+				log.error( err.stack );
 			})
 		;
 	},
@@ -115,13 +134,26 @@ RouteManager.prototype = {
 			app.routes[method] = [];
 		});
 
-		log.info('Reseting routes');
-
-		settings.get('routes:server')
+		settings.get('baseUrl')
+			.then( function( url ){
+				console.log( 'Baseeesss url: ' + url );
+				baseUrl = url;
+			})
+			.then( settings.get.bind(settings, 'apiUrl') )
+			.then( function( url ){
+				console.log( 'Apissssss url: ' + url );
+				apiUrl = url;
+			})
+			.then( settings.get.bind(settings, 'routes:server'))
 			.then(function(allRoutes){
 				_.each(allRoutes, me.addRoute);
 			})
+			.catch( function( err ){
+				log.error( err.stack );
+			})
 		;
+
+		log.info('Reseting routes');
 
 		//Also static routes
 		this.resetStaticRoutes();

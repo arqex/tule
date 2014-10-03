@@ -17,7 +17,13 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 
 
 		initialize: function(options){
+
+			this.baseUrl = options.baseUrl;
+			if( this.baseUrl[this.baseUrl.length - 1] != '/' )
+				this.baseUrl += '/';
+
 			this.createItems(options.navigationData || []);
+
 		},
 
 		/**
@@ -36,8 +42,8 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 
 			this.collection.each(function(navigationItem){
 				var item = navigationItem.get('subItems') ?
-					new NavigationGroupView({model: navigationItem}) :
-					new navigationItemView({model: navigationItem})
+					new NavigationGroupView({model: navigationItem, baseUrl: me.baseUrl }) :
+					new navigationItemView({model: navigationItem, baseUrl: me.baseUrl })
 				;
 				me.items.push(item);
 
@@ -92,7 +98,7 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 
 	/**
 	 * The view for groups of items. Basically it is a NavigationView with
-	 * a clickable header.                                                                                            [description]
+	 * a clickable header.
 	 */
 	var NavigationGroupView = NavigationView.extend({
 		tagName: 'li',
@@ -107,6 +113,8 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 		},
 
 		initialize: function(options){
+			this.baseUrl = options.baseUrl;
+
 			this.createItems(this.model.get('subItems'));
 
 			// Listen to change on the open state
@@ -178,7 +186,14 @@ define(deps, function($,_,Backbone, BaseView, tplSource){
 			'click a': 'onClick'
 		},
 
-		initialize: function(){
+		initialize: function( options ){
+			var url = this.model.get('url');
+
+			this.baseUrl = options.baseUrl;
+
+			if( url[0] != '/' )
+				this.model.set( 'url', this.baseUrl + url );
+
 			// Listen to change on the selected state
 			this.listenTo(this.currentState, 'change:selected', this.onSelectedChange);
 		},

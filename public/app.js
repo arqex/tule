@@ -28,14 +28,14 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 	var initServices = function(settings){
 		//TODO: Services should be fetched from the server
 		return initDatatypes(settings).then(function(){
-			Services.init(settings.tule);
+			Services.init(settings);
 			Services.add('collection', CollectionService);
 			Services.add('settings', SettingsService);
 		});
 	};
 
 	var initRouter = function(settings) {
-		Router.init({routes: settings.clientRoutes});
+		Router.init({routesData: settings.clientRoutes, baseUrl: settings.url.base});
 	};
 
 	var initDatatypes = function(settings){

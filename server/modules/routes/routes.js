@@ -22,5 +22,5 @@ module.exports = [
 
 	{route: 'get::/mongoreset', controller: 'mongoReset::main'},
 
-	{route: '*', controller: 'main'}
+	{route: '*', controller: 'main::entry'}
 ];

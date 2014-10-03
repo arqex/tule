@@ -1,7 +1,7 @@
 'use strict';
 
 var config = require('config'),
-	db = require(config.path.modules + '/db/dbManager').getInstance('settings'),
+	db = config.require('db').getInstance('settings'),
 	when = require('when'),
 	log = require('winston')
 ;
@@ -10,6 +10,12 @@ var settings = db.collection(config.tule.settingsCollection),
 	staticSettings = {},
 	hooks
 ;
+
+var createStatic = function( manager ){
+	manager.setStatic( 'baseUrl', config.tule.baseUrl, true);
+	manager.setStatic( 'assetsUrl', config.tule.assetsUrl, true);
+	manager.setStatic( 'apiUrl', config.tule.apiUrl, true);
+};
 
 /**
  * Applies filters to the settings value returned by the get and getPublic methods.
@@ -44,6 +50,9 @@ module.exports = {
 		log.debug('Init settings');
 		hooks = appObject.hooks;
 		hooks.trigger( 'settings:ready' );
+
+		// Create some core static settings
+		createStatic( this );
 	},
 
 	/**

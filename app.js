@@ -9,6 +9,10 @@ if(!config.tule.settingsCollection){
 	process.exit(1);
 }
 
+
+// Add common modules require to the config file
+require( config.path.server + '/config/modules');
+
 // Logger set up, after this all the files can require('wiston')
 // directly to get the configured logger.
 var log = require(config.path.server + '/config/logger');
@@ -24,7 +28,7 @@ pluginManager.init(app).then(function(){
 	app.managers = {plugins: pluginManager};
 
 	//Start database
-	var dbManager = require(config.path.modules + '/db/dbManager.js');
+	var dbManager = config.require( 'db' );
 	dbManager.init(app).then(function(){
 		log.debug('DATABASE OK!');
 		var http = require('http');
@@ -32,7 +36,7 @@ pluginManager.init(app).then(function(){
 		var _u = require('underscore');
 
 		//Settings manager
-		var settingsManager = require(config.path.modules + '/settings/settingsManager.js');
+		var settingsManager = config.require('settings');
 		settingsManager.init(app);
 		log.debug('SETTINGS OK!');
 

@@ -7,7 +7,7 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 			this.collectionName = opts.collectionName;
 		},
 		urlRoot: function(){
-			return '/api/docs/' + this.collectionName;
+			return this.apiUrl + '/docs/' + this.collectionName;
 		}
 	});
 
@@ -16,7 +16,7 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 		initialize: function(docs, options){
 			var me = this;
 			this.collectionName 	= options.collectionName;
-			this.url 	= '/api/docs/' + this.collectionName;
+			this.url = this.apiUrl + '/docs/' + this.collectionName;
 			this.each(function(model){
 				model.collectionName = me.collectionName;
 			});
@@ -33,7 +33,7 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 	 */
 	var Query = function(query, options){
 		this.collectionName = options.collectionName;
-		this.url = '/api/docs/' + this.collectionName;
+		this.url = this.apiUrl + '/docs/' + this.collectionName;
 		this.query = query;
 		this.modifiers = this.parseModifiers(options);
 		this.results = new Collection([], {collectionName: this.collectionName});
@@ -181,6 +181,11 @@ define(['jquery', 'underscore', 'backbone', './queryTranslator'], function($, _,
 	};
 
 	return {
+		init: function( apiUrl ){
+			Document.prototype.apiUrl = apiUrl;
+			Collection.prototype.apiUrl = apiUrl;
+			Query.prototype.apiUrl = apiUrl;
+		},
 		Document: Document,
 		Collection: Collection,
 		Query: Query

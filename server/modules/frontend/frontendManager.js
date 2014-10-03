@@ -34,12 +34,12 @@ var datatypesPath = 'modules/datatypes/',
 	},
 	defaultNavigationItems = {
 		'Settings': [
-			{text: 'General', url: '/settings/general'},
-			{text: 'Navigation', url: '/settings/navigation'},
-			{text: 'Collections', url: '/settings/collections'}
+			{text: 'General', url: 'settings/general'},
+			{text: 'Navigation', url: 'settings/navigation'},
+			{text: 'Collections', url: 'settings/collections'}
 		],
 		'Plugins': [
-			{text: 'Installed', url: '/plugins'}
+			{text: 'Installed', url: 'plugins'}
 		]
 	},
 	defaultTuleSettings = {
@@ -74,7 +74,7 @@ var getCollectionNavigationItems = function(items){
 
 		for (var i = 0; i < collections.length; i++) {
 			var c = collections[i];
-			collectionItems.push({text: c, url: '/collections/list/' + c});
+			collectionItems.push({text: c, url: 'collections/list/' + c});
 		}
 
 		items.Collections = collectionItems;
@@ -140,6 +140,24 @@ var generateDefaultNavigation = function(navigation) {
 	return deferred.promise;
 };
 
+
+
+var getUrls = function(){
+	return when.all([
+			settings.get('baseUrl'),
+			settings.get('assetsUrl'),
+			settings.get('apiUrl')
+		])
+		.then( function( values ){
+			return {
+				base: values[0],
+				assets: values[1],
+				api: values[2]
+			};
+		})
+	;
+};
+
 module.exports = {
 	init: function(app){
 		hooks = app.hooks;
@@ -170,14 +188,16 @@ module.exports = {
 				settings.get('routes:client'),
 				settings.get('tule'),
 				settings.get('tuleNavigation'),
-				settings.get('frontend:observers')
+				settings.get('frontend:observers'),
+				getUrls()
 			])
 			.then( function( values ) {
 				var frontSettings = _.extend({}, values[0], {
 					clientRoutes: values[1],
 					tule: values[2],
 					navigation: values[3],
-					observers: values[4]
+					observers: values[4],
+					url: values[5]
 				});
 
 				deferred.resolve( frontSettings );

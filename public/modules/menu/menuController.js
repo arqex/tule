@@ -11,7 +11,7 @@ function($, Backbone, NavigationView, LogoView, BaseController, Events){
 		},
 
 		init: function(opts){
-			var navigation = new NavigationView({navigationData: opts.initSettings.navigation}),
+			var navigation = new NavigationView({ navigationData: opts.initSettings.navigation, baseUrl: opts.initSettings.url.base }),
 				logo = new LogoView({
 					model: new Backbone.Model({title: opts.initSettings.tule.siteTitle, url: '/'})
 				})

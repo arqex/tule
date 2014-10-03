@@ -10,13 +10,27 @@ var Router = Backbone.Router.extend({
 	routes: {},
 
 	initialize: function(options){
-		var me = this;
-		_.each(options.routeData.reverse(), function(routeData){
-			if(routeData.route && routeData.controller)
-				me.route(routeData.route, routeData.controller, function(){
+		var me = this,
+			baseUrl = options.baseUrl[ options.baseUrl.length - 1 ] == '/' ?
+				options.baseUrl :
+				options.baseUrl + '/'
+		;
+
+		if(baseUrl[0] == '/')
+			baseUrl = baseUrl.slice(1);
+
+		_.each(options.routesData.reverse(), function(routeData){
+			if(routeData.route && routeData.controller) {
+				var r = routeData.route[0] == '*' ?
+					routeData.route :
+					baseUrl + routeData.route
+				;
+
+				me.route( r, routeData.controller, function(){
 					var args = arguments;
 					Events.trigger('tule:route', routeData.controller, args);
 				});
+			}
 		});
 	},
 
@@ -42,7 +56,7 @@ var Router = Backbone.Router.extend({
 
 return {
 	init: function(options){
-		var router = new Router({routeData: options.routes});
+		var router = new Router( options );
 		router.start();
 	}
 };

@@ -165,8 +165,10 @@ define(deps, function($, _, Backbone, CollectionModels, Events){
 		init: function(initSettings) {
 			settings = initSettings;
 
+			CollectionModels.init( initSettings.url.api );
+
 			Events.on('settings:updated', function(updatedSettings){
-				settings = updatedSettings;
+				settings.tule = updatedSettings;
 			});
 		},
 
