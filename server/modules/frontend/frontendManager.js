@@ -162,6 +162,17 @@ module.exports = {
 	init: function(app){
 		hooks = app.hooks;
 
+		/*
+		settings.get( 'baseUrl' )
+			.then( function( url ){
+				if( url[url.length - 1] == '/' )
+					url = url.slice(0, url.length - 1);
+
+				defaultClientRoutes[0].route = url + '(/)';
+
+			})
+		;
+		*/
 		settings.setStatic('routes:client', defaultClientRoutes, true);
 		settings.setStatic('frontend:settings', defaultFrontendSettings, true);
 

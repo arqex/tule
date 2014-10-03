@@ -20,11 +20,16 @@ var Router = Backbone.Router.extend({
 			baseUrl = baseUrl.slice(1);
 
 		_.each(options.routesData.reverse(), function(routeData){
-			if(routeData.route && routeData.controller) {
+			if(routeData.controller) {
+
 				var r = routeData.route[0] == '*' ?
 					routeData.route :
 					baseUrl + routeData.route
 				;
+
+				// Handle the root of the urlbase properly
+				if( routeData.route == '(/)' )
+					r = baseUrl.slice( 0, baseUrl.length -1 ) + routeData.route;
 
 				me.route( r, routeData.controller, function(){
 					var args = arguments;
