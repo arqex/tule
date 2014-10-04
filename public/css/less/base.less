@@ -30,6 +30,7 @@ a:hover {
 	box-shadow: @shadow;
 	padding: 1px 5px;
 	font-size: 15px;
+	cursor: pointer;
 
 	&:focus {
 		border: 2px solid rgba(0,0,0,.2);
@@ -60,7 +61,11 @@ button, input[type=submit] {
 	.button();
 }
 
-input[type=text], input[type=number], textarea, select {
+input[type=text],
+input[type=number],
+input[type=password],
+textarea,
+select {
 	box-shadow: @shadow;
 	border: 2px solid #ddd;
 	padding: 1px 5px;
@@ -75,7 +80,11 @@ select {
 	background: #fff;
 }
 
-input[type=text]:focus, input[type=number]:focus, textarea:focus, select:focus {
+input[type=text]:focus,
+input[type=number]:focus,
+input[type=password]:focus,
+textarea:focus,
+select:focus {
 	border: 2px solid @color-main-1;
 	outline: none;
 }

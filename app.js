@@ -72,9 +72,11 @@ pluginManager.init(app).then(function(){
 		;
 	})
 	.catch( function( err ){
+		log.error( err.stack );
 		throw err;
 	});
 
 }).catch(function(err){
+	log.error( err.stack );
 	throw err;
 });

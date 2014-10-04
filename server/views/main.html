@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Tule</title>
 	<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="/r/tule/css/tule.min.css">
+	<link rel="stylesheet" href="<%= frontSettings.url.assets %>/tule/css/tule.min.css">
 </head>
 <body>
 	<div id="menuRegion">
@@ -20,7 +20,7 @@
 
 	<script data-main="/r/tule/bootstrap" src="/r/tule/bower_components/requirejs/require.js"></script>
 	<script>
-		var tuleSettings = <%= frontSettings %>;
+		var tuleSettings = <%= JSON.stringify( frontSettings ) %>;
 	</script>
 </body>
 </html>

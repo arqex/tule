@@ -15,7 +15,7 @@ var tuleController = function(req, res) {
 			if(!settings)
 				settings = {};
 
-			res.render('main.html', {frontSettings: JSON.stringify(settings)});
+			res.render('main.html', {frontSettings: settings});
 
 		})
 		.catch(function(err){
