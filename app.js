@@ -9,7 +9,6 @@ if(!config.tule.settingsCollection){
 	process.exit(1);
 }
 
-
 // Add common modules require to the config file
 require( config.path.server + '/config/modules');
 
@@ -35,16 +34,11 @@ pluginManager.init(app).then(function(){
 		var server = http.createServer(app);
 		var _u = require('underscore');
 
+
 		//Settings manager
 		var settingsManager = config.require('settings');
 		settingsManager.init(app);
 		log.debug('SETTINGS OK!');
-
-		//app.use(express.static('public'), {maxAge: 0});
-		app.use(express.bodyParser());
-		app.use(express.methodOverride());
-
-		log.debug(app.stack);
 
 		//Templates
 		var UTA = require('underscore-template-additions'),
@@ -60,14 +54,22 @@ pluginManager.init(app).then(function(){
 		frontendManager.init(app);
 		log.debug('FRONTEND OK!');
 
-		//Init routes
-		log.debug('Pre routes');
-		var routeManager = require(config.path.modules + '/routes/routeManager.js');
-		routeManager.init(app);
-		log.debug('ROUTES OK!');
 
-		server.listen(config.portNumber);
-		log.info('Listening on port ' + config.portNumber);
+		// Middleware
+		var middlewareManager = require( config.path.modules + '/middleware/middlewareManager');
+		middlewareManager.init( app )
+			.then( function(){
+
+				//Init routes
+				log.debug('Pre routes');
+				var routeManager = require(config.path.modules + '/routes/routeManager.js');
+				routeManager.init(app);
+				log.debug('ROUTES OK!');
+
+				server.listen(config.portNumber);
+				log.info('Listening on port ' + config.portNumber);
+			})
+		;
 	})
 	.catch( function( err ){
 		throw err;

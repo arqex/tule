@@ -16,7 +16,9 @@ module.exports = {
 			options: {
 				url: 'mongodb://localhost:27017/tuleSettings'
 			}
-		}
+		},
+		// Use express-session options. false to disable sessions
+		session: {secret: '}YCRzV@b#zG7{AT>DVP*$dJLj)5#^Ky'}
 	},
 
 	db: {

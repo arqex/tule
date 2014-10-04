@@ -136,12 +136,10 @@ RouteManager.prototype = {
 
 		settings.get('baseUrl')
 			.then( function( url ){
-				console.log( 'Baseeesss url: ' + url );
 				baseUrl = url;
 			})
 			.then( settings.get.bind(settings, 'apiUrl') )
 			.then( function( url ){
-				console.log( 'Apissssss url: ' + url );
 				apiUrl = url;
 			})
 			.then( settings.get.bind(settings, 'routes:server'))
