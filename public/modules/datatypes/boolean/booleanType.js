@@ -37,6 +37,10 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 
 		getValue: function(){
 			return this.model.get('value');
+		},
+
+		getEditValue: function() {
+			return this.getValue();
 		}
 	});
 
