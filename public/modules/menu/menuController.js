@@ -38,6 +38,11 @@ function($, Backbone, NavigationView, LogoView, BaseController, Events){
 
 			// Select existing menu items that match current url
 			navigation.select(location.href);
+		},
+
+		render: function() {
+			BaseController.prototype.render.apply(this, arguments);
+			Events.resolve('menu:rendered');
 		}
 
 	});

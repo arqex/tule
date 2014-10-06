@@ -68,14 +68,12 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 			return;
 
 		_.each( observers, function( o ){
-			require(
-				observers,
-				function( o ){
+			require( [ o ],	function( observer ){
+
 					// If there is a init method, give the settings
 					// to it
-					if( o && o.init )
-						o.init( settings );
-
+					if( observer && observer.init )
+						observer.init( settings );
 				},
 				function( err ) {
 					console.log( err );

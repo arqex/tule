@@ -50,6 +50,4 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews){
 		defaultValue: BooleanTypeView.prototype.defaultModelValue,
 		View: BooleanTypeView
 	};
-
-	return BooleanTypeView;
 });

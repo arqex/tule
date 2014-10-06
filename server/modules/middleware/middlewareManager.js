@@ -16,7 +16,7 @@ var app,
  * @param  {String} name The name of the middleware
  * @return {Number}      The index in the stack or -1 if not found.
  */
-function getMiddlewareIndex( name ) {
+function getMiddlewareIndex( name, middlewares ) {
 	var found = false,
 		i = 0,
 		current
@@ -90,7 +90,7 @@ function sessionMiddlewareFilter( handlers ) {
 			log.debug( 'Enabling sessions.' );
 
 			// Add the handlers after body parser
-			var i = getMiddlewareIndex( 'bodyparser' );
+			var i = getMiddlewareIndex( 'bodyparser', handlers );
 			handlers.splice( i + 1, 0,
 				{name:'cookieparser', handler: express.cookieParser() },
 				{name:'session', handler: sessionHandler}
