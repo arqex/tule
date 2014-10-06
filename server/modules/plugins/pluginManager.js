@@ -86,6 +86,8 @@ PluginManager.prototype = {
 			next();
 		});
 
+		app.reqHooks = reqHooks;
+
 		return deferred.promise;
 	},
 

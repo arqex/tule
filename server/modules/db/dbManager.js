@@ -6,7 +6,6 @@ var when = require('when'),
 	log = require('winston')
 ;
 
-
 var app, hooks, dbInstance, settingsInstance;
 
 module.exports = {
@@ -62,7 +61,7 @@ module.exports = {
 	initDriver: function(driverFile, options){
 		var deferred = when.defer(),
 			driver = require(driverFile),
-			promise = driver.init(options)
+			promise = driver.init(options, app.reqHooks)
 		;
 
 

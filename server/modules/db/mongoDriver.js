@@ -5,6 +5,8 @@ var mongo = require('mongodb'),
 	_ = require('underscore')
 ;
 
+var hooks;
+
 var MongoDriver = function(nativeDriver){
 	this.db = nativeDriver;
 	this.mongo = mongo;
@@ -56,7 +58,14 @@ MongoDriver.prototype = {
 	dropCollection: function(){
 		return this.db.dropCollection.apply(this.db, arguments);
 	}
+};
 
+var filterResults = function( method, collectionName, clbk, err, results ) {
+	hooks.filter( 'document:' + method + ':' + collectionName + ':results', results )
+		.then( function( filteredResults ){
+			clbk( err, filteredResults );
+		})
+	;
 };
 
 var callbackIndex = function(args){
@@ -71,7 +80,20 @@ var callbackIndex = function(args){
 	toObjectID = function(collection, method, args){
 		if(args[0])
 			args[0] = deepToObjectID(args[0]);
-		return mongo.Collection.prototype[method].apply(collection, args);
+
+		hooks.filter( 'document:' + method + ':' + collection.collectionName + ':args', args )
+			.then( function( fArgs ){
+				if( !_.isFunction( fArgs[fArgs.length - 1] ))
+					return mongo.Collection.prototype[method].apply(collection, fArgs);
+
+				// Replace original calback by the filtered one
+				var clbk = fArgs[fArgs.length - 1];
+				fArgs[fArgs.length - 1] = filterResults.bind(null, method, collection.collectionName, clbk);
+
+				// Call the method with the new callback
+				return mongo.Collection.prototype[method].apply(collection, fArgs);
+			})
+		;
 	},
 
 	deepToObjectID = function(query){
@@ -149,10 +171,13 @@ var TuleCollection = {
 
 
 module.exports = {
-	init: function(options){
+	init: function(options, hooksObject){
 		var me = this,
 			deferred = when.defer()
 		;
+
+		//define the hooks object
+		hooks = hooksObject;
 
 		mongo.MongoClient.connect(options.url, function(err, db){
 			if(err)
