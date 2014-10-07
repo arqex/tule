@@ -26,21 +26,12 @@ RouteManager.prototype = {
 		settings.setStatic('routes:server', routes);
 		settings.setStatic('routes:static', []);
 
-		settings.get( 'assetsUrl' )
-			.then( function( assetsUrl ){
+		//Tule's public folder is added as a common middleware in middlewareManager.js
 
-				// Add tule static as only starting static file
-				app.use( Path.join( assetsUrl,'tule'), express.static('public') );
+		me.resetRoutes();
 
-				me.resetRoutes();
-
-				hooks.on('plugin:activated', me.resetRoutes.bind(me));
-				hooks.on('plugin:deactivated', me.resetRoutes.bind(me));
-			})
-			.catch( function( err ) {
-				log.error( err.stack );
-			})
-		;
+		hooks.on('plugin:activated', me.resetRoutes.bind(me));
+		hooks.on('plugin:deactivated', me.resetRoutes.bind(me));
 	},
 
 	addRoute: function(routeData){

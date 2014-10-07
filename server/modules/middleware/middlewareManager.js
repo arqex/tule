@@ -1,8 +1,9 @@
 var config = require('config'),
 	express = require('express'),
-	log = require('winston')
+	log = require('winston'),
+	Path = require('path'),
+	settings
 ;
-
 
 var app,
 	middlewares = [
@@ -42,15 +43,23 @@ module.exports = {
 
 		app = appObject;
 
+		settings = config.require('settings');
+
 		// Add session middleware
 		app.hooks.addFilter( 'middleware', sessionMiddlewareFilter );
+
+		// Add public folder
+		app.hooks.addFilter( 'middleware', -10, publicMiddlewareFilter );
 
 		var promise = app.hooks.filter( 'middleware', middlewares )
 			.then( function( handlers ){
 
+				var route;
+
 				// Add the middleware to the app
 				for (var i = 0; i < handlers.length; i++) {
-					app.use( handlers[i].handler );
+					route = handlers[i].route || '';
+					app.use( route, handlers[i].handler );
 					log.debug( 'Middleware enabled', handlers[i] );
 				}
 
@@ -95,6 +104,22 @@ function sessionMiddlewareFilter( handlers ) {
 				{name:'cookieparser', handler: express.cookieParser() },
 				{name:'session', handler: sessionHandler}
 			);
+			return handlers;
+		})
+	;
+}
+
+function publicMiddlewareFilter( handlers ){
+	return settings.get( 'assetsUrl' )
+		.then( function( assetsUrl ){
+			handlers.unshift( {name: 'tulepublic', route: Path.join( assetsUrl, 'tule'), handler: express.static('public')} );
+			return handlers;
+		})
+		.catch( function( err ){
+			log.error( err );
+
+			var assetsUrl = config.tule.assetsUrl;
+			handlers.unshift( {name: 'tulepublic', route: Path.join( assetsUrl, 'tule'), handler: express.static('public')} );
 			return handlers;
 		})
 	;
