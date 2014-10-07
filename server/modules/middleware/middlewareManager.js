@@ -2,6 +2,7 @@ var config = require('config'),
 	express = require('express'),
 	log = require('winston'),
 	Path = require('path'),
+	MongoStore = require('connect-mongo')(express),
 	settings
 ;
 
@@ -86,7 +87,11 @@ module.exports = {
  */
 function sessionMiddlewareFilter( handlers ) {
 
-	var defaultSessionHandler = config.tule.session ? express.session( config.tule.session ) : false;
+	var defaultSessionHandler = config.tule.session ? getSessionHandler() : false;
+
+	if( defaultSessionHandler ) {
+
+	}
 
 	// Filter the session middleware
 	return app.hooks.filter('middleware:session', defaultSessionHandler)
@@ -107,6 +112,19 @@ function sessionMiddlewareFilter( handlers ) {
 			return handlers;
 		})
 	;
+}
+
+function getSessionHandler(){
+	var sessionSettings = config.tule.session,
+		db = config.require( 'db' )
+	;
+
+	sessionSettings.store = new MongoStore({
+		db: db.getInstance('settings').db, // Mongo driver
+		collection: 'sessions'
+	});
+
+	return express.session( sessionSettings );
 }
 
 function publicMiddlewareFilter( handlers ){

@@ -28,7 +28,8 @@
     "bower": "~1.3.3",
     "amdrequire": "0.0.3",
     "winston": "~0.7.3",
-    "q": "~1.0.1"
+    "q": "~1.0.1",
+    "connect-mongo": "~0.4.1"
   },
   "devDependencies": {
     "gulp": "~3.8.6",
