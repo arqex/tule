@@ -83,7 +83,7 @@ var callbackIndex = function(args){
 
 		hooks.filter( 'document:' + method + ':' + collection.collectionName + ':args', args )
 			.then( function( fArgs ){
-				if( !_.isFunction( fArgs[fArgs.length - 1] ))
+				if( !_.isFunction( fArgs[fArgs.length - 1] ) || method == 'find' )
 					return mongo.Collection.prototype[method].apply(collection, fArgs);
 
 				// Replace original calback by the filtered one
@@ -124,7 +124,8 @@ var callbackIndex = function(args){
 
 var TuleCollection = {
 	find: function(){
-		var index = callbackIndex(arguments),
+		var me = this,
+			index = callbackIndex(arguments),
 			original = arguments[index]
 		;
 
@@ -137,7 +138,7 @@ var TuleCollection = {
 				return original(err, cursor);
 
 			cursor.toArray(function(err, results){
-				original(err, results);
+				filterResults( 'find', me.collectionName, original, err, results);
 			});
 		};
 

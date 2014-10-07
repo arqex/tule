@@ -5,10 +5,10 @@ var deps = [
 
 	'text!./tpls/collectionViews.html',
 
-	'alerts', 'services'
+	'alerts', 'services', 'events'
 ];
 
-define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
+define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services, Events){
 	'use strict';
 
 	var templates = BaseView.prototype.extractTemplates(tplSource);
@@ -49,6 +49,8 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 				this.objectView.render();
 				this.$('.js-doc-edit').prepend(this.objectView.el);
 			}
+
+			Events.trigger( 'document:rendered', this.model.collectionName, this );
 
 			return this;
 		},
@@ -167,6 +169,8 @@ define(deps, function($, _, Backbone, BaseView, tplSource, Alerts, Services){
 					view.delegateEvents();
 				});
 			}
+
+			Events.trigger( 'collection:rendered', this.collectionName, this );
 
 			return this;
 		},

@@ -29,6 +29,7 @@ var datatypesPath = 'modules/datatypes/',
 			{ path: datatypesPath + 'array/arrayType' },
 			{ path: datatypesPath + 'select/selectType' },
 			{ path: datatypesPath + 'date/dateType' },
+			{ path: datatypesPath + 'password/passwordType' },
 			{ path: datatypesPath + 'relation/relationType' }
 		]
 	},
