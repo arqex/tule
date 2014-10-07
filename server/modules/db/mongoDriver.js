@@ -77,11 +77,15 @@ var callbackIndex = function(args){
 		return -1;
 	},
 
-	toObjectID = function(collection, method, args){
-		if(args[0])
-			args[0] = deepToObjectID(args[0]);
+	filterMethod = function(collection, method, args){
 
-		hooks.filter( 'document:' + method + ':' + collection.collectionName + ':args', args )
+		if(args[0] && method != 'insert')
+			args[0] = deepToObjectID(args[0])
+		;
+
+		var arrayArgs = Array.isArray( args ) ? args : _.values( args );
+
+		hooks.filter( 'document:' + method + ':' + collection.collectionName + ':args', arrayArgs )
 			.then( function( fArgs ){
 				if( !_.isFunction( fArgs[fArgs.length - 1] ) || method == 'find' )
 					return mongo.Collection.prototype[method].apply(collection, fArgs);
@@ -142,31 +146,33 @@ var TuleCollection = {
 			});
 		};
 
-		return toObjectID(this, 'find', arguments);
+		return filterMethod(this, 'find', arguments);
 	},
 
 	findOne: function(){
-		return toObjectID(this, 'findOne', arguments);
+		return filterMethod(this, 'findOne', arguments);
 	},
 
-	//insert is the same as the navive one.
+	insert: function(){
+		return filterMethod(this, 'insert', arguments);
+	},
 
 	update: function(){
-		return toObjectID(this, 'update', arguments);
+		return filterMethod(this, 'update', arguments);
 	},
 
 	save: function(){
-		return toObjectID(this, 'save', arguments);
+		return filterMethod(this, 'save', arguments);
 	},
 
 	remove: function(){
-		return toObjectID(this, 'remove', arguments);
+		return filterMethod(this, 'remove', arguments);
 	},
 
 	count: function(){
 		if(typeof arguments[0] == 'function')
 			return mongo.Collection.prototype.count.apply(this, arguments);
-		return toObjectID(this, 'count', arguments);
+		return filterMethod(this, 'count', arguments);
 	}
 };
 
