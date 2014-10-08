@@ -14,6 +14,7 @@ var settings = db.collection(config.tule.settingsCollection),
 var createStatic = function( manager ){
 	manager.setStatic( 'baseUrl', config.tule.baseUrl, true);
 	manager.setStatic( 'assetsUrl', config.tule.assetsUrl, true);
+	log.debug( 'Adding static apiUrl: ' + config.tule.apiUrl );
 	manager.setStatic( 'apiUrl', config.tule.apiUrl, true);
 };
 
@@ -49,10 +50,11 @@ module.exports = {
 	init: function(appObject) {
 		log.debug('Init settings');
 		hooks = appObject.hooks;
-		hooks.trigger( 'settings:ready' );
 
 		// Create some core static settings
 		createStatic( this );
+
+		hooks.trigger( 'settings:ready' );
 	},
 
 	/**
@@ -68,6 +70,7 @@ module.exports = {
 		;
 
 		if(staticSetting = staticSettings[settingName]){
+			// console.log( 'Static setting ' + settingName +': ' + staticSetting.value);
 			filter(settingName, staticSetting.value, deferred);
 		}
 		else {

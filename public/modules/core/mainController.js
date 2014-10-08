@@ -47,10 +47,15 @@ define(deps, function($, _, Backbone, Services, BaseController, MenuController, 
 		 */
 		loadPage: function(file, args){
 			var me = this;
-			require([file], function(Controller){
-				var controller = new Controller({args: args, tuleSettings: me.settings});
-				me.regions.page.show(controller);
-			});
+			require([file],
+				function(Controller){
+					var controller = new Controller({args: args, tuleSettings: me.settings});
+					me.regions.page.show(controller);
+				},
+				function( err ){
+					console.log( err );
+				})
+			;
 		}
 	});
 
