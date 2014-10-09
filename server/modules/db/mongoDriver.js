@@ -108,7 +108,11 @@ var callbackIndex = function(args){
 			if(key == '_id' && typeof query._id == 'string' && query._id.match(/^[a-f0-9]{24}$/i) ){
 				query._id = new mongo.ObjectID(query._id);
 			}
-			else if ( Object.prototype.toString.call( query[key] ) === '[object Array]') {
+			else if ( Array.isArray( query[key] )) {
+
+				// Clone the array to not modify objects in the query
+				query[key] = query[key].slice(0);
+
 				for (var i = 0; i < query[key].length; i++) {
 					value = query[key][i];
 					if( typeof value == 'string' && value.match(/^[a-f0-9]{24}$/i) ){
