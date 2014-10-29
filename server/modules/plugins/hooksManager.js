@@ -48,36 +48,43 @@ var createArray = function(ob){
 };
 
 var cloneArguments = function(args) {
-	return args.map(function(arg){
-
-		// Falsy and functions don't need cloning
-		if( !arg || typeof arg == 'function' )
-			return arg;
-
-		// Array
-		if(Array.isArray(arg)){
-			return arg.slice(0);
-		}
-
-		// Date
-		if(arg instanceof Date)
-			return new Date(arg.getTime());
-
-		// Object
-		if(arg === Object(arg)) {
-			try {
-				return JSON.parse(JSON.stringify(arg));
-			}
-			catch( e ) {
-				return arg;
-			}
-		}
-
-		// Others don't need a copy
-		else
-			return arg;
-	});
+	return args.map( cloneValue );
 };
+
+var cloneValue = function( value, deep ){
+
+	// Falsy and functions don't need cloning
+	if( !value || typeof value == 'function' )
+		return value;
+
+	// Array
+	if(Array.isArray(value)){
+		return value.slice(0);
+	}
+
+	// Date
+	if(value instanceof Date)
+		return new Date( value.getTime() );
+
+	// Object
+	if(value === Object(value)) {
+
+		// Dont clone more than one level
+		if( deep )
+			return value;
+
+		var clone = {};
+
+		for( var key in value )
+			clone[key] = cloneValue( value[key], true );
+
+		return clone;
+	}
+
+	// Others don't need a copy
+	else
+		return value;
+}
 
 module.exports = {
 	on: function(hooks, pluginId, hookName, priority, callback){

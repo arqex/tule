@@ -48,6 +48,10 @@ module.exports = {
 			;
 		});
 
+		// Register this module and qdb
+		config.register( 'db', __dirname + '/dbManager' );
+		config.register( 'qdb', __dirname + '/qdb' );
+
 		return deferred.promise;
 	},
 

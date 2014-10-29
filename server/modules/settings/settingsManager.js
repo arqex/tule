@@ -54,6 +54,9 @@ module.exports = {
 		// Create some core static settings
 		createStatic( this );
 
+		// Register the module
+		config.register( 'settings', __dirname + '/settingsManager' );
+
 		hooks.trigger( 'settings:ready' );
 	},
 
