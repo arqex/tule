@@ -100,7 +100,7 @@ var callbackIndex = function(args){
 		;
 	},
 
-	deepToObjectID = function(query){
+	deepToObjectID = function(query, parentKey){
 		var keys = Object.getOwnPropertyNames(query),
 			value
 		;
@@ -113,17 +113,19 @@ var callbackIndex = function(args){
 				// Clone the array to not modify objects in the query
 				query[key] = query[key].slice(0);
 
-				for (var i = 0; i < query[key].length; i++) {
-					value = query[key][i];
-					if( typeof value == 'string' && value.match(/^[a-f0-9]{24}$/i) ){
-						query[key][i] = new mongo.ObjectID( value );
+					for (var i = 0; i < query[key].length; i++) {
+						value = query[key][i];
+
+						// Only update the the ids
+						if( parentKey && parentKey == '_id' && typeof value == 'string' && value.match(/^[a-f0-9]{24}$/i) ){
+							query[key][i] = new mongo.ObjectID( value );
+						}
+						else if (value && typeof value == 'object')
+							query[key][i] = deepToObjectID( query[key][i], key );
 					}
-					else if (value && typeof value == 'object')
-						query[key][i] = deepToObjectID( query[key][i] );
-				}
 			}
 			else if (query[key] && typeof query[key] == 'object')
-				query[key] = deepToObjectID(query[key]);
+				query[key] = deepToObjectID(query[key], key);
 		});
 		return query;
 	}
