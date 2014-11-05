@@ -128,16 +128,27 @@ function getSessionHandler(){
 }
 
 function publicMiddlewareFilter( handlers ){
+
+	console.log( 'Pre middleware: ' + config.path );
+
+	var publicConfig = {
+		name: 'tulepublic',
+		handler: express.static( config.path.public )
+	};
+
+	console.log( publicConfig );
+
 	return settings.get( 'assetsUrl' )
 		.then( function( assetsUrl ){
-			handlers.unshift( {name: 'tulepublic', route: Path.join( assetsUrl, 'tule'), handler: express.static('public')} );
+			log.info( 'Adding static folder ' + Path.join( assetsUrl, 'tule') );
+			publicConfig.route = Path.join( assetsUrl, 'tule');
+			handlers.unshift( publicConfig );
 			return handlers;
 		})
 		.catch( function( err ){
 			log.error( err );
-
-			var assetsUrl = config.tule.assetsUrl;
-			handlers.unshift( {name: 'tulepublic', route: Path.join( assetsUrl, 'tule'), handler: express.static('public')} );
+			publicConfig.route = config.tule.assetsUrl;
+			handlers.unshift( publicConfig );
 			return handlers;
 		})
 	;

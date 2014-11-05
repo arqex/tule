@@ -58,7 +58,7 @@ pluginManager.init(app).then(function(){
 
 		// Middleware
 		var middlewareManager = require( config.path.modules + '/middleware/middlewareManager');
-		middlewareManager.init( app )
+		return middlewareManager.init( app )
 			.then( function(){
 
 				//Init routes

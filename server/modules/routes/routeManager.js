@@ -71,6 +71,7 @@ RouteManager.prototype = {
 	},
 
 	addStaticDirectory: function(route){
+		log.info( 'ADDING STATIC ROUTE ' + route);
 		if(!route.url || !route.path)
 			return log.error('Cant add route ' + route);
 
