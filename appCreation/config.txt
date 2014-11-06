@@ -30,6 +30,7 @@ module.exports = {
 	},
 
 	portNumber: 3000,
+	ipAddress: undefined,
 
 	path: {
 		base: basepath,

@@ -67,7 +67,7 @@ pluginManager.init(app).then(function(){
 				routeManager.init(app);
 				log.debug('ROUTES OK!');
 
-				server.listen(config.portNumber);
+				server.listen( config.portNumber, config.ipAddress );
 				log.info('Listening on port ' + config.portNumber);
 			})
 		;
