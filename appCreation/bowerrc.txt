@@ -1,0 +1,3 @@
+{
+  "directory": "tule/public/bower_components"
+}

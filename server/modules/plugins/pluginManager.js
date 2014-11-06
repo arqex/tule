@@ -34,8 +34,9 @@ var PluginManager = function(){
 	app = false
 ;
 
+console.log( path.join( config.path.plugins, 'activePlugins.json' ) );
 PluginManager.prototype = {
-	activePluginsFile: __dirname + '/activePlugins.json',
+	activePluginsFile: path.join( config.path.plugins, 'activePlugins.json' ),
 	/**
 	 * Initialize the plugin manager, and all the plugins that are already
 	 * active.

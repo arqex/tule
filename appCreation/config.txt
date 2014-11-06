@@ -1,0 +1,54 @@
+'use strict';
+
+var path = require('path'),
+	appPath = path.join( __dirname, '..' ),
+	basepath = path.join( appPath, 'tule' ),
+	baseUrl = '/'
+;
+
+module.exports = {
+	tule: {
+		baseUrl: baseUrl,
+		assetsUrl: '/r',
+		apiUrl: '/api',
+		settingsCollection: 'tuleSettings',
+		db: {
+			driver: 'mongo',
+			options: {
+				url: 'mongodb://localhost:27017/tuleSettings'
+			}
+		},
+		// Use express-session options. false to disable sessions
+		session: {secret: '}YCRzV@b#zG7{AT>DVP*$dJLj)5#^Ky'}
+	},
+
+	db: {
+		driver: 'mongo',
+		options: {
+			url: 'mongodb://localhost:27017/tule'
+		}
+	},
+
+	portNumber: 3000,
+
+	path: {
+		base: basepath,
+		'public': basepath + '/public',
+		'server': basepath + '/server',
+		'controllers': basepath + '/server/controllers',
+		'views': basepath + '/server/views',
+		'util': basepath + '/server/util',
+		'plugins': appPath + '/plugins',
+		'modules': basepath + '/server/modules',
+		'logs': appPath + '/logs',
+		'config': appPath + '/config'
+	},
+
+	logger: {
+		level: 'warn',
+		timestamp: true,
+		filename: appPath + '/logs/errors.log',
+		maxsize: 10000000, // 10MB
+		handleExceptions: true
+	}
+};

@@ -1,0 +1,13 @@
+'use strict';
+
+// Handle uncaught exception
+process.on( 'uncaughtException', function( err ){
+	console.error( err.stack );
+	process.exit( 'Bye' );
+});
+
+// Require the config file
+require('config');
+
+// Start up
+require( './tule/app' );
