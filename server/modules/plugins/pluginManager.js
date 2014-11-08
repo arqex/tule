@@ -307,13 +307,11 @@ PluginManager.prototype = {
 
 			if(err){
 				log.error(err);
-				contents = '[]';
 			}
 			try {
 				pluginList = JSON.parse(contents);
 			} catch(e) {
 				log.error('Cant parse ' + contents);
-				pluginList = [];
 			}
 
 			// If there are no active plugins, resolve now
