@@ -5,9 +5,6 @@ var fs = require('fs'),
 	spawn = require('child_process').spawn
 ;
 
-console.log( child );
-console.log( process );
-
 var appPath = Path.join( __dirname, '..' ),
 	sourcesPath = Path.join( __dirname, 'appCreation')
 ;
@@ -45,10 +42,12 @@ copy( 'gitmodules', Path.join( appPath, '.gitmodules' ) );
 
 // Logs
 mkdir( 'logs');
+copy( 'emptyFolderGitignore', Path.join( appPath, 'logs/.gitignore'));
 
 // Plugins
 mkdir( 'plugins');
 copy( 'activePlugins', Path.join( appPath, 'plugins/activePlugins.json'));
+copy( 'emptyFolderGitignore', Path.join( appPath, 'plugins/.gitignore'));
 
 // Config
 mkdir( 'config');
