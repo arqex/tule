@@ -73,11 +73,13 @@ pluginManager.init(app).then(function(){
 		;
 	})
 	.catch( function( err ){
+		console.log( 'Error initializing DB');
 		log.error( err.stack );
 		throw err;
 	});
 
 }).catch(function(err){
+	console.log( 'Error initializing PLUGINS');
 	log.error( err.stack );
 	throw err;
 });
