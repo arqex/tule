@@ -1,9 +1,9 @@
 /* jshint node: true */
 'use strict';
 
-// Config * Hack, this should be an enviroment variable
-process.env.NODE_CONFIG_DIR = __dirname + '/server/config';
-var config = require('config');
+// Start the config object
+var config = require('./server/modules/config/configManager');
+
 if(!config.tule.settingsCollection){
 	console.error('\r\n*** There is not a collection name for the settings. ***');
 	process.exit(1);
@@ -13,13 +13,9 @@ if(!config.tule.settingsCollection){
 // directly to get the configured logger.
 var log = require(config.path.server + '/config/logger');
 
-
 //Start express
 var express = require('express');
 var app = express();
-
-//Start utils
-require( config.path.modules + '/utils/utilsManager' );
 
 //Start plugins
 var pluginManager = require(config.path.modules + '/plugins/pluginManager.js');

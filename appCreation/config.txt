@@ -33,6 +33,7 @@ module.exports = {
 	ipAddress: undefined,
 
 	path: {
+		app: appPath,
 		base: basepath,
 		'public': basepath + '/public',
 		'server': basepath + '/server',
