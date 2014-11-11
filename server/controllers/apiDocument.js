@@ -3,7 +3,9 @@
 var config = require('config'),
 	db = require(config.path.modules + '/db/dbManager').getInstance(),
 	queryParser = require( config.path.modules + '/db/queryParser'),
-	log = require('winston')
+	log = require('winston'),
+	settings = config.require('db').getInstance('settings').collection( config.tule.settingsCollection ),
+	Q = require('q')
 ;
 
 module.exports = {
@@ -170,13 +172,16 @@ module.exports = {
 	*/
 	collection: function(req, res){
 		var collectionName = req.params.collection,
-			queryPromise
+			promises
 		;
 
 		if(!collectionName)
 			return res.send(400, {error: 'No collection name given.'});
 
-		queryPromise = queryParser.parseQuery(req.query, collectionName);
+		promises = [
+			queryParser.parseQuery(req.query, collectionName),
+			Q.nfcall( settings.findOne.bind( settings, {name: 'collection_' + collectionName } ) )
+		];
 
 		db.getCollectionNames(function(err, names){
 			if(err){
@@ -187,13 +192,21 @@ module.exports = {
 			if(names.indexOf(collectionName) == -1)
 				return res.send(400, {error: 'Unknown collection ' + collectionName + '.'});
 
-			queryPromise
-				.then(function(queryOptions){
+			Q.all(promises)
+				.spread(function( queryOptions, collectionSettings ){
 					var limit = typeof queryOptions.modifiers.limit  == 'undefined' ? 10 : queryOptions.modifiers.limit, // default value
 						skip = queryOptions.modifiers.skip || 0,
-						sort = queryOptions.modifiers.sort || {},
+						sort = queryOptions.modifiers.sort || { date: -1 },
 						collection = db.collection(collectionName)
 					;
+
+					// Look for the sort property in the settings
+					if( !queryOptions.modifiers.sort && collectionSettings ){
+						if( collectionSettings.sortBy ) {
+							sort = {};
+							sort[ collectionSettings.sortBy ] = parseInt( collectionSettings.sortOrder, 10 ) || -1;
+						}
+					}
 
 					collection.find(queryOptions.query, {limit: limit, sort: sort, skip: skip}, function(err, docs){
 						collection.count(queryOptions.query, function(err, size){

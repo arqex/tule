@@ -109,7 +109,8 @@ define(deps, function($,_,Backbone, Services, BaseController, PageController, Al
 		 * @return {CollectionView} The view.
 		 */
 		createItemsView: function() {
-			var namesCollection = new Backbone.Collection(
+			var definitions = this.getDefinitions(),
+				namesCollection = new Backbone.Collection(
 					this.collectionNames.map(function(name){ return {_id: name, collectionName: name}; })
 				),
 				itemsView = new CollectionViews.CollectionView({
@@ -123,7 +124,8 @@ define(deps, function($,_,Backbone, Services, BaseController, PageController, Al
 					collectionSettings: {
 						customProperties: false,
 						hiddenProperties: ['_id', 'name', 'collectionName'],
-						propertyDefinitions: this.getDefinitions()
+						propertyDefinitions: definitions,
+						mandatoryProperties: definitions.map( function(d){ return d.key; } )
 					}
 				})
 			;
@@ -276,7 +278,21 @@ define(deps, function($,_,Backbone, Services, BaseController, PageController, Al
 				{key: 'propertiesType', label: 'Properties datatype', datatype: {id: 'field', options:{allowAnyType: true}}},
 				{key: 'headerFields', label: 'Header Fields', datatype: {id: 'array', options: {elementsType: {id: 'string', options: {}}}}},
 				{key: 'mandatoryProperties', label: 'Mandatory properties', datatype: {id: 'array', options: {elementsType: {id: 'string', options: {}}}}},
-				{key: 'hiddenProperties', label: 'Hidden properties', datatype: {id: 'array', options: {elementsType: {id: 'string', options: {}}}}}
+				{key: 'hiddenProperties', label: 'Hidden properties', datatype: {id: 'array', options: {elementsType: {id: 'string', options: {}}}}},
+				{key: 'sortBy', label: 'Sort by', datatype: {id: 'string', options: {}}},
+				{
+					key: 'sortOrder',
+					label: 'Order',
+					datatype: {
+						id: 'select',
+						options: {
+							selectOptions: [
+								{ value: -1, label: 'Descending' },
+								{ value: 1, label: 'Ascending' }
+							]
+						}
+					}
+				}
 			];
 		},
 

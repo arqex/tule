@@ -43,14 +43,15 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, Services){
 
 		setDate: function() {
 			var value = this.model.get('value'),
-				date = value ? new Date(value) : new Date()
+				date = value ? new Date( value ) : value
 			;
 
 			// Be sure we work with timestamps
-			this.model.set('value', date.getTime());
+			if( date )
+				this.model.set('value', date.getTime());
 
 			this.date = date;
-			this.displayDate = this.formatDate(date);
+			this.displayDate = date ? this.formatDate(date) : 'Not set';
 		},
 
 		render: function() {
