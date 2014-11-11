@@ -39,6 +39,7 @@ var mkdir = function( folderName ) {
 
 // Add tule as a submodule
 copy( 'gitmodules', Path.join( appPath, '.gitmodules' ) );
+copy( 'gitignore', Path.join( appPath, '.gitignore' ) );
 
 // Logs
 mkdir( 'logs');
