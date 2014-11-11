@@ -59,6 +59,7 @@ copy( 'app', Path.join( appPath, 'app.js' ) );
 // Prepare bower
 copy( 'bowerrc', Path.join( appPath, '.bowerrc' ));
 copy( 'bower', Path.join( appPath, 'bower.json'));
+copy( 'bowerInstall', Path.join( appPath, 'bowerInstall.js'));
 
 // Create the package.json file
 // First copy the base file
