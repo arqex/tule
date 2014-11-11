@@ -123,8 +123,14 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 				})
 			;
 
+			// Update model value depending on the subview,
+			// this allows to date datatype converts the string to
+			// timestamps
+			this.updateProperty( key, view.typeView.model.get('value') );
+
 			this.listenTo(view, 'updated', this.updateProperty);
 			this.listenTo(view, 'delete', this.deleteProperty);
+
 
 			return view;
 		},
