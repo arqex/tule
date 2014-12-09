@@ -57,8 +57,15 @@ define(deps, function($,_,Backbone, tplSource, DatatypeViews, MediumEditor){
 
 			this.model.set( 'value', value );
 			this.trigger('edit:ok', value);
-		}
+		},
 
+
+		getEditValue: function() {
+			if(this.state('mode') == 'edit')
+				return this.$('.htmlEditor').html();
+			else
+				return this.model.get('value');
+		}
 	});
 
 	return {
