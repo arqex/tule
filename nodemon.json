@@ -5,9 +5,10 @@
 		"public",
 		"batch",
 		"logs",
+		"tule/public/*"
 		"mongodb",
 		"tests",
 		"node_modules",
-		"server/modules/plugins/activePlugins.json"
+		"plugins/activePlugins.json"
 	]
 }

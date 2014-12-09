@@ -13,6 +13,7 @@ require.config({
 		'css': 'bower_components/require-css/css',
 		'marionette':   'bower_components/marionette/lib/backbone.marionette',
 		'backbone-query-params': 'bower_components/backbone-query-parameters/backbone.queryparams',
+		'medium-editor': 'bower_components/medium-editor/dist/js/medium-editor',
 
 
 		/* jQuery UI */

@@ -1,13 +1,15 @@
 var gulp = require('gulp'),
-	p = require('gulp-load-plugins')()
+	sourcemaps = require('gulp-sourcemaps'),
+	rename = require('gulp-rename'),
+	less = require('gulp-less')
 ;
 
 gulp.task('styles', function(){
 	gulp.src('./public/css/less/main.less')
-		.pipe(p.sourcemaps.init())
-		.pipe(p.less())
-		.pipe(p.sourcemaps.write())
-		.pipe(p.rename('tule.min.css'))
+		.pipe(sourcemaps.init())
+		.pipe(less())
+		.pipe(sourcemaps.write())
+		.pipe(rename('tule.min.css'))
 		.pipe(gulp.dest('./public/css'))
 	;
 });

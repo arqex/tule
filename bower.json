@@ -30,7 +30,8 @@
     "backbone-query-parameters": "~0.3.0",
     "require-css": "~0.1.5",
     "jquery-timepicker-addon": "~1.3.1",
-    "devbridge-autocomplete": "~1.2.9"
+    "devbridge-autocomplete": "~1.2.9",
+    "medium-editor": "~1.9.13"
   },
   "directory": "public/js",
   "resolutions": {
