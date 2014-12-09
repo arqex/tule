@@ -15,7 +15,7 @@ gulp.task('styles', function(){
 });
 
 gulp.task('watch', function(){
-	gulp.watch('./public/css/less/*.less', ['styles'])
+	gulp.watch('./public/css/less/*.less', ['styles']);
 });
 
 gulp.task('default', ['styles', 'watch']);

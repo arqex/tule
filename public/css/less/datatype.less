@@ -57,6 +57,7 @@
 	font-style: italic;
 	vertical-align: top;
 	text-align: right;
+	width: 120px;
 }
 
 .tuleDECKey input{
@@ -67,7 +68,7 @@
 }
 
 .tuleDECControls {
-	text-align: right;
+	text-align: left;
 }
 
 .tuleElementsControls {
@@ -144,14 +145,16 @@
 
 
 /* HTML */
-.html-form{
+.html-form {
 	width: 100%;
 	.htmlEditor {
 		width: 100%;
 		min-height: 100px;
 		background: #fff;
-		padding: 10px;
+		padding: 5px;
 		border: 2px solid #ddd;
+		box-shadow: @shadow;
+
 		&:focus {
 			border: 2px solid @color-main-1;
 			outline: none;
@@ -218,7 +221,8 @@
 }
 
 
-.medium-editor-placeholder:after {
-	margin: 10px;
-	color: #999;
+div.medium-editor-placeholder:after {
+	margin: 5px;
+	color: #aaa;
+	font-style: normal;
 }
