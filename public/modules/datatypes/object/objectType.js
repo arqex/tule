@@ -104,10 +104,10 @@ define(deps, function($,_,Backbone, tplSource, Alerts, DatatypeViews){
 				me.subViews[key] = me.createSubView(key, objectValue[key]);
 			});
 
-			_.each(objectValue, function(value, key){
+			for( var key in objectValue ){
 				if(!me.subViews[key] && me.typeOptions.hiddenProperties.indexOf(key) == -1)
-					me.subViews[key] = me.createSubView(key, value);
-			});
+					me.subViews[key] = me.createSubView(key, objectValue[ key ]);
+			}
 		},
 
 		createSubView: function(key, value){
