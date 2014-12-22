@@ -400,7 +400,7 @@ define(deps, function($,_,Backbone, Services, CollectionViews, tplSource, BaseCo
 			var me = this;
 
 			// Update the model
-			docView.model.set(docView.objectView.model.get('value'));
+			docView.model.clear({silent:true}).set(docView.objectView.model.get('value'));
 			docView.render();
 
 			// Save the model
