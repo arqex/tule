@@ -15,6 +15,7 @@ require.config({
 		'backbone-query-params': 'bower_components/backbone-query-parameters/backbone.queryparams',
 		'medium-editor': 'bower_components/medium-editor/dist/js/medium-editor',
 
+		'cookies': 'bower_components/cookies-js/dist/cookies.min.js',
 
 		/* jQuery UI */
 		'jquery.ui.core':       'bower_components/jqueryui/ui/jquery.ui.core',
@@ -47,7 +48,8 @@ require.config({
 		'region': 'modules/core/region',
 		'events': 'modules/core/events',
 		'services': 'modules/core/services',
-		'alerts': 'modules/alerts/alerts'
+		'alerts': 'modules/alerts/alerts',
+		'clientStore': 'modules/clientStore/clientStore'
 	},
 	shim: {
 
