@@ -7,7 +7,11 @@
 
 <script type="text/template" id="stringEditTpl">
 	<form class="string-form">
-		<input type="text" value="<%= value %>" placeholder="Value">
+		<% if( value.length < 30 ) { %>
+			<input type="text" value="<%= value %>" placeholder="Value" size="<%= value.length + 5 %>">
+		<% } else { %>
+			<textarea rows="4" cols="35"><%= value %></textarea>
+		<% } %>
 		<%= controls %>
 	</form>
 </script>
