@@ -18,6 +18,7 @@ require.config({
 		'cookies': 'bower_components/cookies-js/dist/cookies.min',
 
 		'react': 'bower_components/react/react-with-addons.min',
+		'cortex': 'bower_components/cortexjs/build/cortex',
 
 		/* jQuery UI */
 		'jquery.ui.core':       'bower_components/jqueryui/ui/jquery.ui.core',
@@ -40,7 +41,6 @@ require.config({
 
 		/* jQuery UI i18n */
 		'jquery.ui.datepicker-en': 'bower_components/jqueryui/ui/i18n/jquery.ui.datepicker-en',
-
 
 		/* Core components */
 		'baseController': 'modules/core/baseController',
