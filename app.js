@@ -17,6 +17,7 @@ var log = require(config.path.server + '/config/logger');
 var express = require('express');
 var app = express();
 
+
 //Start plugins
 var pluginManager = require(config.path.modules + '/plugins/pluginManager.js');
 

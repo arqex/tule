@@ -3,6 +3,7 @@ var config = require('config'),
 	log = require('winston'),
 	Path = require('path'),
 	MongoStore = require('connect-mongo')(express),
+	jsx = require('express-jsxtransform'),
 	settings
 ;
 
@@ -129,8 +130,6 @@ function getSessionHandler(){
 
 function publicMiddlewareFilter( handlers ){
 
-	console.log( 'Pre middleware: ' + config.path );
-
 	var publicConfig = {
 		name: 'tulepublic',
 		handler: express.static( config.path.public )
@@ -143,6 +142,9 @@ function publicMiddlewareFilter( handlers ){
 			log.info( 'Adding static folder ' + Path.join( assetsUrl, 'tule') );
 			publicConfig.route = Path.join( assetsUrl, 'tule');
 			handlers.unshift( publicConfig );
+
+			// Add also the jsx transformer
+			handlers.unshift( {name: 'jsx', handler: jsx(), route: '/' });
 			return handlers;
 		})
 		.catch( function( err ){

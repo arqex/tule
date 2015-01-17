@@ -17,6 +17,7 @@
   "author": "Javier Marquez",
   "license": "BSD-2-Clause",
   "dependencies": {
+    "express-jsxtransform": "~1.1.0"
   },
   "devDependencies": {}
 }

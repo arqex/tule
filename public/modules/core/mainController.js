@@ -23,6 +23,7 @@ define(deps, function($, _, Backbone, Services, BaseController, MenuController, 
 			});
 
 			this.settings = opts.initSettings.tule;
+			this.settings.url = opts.initSettings.url;
 
 			this.regions.menu.show(menuController);
 

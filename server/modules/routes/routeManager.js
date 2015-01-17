@@ -70,6 +70,27 @@ RouteManager.prototype = {
 		app[method]( route, controller );
 	},
 
+	/**
+	 * Finds tule's static files handler in the middleware stack and returns
+	 * its index. Useful to add all the static routes after tule's one and
+	 * make use of the jsx transformer
+	 *
+	 * @return {number} The index
+	 */
+	getTuleStaticIndex: function(){
+		var found = false,
+			i = 0
+		;
+
+		while( !found && i < app.stack.length ){
+			if( app.stack[i].route.indexOf('/tule') != -1 )
+				found = i;
+			i++;
+		}
+
+		return found + 1;
+	},
+
 	addStaticDirectory: function(route){
 		log.info( 'ADDING STATIC ROUTE ' + route);
 		if(!route.url || !route.path)
@@ -85,7 +106,11 @@ RouteManager.prototype = {
 
 		var middleware = express.static(path, {maxAge: 0});
 		this.statics.push(middleware);
-		app.stack.unshift({route: url, handle: middleware });
+
+		// Insert after the JSX transformer
+		app.stack.splice( this.getTuleStaticIndex(), 0, {route: url, handle: middleware });
+		console.log( app.stack );
+
 		log.info('**Added static route', route);
 	},
 

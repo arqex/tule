@@ -15,7 +15,9 @@ require.config({
 		'backbone-query-params': 'bower_components/backbone-query-parameters/backbone.queryparams',
 		'medium-editor': 'bower_components/medium-editor/dist/js/medium-editor',
 
-		'cookies': 'bower_components/cookies-js/dist/cookies.min.js',
+		'cookies': 'bower_components/cookies-js/dist/cookies.min',
+
+		'react': 'bower_components/react/react-with-addons.min',
 
 		/* jQuery UI */
 		'jquery.ui.core':       'bower_components/jqueryui/ui/jquery.ui.core',
@@ -43,6 +45,7 @@ require.config({
 		/* Core components */
 		'baseController': 'modules/core/baseController',
 		'pageController': 'modules/core/pageController',
+		'reactController': 'modules/core/reactPageController',
 		'baseView': 'modules/core/baseView',
 		'mixins': 'modules/core/mixins',
 		'region': 'modules/core/region',
