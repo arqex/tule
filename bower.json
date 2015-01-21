@@ -35,8 +35,5 @@
     "react": "~0.12.2",
     "cortexjs": "*"
   },
-  "directory": "public/js",
-  "resolutions": {
-    "jquery": "~2.0.3"
-  }
+  "directory": "public/js"
 }
