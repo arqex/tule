@@ -33,7 +33,7 @@
     "devbridge-autocomplete": "~1.2.9",
     "medium-editor": "~1.9.13",
     "react": "~0.12.2",
-    "cortexjs": "*"
+    "qwest": "~1.5.4"
   },
   "directory": "public/js",
   "resolutions": {

@@ -1,8 +1,8 @@
 var deps = [
-	'underscore', 'jquery', 'backbone', 'react', 'cortex'
+	'underscore', 'jquery', 'backbone', 'react', 'curxor'
 ];
 
-define( deps, function( _, $, Backbone, React ){
+define( deps, function( _, $, Backbone, React, Curxor ){
 	'use strict';
 
 	var ReactView = Backbone.View.extend({
@@ -18,11 +18,11 @@ define( deps, function( _, $, Backbone, React ){
 			if( this.fetchInitialData )
 				this.fetchInitialData()
 					.then( function( data ){
-						me.store.add( 'items', data.items );
+						me.store.getData().set( data );
 					})
 				;
 
-			this.store = new Cortex( this.store );
+			this.store = new Curxor( this.store || {} );
 		},
 
 		render: function(){

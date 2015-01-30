@@ -1,3 +1,4 @@
+
 ;var baseUrl = '/r',
 	tuleUrl = '/tule'
 ;
@@ -17,8 +18,9 @@ require.config({
 
 		'cookies': 'bower_components/cookies-js/dist/cookies.min',
 
-		'react': 'bower_components/react/react-with-addons.min',
-		'cortex': 'bower_components/cortexjs/build/cortex',
+		'react': 'bower_components/react/react-with-addons',
+		'curxor': 'lib/curxor',
+		'ajax': 'lib/ajax',
 
 		/* jQuery UI */
 		'jquery.ui.core':       'bower_components/jqueryui/ui/jquery.ui.core',

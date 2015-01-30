@@ -1,12 +1,15 @@
-var deps = ['jquery', 'underscore', 'backbone', 'router', 'services',
+var deps = ['jquery', 'underscore', 'backbone', 'router', 'services', 'react',
 	'modules/collections/collectionService',
 	'modules/settings/settingsService',
 	'modules/datatypes/datatypeService',
 	'modules/core/mainController'
 ];
 
-define(deps, function($, _, Backbone, Router, Services, CollectionService, SettingsService, DatatypeService, MainController){
+define(deps, function($, _, Backbone, Router, Services, React, CollectionService, SettingsService, DatatypeService, MainController){
 	'use strict';
+
+
+	window.React = React;
 
 	// Here the magic starts
 	var init = function() {
@@ -76,7 +79,7 @@ define(deps, function($, _, Backbone, Router, Services, CollectionService, Setti
 						observer.init( settings );
 				},
 				function( err ) {
-					console.log( err );
+					console.log( err.stack );
 				}
 			);
 		});
