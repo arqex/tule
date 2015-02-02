@@ -5,22 +5,35 @@ var deps = [
 define( deps, function( qwest ){
 
 	// Lets make json default
-	var originalPost = qwest.post,
-		ajax = qwest
+	var originals = [],
+		toOverride = ['post','get','put','delete'],
+		ajax = qwest,
+		setDefaults = function( options ){
+			var opts = options || { responseType: 'json', retries: 0 };
+
+			if( !opts.responseType )
+				opts.responseType = 'json';
+			if( !opts.retries )
+				opts.retries = 1;
+
+			return opts;
+		}
 	;
 
-	qwest.setDefaultXdrResponseType('json');
+	toOverride.forEach( function( method ){
+		originals[method] = qwest[method];
+		ajax[method] = function( url, data, options ){
+			var opts = setDefaults( options );
 
-	ajax.post = function( url, data, options ){
-		var opts = options || { dataType: 'json', responseType: 'json' };
+			if( method != 'get' ){
+				if( !opts.dataType )
+					opts.dataType = 'json';
+				data = data || {};
+			}
 
-		if( !opts.dataType )
-			opts.dataType = 'json';
-		if( !opts.responseType )
-			opts.responseType = 'json';
-
-		return originalPost.call( qwest, url, data, opts );
-	};
+			return originals[method].call( qwest, url, data, opts );
+		};
+	});
 
 	return ajax;
 });
