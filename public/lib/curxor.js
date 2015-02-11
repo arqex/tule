@@ -1,7 +1,7 @@
-/* curxor v0.2.0 (29-1-2015)
- * https://github.com/arqex/curxor
+/* freezer v0.3.0 (11-2-2015)
+ * https://github.com/arqex/freezer
  * By arqex
- * License: BSD-2-Clause
+ * License: GNU-v2
  */
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
@@ -9,7 +9,7 @@
 	} else if (typeof exports === 'object') {
 		module.exports = factory();
 	} else {
-		root.Curxor = factory();
+		root.Freezer = factory();
 	}
 }(this, function() {
 	'use strict';
@@ -17,16 +17,11 @@
 var global = (new Function("return this")());
 
 var Utils = {
-	isObject: function( value ){
-		return value && value.constructor == Object;
-	},
-
-	isArray: function( value ){
-		return value && value.constructor == Array;
-	},
-
-	isWrapper: function( value ){
-		return value && value.__notify;
+	extend: function( ob, props ){
+		for( var p in props ){
+			ob[p] = props[p];
+		}
+		return ob;
 	},
 
 	createNonEnumerable: function( obj, proto ){
@@ -44,28 +39,20 @@ var Utils = {
 			throw err;
 	},
 
-	clone: function( o ){
-		if( this.isArray( o ) )
-			return o.slice( 0 );
-
-		if( this.isObject( o ) ){
-			var clone = {};
-			for( var key in o )
-				clone[ key ] = o[ key ];
-			return clone;
+	each: function( o, clbk ){
+		var i,l,keys;
+		if( o && o.constructor == Array ){
+			for (i = 0, l = o.length; i < l; i++)
+				clbk( o[i], i );
 		}
-
-		return o;
+		else {
+			keys = Object.keys( o );
+			for( i = 0, l = keys.length; i < l; i++ )
+				clbk( o[ keys[i] ], keys[i] );
+		}
 	},
 
-	addNE: function( node, attr, value ){
-		var attrs = attr;
-
-		if( typeof value != 'undefined' ){
-			attrs = {};
-			attrs[ attr ] = value;
-		}
-
+	addNE: function( node, attrs ){
 		for( var key in attrs ){
 			Object.defineProperty( node, key, {
 				enumerable: false,
@@ -81,22 +68,7 @@ var Utils = {
       var queue = [],
 			dirty = false,
 			fn,
-
-			// Thanks to setImmediate for hasPostMessage,
-			// postMessage in IE8 is sync.
-			hasPostMessage = (function(){
-				if( !global.postMessage ) return false;
-
-				var async = true;
-				var oldOnMessage = global.onmessage;
-            global.onmessage = function() {
-                async = false;
-            };
-            global.postMessage("", "*");
-            global.onmessage = oldOnMessage;
-
-            return async;
-			})(),
+			hasPostMessage = !!global.postMessage,
 			messageName = 'nexttick',
 			trigger = (function () {
 				return hasPostMessage
@@ -217,36 +189,48 @@ var emitterProto = {
 // hashmaps
 var Emitter = Utils.createNonEnumerable( emitterProto );
 
-var Mixins = {
+var createNE = function( attrs ){
+	var ne = {};
 
-Hash: {
-	remove: function( keys ){
-		var filtered = [],
-			k = keys
-		;
+	for( var key in attrs ){
+		ne[ key ] = {
+			writable: true,
+			configurable: true,
+			enumerable: false,
+			value: attrs[ key]
+		}
+	}
 
-		if( !Utils.isArray( keys ) )
-			k = [ keys ];
+	return ne;
+}
 
-		for( var i = 0, l = k.length; i<l; i++ ){
-			if( this.hasOwnProperty( k[i] ) )
-				filtered.push( k[i] );
+var commonMethods = {
+	set: function( attr, value ){
+		var attrs = attr;
+
+		if( typeof value != 'undefined' ){
+			attrs = {};
+			attrs[ attr ] = value;
 		}
 
-		if( filtered.length )
-			return this.__notify( 'remove', this, filtered );
-		return this;
+		return this.__.notify( 'replace', this, attrs );
+	},
+	getPaths: function( attrs ){
+		return this.__.notify( 'path', this );
+	},
+	getListener: function(){
+		return this.__.notify( 'listener', this );
 	}
-},
+};
 
-List: {
+var FrozenArray = Object.create( Array.prototype, createNE( Utils.extend({
 	push: function( el ){
 		return this.append( [el] );
 	},
 
 	append: function( els ){
 		if( els && els.length )
-			return this.__notify( 'splice', this, [this.length, 0].concat( els ) );
+			return this.__.notify( 'splice', this, [this.length, 0].concat( els ) );
 		return this;
 	},
 
@@ -254,7 +238,7 @@ List: {
 		if( !this.length )
 			return this;
 
-		return this.__notify( 'splice', this, [this.length -1, 1] );
+		return this.__.notify( 'splice', this, [this.length -1, 1] );
 	},
 
 	unshift: function( el ){
@@ -263,7 +247,7 @@ List: {
 
 	prepend: function( els ){
 		if( els && els.length )
-			return this.__notify( 'splice', this, [0, 0].concat( els ) );
+			return this.__.notify( 'splice', this, [0, 0].concat( els ) );
 		return this;
 	},
 
@@ -271,388 +255,336 @@ List: {
 		if( !this.length )
 			return this;
 
-		return this.__notify( 'splice', this, [0, 1] );
+		return this.__.notify( 'splice', this, [0, 1] );
 	},
 
 	splice: function( index, toRemove, toAdd ){
-		return this.__notify( 'splice', this, arguments );
+		return this.__.notify( 'splice', this, arguments );
 	}
-}
+}, commonMethods)));
 
+
+// Tweak the length property
+Object.defineProperty( FrozenArray, 'length', {
+	configurable: false,
+	enumerable: false,
+	get: function(){
+		return Object.keys( this ).length;
+	},
+	set: function( length ){
+		for( var key in this ){
+			if( key > length )
+				delete this[ key ];
+		}
+	}
+});
+
+var Mixins = {
+
+Hash: Object.create( Object.prototype, createNE( Utils.extend({
+	remove: function( keys ){
+		var filtered = [],
+			k = keys
+		;
+
+		if( !keys.constructor == Array )
+			k = [ keys ];
+
+		for( var i = 0, l = k.length; i<l; i++ ){
+			if( this.hasOwnProperty( k[i] ) )
+				filtered.push( k[i] );
+		}
+
+		if( filtered.length )
+			return this.__.notify( 'remove', this, filtered );
+		return this;
+	}
+}, commonMethods))),
+
+List: FrozenArray
 };
 
-var Tree = function( val, els ){
-	this.tree = this.prepare( val, [ [] ] );
-	this.nodes = {};
-	this.noPathNodes = {};
-};
+var Frozen = {
+	freeze: function( node, notify ){
+		if( node && node.__ ){
+			return node;
+		}
 
-Tree.prototype = Utils.createNonEnumerable({
-	reset: function( root, wrapper ){
-		this.tree = this.prepare( wrapper, [ [] ] );
+		var me = this,
+			frozen, mixin, cons
+		;
+
+		if( node.constructor == Array ){
+			frozen = Object.create( Mixins.List );
+		}
+		else {
+			frozen = Object.create( Mixins.Hash );
+		}
+
+		Utils.addNE( frozen, { __: {
+			listener: false,
+			parents: [],
+			notify: notify
+		}});
+
+		// Freeze children
+		Utils.each( node, function( child, key ){
+			cons = child && child.constructor;
+			if( cons == Array || cons == Object ){
+				child = me.freeze( child, notify );
+			}
+
+			if( child && child.__ )
+				me.addParent( child, frozen );
+
+			frozen[ key ] = child;
+		});
+
+		Object.freeze( frozen );
+
+		return frozen;
 	},
 
-	update: function( type, wrapper, options){
-
+	update: function( type, node, options ){
 		if( !this[ type ])
 			return Utils.error( 'Unknown update type: ' + type );
 
-		return this[ type ]( wrapper, options );
+		return this[ type ]( node, options );
 	},
 
-	replace: function( wrapper, attrs ) {
-
-		var node = this.nodes[ wrapper.__id ],
-			paths = node.__paths,
-			childPaths, prevNode
-		;
-
-		this.cleanPaths( paths );
-
-		for( var key in attrs ){
-			prevNode = node[ key ];
-			childPaths = this.addToPaths( paths, key );
-			this.removeReferences( node[ key ], childPaths, true );
-			node[ key ] = this.prepare( attrs[ key ], childPaths );
-			if( prevNode && prevNode.__listener )
-				node[ key ].__listener = prevNode.__listener;
-		}
-
-		node.__toReturn = true;
-	},
-
-	remove: function( wrapper, keys ) {
-		var node = this.nodes[ wrapper.__id ],
-			paths = node.__paths,
-			i, l
-		;
-
-		this.cleanPaths( paths );
-
-		for (i = 0, l = keys.length; i<l; i++) {
-			this.removeReferences( node[ keys[i] ], this.addToPaths( paths, keys[i] ), true );
-			delete node[ keys[i] ];
-		}
-
-		node.__toReturn = true;
-	},
-
-	splice: function( wrapper, args ){
-		var node = this.nodes[ wrapper.__id ],
-			paths = node.__paths,
-			i,l
-		;
-
-		this.cleanPaths( paths );
-
-		// Update the tree
-		var removed = node.splice.apply( node, args );
-
-		// Prepare new elements
-		for( i = 2, l = args.length; i<l; i++ ){
-			args[i] = this.prepare( args[i], this.addToPaths( paths, args[0] + i - 2 ) );
-		}
-
-		// Delete references to the removed elements
-		for( i = 0, l = removed.length; i<l; i++){
-			this.removeReferences( removed[i], this.addToPaths( paths, i) );
-		}
-
-		// Update references for the elements after the inserted ones
-		for( i = args[0] + args.length - 2, l=node.length; i<l; i++ ){
-			this.refreshReferences( node[i], paths, this.addToPaths( paths, i ) );
-		}
-
-		node.__toReturn = true;
-	},
-
-	cleanPaths: function( paths ){
-		for(var i=0, l=paths.length; i<l; i++)
-			this.cleanPath( paths[i] );
-	},
-
-	cleanPath: function( path ){
-		this.get( path, true );
-	},
-
-	get: function( path, doCleaning ){
-		var target = this.tree,
-			toClean = [ target ],
-			i = 0,
-			node
-		;
-
-		while( i < path.length && target ){
-			target = target[ path[i++] ];
-			toClean.push( target );
-		}
-
-		if( !target )
-			Utils.error( 'Path non existent: ' + path.join('.') );
-
-		if( doCleaning ){
-			for (i = 0; i < toClean.length; i++) {
-				node = toClean[i];
-
-				delete this.nodes[ node.__wrapper.__id ];
-				node.__wrapper = false;
-				node.__toUpdate = true;
-			}
-		}
-
-		return target;
-	},
-
-	copy: function( tree, path, clbk ) {
-		var children;
-		if( Utils.isObject( tree ) ){
-			children = {};
-			for( var key in tree ){
-				children[ key ] = this.copy( tree[ key ], path.concat( key ), clbk );
-			}
-		}
-		else if ( Utils.isArray( tree ) ){
-			children = [];
-			for (var i = 0, l = tree.length; i < l; i++) {
-				children.push( this.copy( tree[i], path.concat( i ), clbk ) );
-			}
-		}
-
-		return clbk( tree, path, children );
-	},
-
-	prepare: function( tree, paths ){
-		if( Utils.isWrapper( tree ) )
-			return this.prepareWrapper( tree, paths );
-		return this.clone( tree, paths );
-	},
-
-	addNodeProperties: function( tree, paths, currentPath ) {
-		 Utils.addNE( tree, {
-			__listener: false,
-			__paths: this.addToPaths( paths, currentPath ),
-			__wrapper: false,
-			__toUpdate: false,
-			__toReturn: false
-		});
-	},
-
-	clone: function( tree, paths ){
-		var me = this;
-
-		return this.copy( tree, [], function( node, path, children ){
-
-			if( !children )
-				return node;
-
-			me.addNodeProperties( children, paths, path );
-			return children;
-
-		});
-	},
-
-	prepareWrapper: function( wrapper, paths ){
+	reset: function( node, value ){
 		var me = this,
-			topNode = this.nodes[ wrapper.__id ]
+			frozen
 		;
 
-		if( topNode ){
-			// We are adding again an existing node, just add the new path to the old node
-			this.copy( topNode, [], function( node, path, children ){
-				// Update paths on non-leaves
-				if( children ) {
-					node.__paths = node.__paths.concat( me.addToPaths( paths, path ) );
-				}
-			});
-
-			return topNode;
+		if( value && value.__ ){
+			frozen = value;
+			frozen.__.listener = value.__.listener;
+			frozen.__.parents = [];
 		}
 		else {
-
-			// try to get the topNode from the path
-			topNode = this.get( paths[0] );
-
-			// Delete paths from the nodes in the updating path,
-			// but don't delete them from the @nodes attribute.
-			if( topNode ){
-				this.removeReferences( topNode, paths );
-			}
-
-			// Try to reuse the wrappers
-			var node = this.restoreWrapper( wrapper, paths, [] );
-
-			// Now clean the tree of nodes without paths
-			if( topNode ){
-				for( var key in me.noPathNodes ){
-					delete me.noPathNodes[ key ];
-					delete me.nodes[ key ];
-				}
-			}
-
-			return node;
+			frozen = this.freeze( node, node.__.notify );
 		}
+
+		return frozen;
 	},
 
-	restoreWrapper: function( wrapper, paths, path ){
+	replace: function( node, attrs ){
+		var me = this,
+			frozen = this.copyMeta( node ),
+			notify = node.__.notify,
+			val, cons, key, isFrozen
+		;
 
-		// Return leaf nodes as they are
-		if( !Utils.isWrapper( wrapper ) )
-			return wrapper;
+		Utils.each( node, function( child, key ){
+			isFrozen = child && child.__;
 
-		var prevNode = this.nodes[ wrapper.__id ];
-		if( prevNode ) {
+			if( isFrozen ){
+				me.removeParent( child, node );
+			}
 
-			// We got a new location for the node
-			prevNode.__paths = prevNode.__paths.concat( this.addToPaths( paths, path ) );
+			val = attrs[ key ];
+			if( !val ){
+				if( isFrozen )
+					me.addParent( child, frozen );
+				return frozen[ key ] = child;
+			}
 
-			// remove the node from the list of the nodes without paths,
-			// if it is there
-			delete this.noPathNodes[ prevNode.__wrapper.__id ];
+			cons = val && val.constructor;
 
-			return prevNode;
+			if( cons == Array || cons == Object )
+				val = me.freeze( val, notify );
+
+			if( val && val.__ )
+				me.addParent( val, frozen );
+
+			delete attrs[ key ];
+
+			frozen[ key ] = val;
+		});
+
+		for( key in attrs ) {
+			val = attrs[ key ];
+			cons = val && val.constructor;
+
+			if( cons == Array || cons == Object )
+				val = me.freeze( val, notify );
+
+			if( val && val.__ )
+				me.addParent( val, frozen );
+
+			frozen[ key ] = val;
 		}
 
-		// No luck, we need to iterate over the children
-		var children, i, l;
-		if( Utils.isObject( wrapper ) ){
-			children = {};
-			for( i in wrapper )
-				children[ i ] = this.restoreWrapper( wrapper[ i ], paths, path.concat( i ) );
+		Object.freeze( frozen );
+
+		this.refreshParents( node, frozen );
+
+		return frozen;
+	},
+
+	remove: function( node, attrs ){
+		var me = this,
+			frozen = this.copyMeta( node ),
+			isFrozen
+		;
+
+		Utils.each( node, function( child, key ){
+			isFrozen = child && child.__;
+
+			if( isFrozen ){
+				me.removeParent( child, node );
+			}
+
+			if( attrs.indexOf( key ) != -1 ){
+				return;
+			}
+
+			if( isFrozen )
+				me.addParent( child, frozen );
+
+			frozen[ key ] = child;
+		});
+
+		Object.freeze( frozen );
+		this.refreshParents( node, frozen );
+
+		return frozen;
+	},
+
+	splice: function( node, args ){
+		var me = this,
+			frozen = this.copyMeta( node ),
+			index = args[0],
+			deleteIndex = index + args[1],
+			notify = node.__.notify,
+			con, child
+		;
+
+		// Clone the array
+		Utils.each( node, function( child, i ){
+
+			if( child && child.__ ){
+				me.removeParent( child, node );
+
+				// Skip the nodes to delete
+				if( i < index || i>= deleteIndex )
+					me.addParent( child, frozen );
+			}
+
+			frozen[i] = child;
+		});
+
+		// Prepare the new nodes
+		if( args.length > 1 ){
+			for (var i = args.length - 1; i >= 2; i--) {
+				child = args[i];
+				con = child && child.constructor;
+
+				if( con == Array || con == Object )
+					child = this.freeze( child, notify );
+
+				if( child && child.__ )
+					this.addParent( child, frozen );
+
+				args[i] = child;
+			}
+		}
+
+		// splice
+		Array.prototype.splice.apply( frozen, args );
+
+		Object.freeze( frozen );
+		this.refreshParents( node, frozen );
+
+		return frozen;
+	},
+
+	refresh: function( node, oldChild, newChild ){
+		var me = this,
+			frozen = this.copyMeta( node )
+		;
+
+		Utils.each( node, function( child, key ){
+			if( child == oldChild )
+				child = newChild;
+
+			if( child && child.__ ){
+				me.removeParent( child, node );
+				me.addParent( child, frozen );
+			}
+
+			frozen[ key ] = child;
+		});
+
+		Object.freeze( frozen );
+
+		this.refreshParents( node, frozen );
+	},
+
+	copyMeta: function( node ){
+		var me = this,
+			frozen
+		;
+
+		if( node.constructor == Array ){
+			frozen = Object.create( Mixins.List );
 		}
 		else {
-			children = [];
-			for( i=0,l=wrapper.length; i<l; i++ )
-				children.push( this.restoreWrapper( wrapper[ i ], paths, path.concat( i ) ));
+			frozen = Object.create( Mixins.Hash );
 		}
 
-		this.addNodeProperties( children, paths, path );
+		var __ = node.__;
+		Utils.addNE( frozen, {__: {
+			notify: __.notify,
+			listener: __.listener,
+			parents: __.parents.slice( 0 )
+		}});
 
-		// Reuse the wrapper
-		children.__wrapper = wrapper;
-		this.nodes[ children.__wrapper.__id ] = children;
-
-		return children;
+		return frozen;
 	},
 
-	addToPaths: function( paths, key ){
-		var added = [],
-			i,l
+	refreshParents: function( oldChild, newChild ){
+		var __ = oldChild.__,
+			i
 		;
 
-		if( !paths )
-			throw new Error( 'Null' );
+		this.trigger( newChild, 'update', newChild );
 
-		for( i=0,l=paths.length;i<l;i++ ){
-			added.push( paths[i].concat( key ) );
+		if( !__.parents.length ){
+			if( __.listener ){
+				__.listener.trigger( 'immediate', newChild );
+			}
 		}
-
-		return added;
-	},
-
-	isParentPath: function( parent, child ){
-		var isParent = true,
-			i = 0,
-			l = parent.length
-		;
-
-		if( child.length < l )
-			return false;
-
-		while( isParent && i<l ){
-			isParent = parent[i] == child[ i++ ];
-		}
-
-		return isParent;
-	},
-
-	updateNodePaths: function( node, parentPaths, updatedPaths ){
-		var nodePaths = node.__paths,
-			updateValue,i,l,j,p
-		;
-
-		// Iterate over the parentPaths
-		for( i=0,l=parentPaths.length;i<l;i++ ){
-			p = parentPaths[i];
-
-			if( updatedPaths )
-				updateValue = updatedPaths[i][p.length];
-
-			for (j = nodePaths.length - 1; j >= 0; j--) {
-
-				// If the we got the parent of the current path
-				if( this.isParentPath( p, nodePaths[j] ) ){
-
-					// If we want to update, set the updated index of
-					// the parent path in the node path
-					if( updatedPaths )
-						nodePaths[j][p.length] = updateValue;
-
-					// Else we want to delete the path
-					else
-						nodePaths.splice( j, 1 );
-				}
+		else {
+			for (i = __.parents.length - 1; i >= 0; i--) {
+				this.refresh( __.parents[i], oldChild, newChild );
 			}
 		}
 	},
 
-	/**
-	 * Deletes the keys from the element object, to destroy
-	 * outdated references to wrappers.
-	 *
-	 * @param  {Branch} tree The part of the tree to remove the references
-	 * @param {Array} paths An array of paths to delete from the tree nodes
-	 * @param {boolean} alsoDelete If the node remains with 0 paths, delete it from @nodes
-	 */
-	removeReferences: function( tree, paths, alsoDelete ){
-		var me = this;
-		this.copy( tree, [], function( node, p, children ){
+	removeParent: function( node, parent ){
+		var parents = node.__.parents,
+			index = parents.indexOf( parent )
+		;
 
-			if( !children )
-				return;
-
-			// Delete the paths
-			me.updateNodePaths( node, paths );
-
-			// If there are no paths delete the node
-			if( !node.__paths.length ){
-				if( alsoDelete )
-					delete me.nodes[ node.__wrapper.__id ];
-				else
-					me.noPathNodes[ node.__wrapper.__id ] = node;
-			}
-		});
+		if( index = -1 ){
+			parents.splice( index, 1 );
+		}
 	},
 
-	/**
-	 * Refresh the paths of the children of an array subtree
-	 * @param  {Branch} tree The array child to update
-	 * @param  {Array} path The paths of the array updated
-	 * @param {Array} updatedPaths The paths with the new key added
-	 */
-	refreshReferences: function( tree, parentPaths, updatedPaths ){
-		var me = this;
+	addParent: function( node, parent ){
+		var parents = node.__.parents,
+			index = parents.indexOf( parent )
+		;
 
-		for (var i = 0; i < updatedPaths.length; i++) {
-			updatedPaths[i];
+		if( index == -1 ){
+			parents[ parents.length ] = parent;
 		}
-
-		this.copy( tree, [], function( node, path, children ){
-
-			if( !children )
-				return;
-
-
-			// Update the paths
-			me.updateNodePaths( node, parentPaths, updatedPaths );
-
-			var nodePaths = node.__paths,
-				updatedValue,i,l,j,p
-			;
-		});
 	},
 
 	trigger: function( node, eventName, param ){
-		var listener = node.__listener;
+		var listener = node.__.listener;
 
 		if( listener && !listener.ticking ){
 			listener.ticking = true;
@@ -663,10 +595,8 @@ Tree.prototype = Utils.createNonEnumerable({
 		}
 	},
 
-	createListener: function( wrapper ){
-		var node = this.nodes[ wrapper.__id ],
-			l = node.__listener
-		;
+	createListener: function( frozen ){
+		var l = frozen.__.listener;
 
 		if( !l ) {
 			l = Object.create(Emitter, {
@@ -676,162 +606,74 @@ Tree.prototype = Utils.createNonEnumerable({
 				}
 			});
 
-			node.__listener = l;
+			frozen.__.listener = l;
 		}
 
 		return l;
-	},
-
-	addWrapper: function( node, w ){
-		var prevWrapper = node.__wrapper;
-
-		node.__wrapper = w;
-		this.nodes[ w.__id ] = node;
-
-		if( node.__toUpdate ) {
-			node.__toUpdate = false;
-			this.trigger( node, 'update', w );
-		}
-	},
-
-	getPaths: function( wrapper ){
-		return this.nodes[ wrapper.__id ].__paths.slice(0);
 	}
-});
+};
 
-var Curxor = function( initalValue ){
+var Freezer = function( initialValue ) {
 	var me = this;
 
-	var wIndex = 1;
+	// Immutable data
+	var frozen;
 
-	// An index for quick access to the wrappers
-	var elements = {};
-
-	// Tree will store the current structure,
-	// and it is mutable. It is used to create
-	// the wrapper
-	var tree = new Tree( initalValue, elements );
-
-	// Updating flag to trigger the event on nextTick
-	var updating = false,
-		toReturn
-	;
-
-	var notify = function notify( eventName, wrapper, options ){
-
-		if( !tree.nodes[ wrapper.__id ] )
-			return Utils.error( 'Can\'t udpate. The node is not in the curxor.' );
+	var notify = function notify( eventName, node, options ){
 
 		if( eventName == 'path' )
-			return tree.getPaths( wrapper );
+			return Frozen.getPaths( frozen, node );
 
 		if( eventName == 'listener' )
-			return tree.createListener( wrapper );
+			return Frozen.createListener( node );
 
-		// Update the tree
-		tree.update( eventName, wrapper, options );
-		me.__wrapper = createWrapper( tree.tree, [] );
+		var updated = Frozen.update( eventName, node, options );
+
+		if( !updated )
+			return Utils.error( 'Can\'t udpate. The node is not in the freezer.' );
+
+		return updated;
+	};
+
+	// Create the frozen object
+	frozen = Frozen.freeze( initialValue, notify );
+
+	// Listen to its changes immediately
+	var listener = frozen.getListener();
+
+	// Updating flag to trigger the event on nextTick
+	var updating = false;
+
+	listener.on( 'immediate', function( updated ){
+		frozen = updated;
 
 		// Trigger on next tick
 		if( !updating ){
 			updating = true;
 			Utils.nextTick( function(){
 				updating = false;
-				me.trigger( 'update' );
+				me.trigger( 'update', frozen );
 			});
 		}
+	});
 
-		return toReturn;
-	};
-
-	var setMixins = function( w, mixin ){
-		Utils.addNE( w, {
-			__id: createId(),
-			__notify: notify,
-			set: function( attr, value ){
-				var attrs = attr;
-
-				if( typeof value != 'undefined' ){
-					attrs = {};
-					attrs[ attr ] = value;
-				}
-
-				return this.__notify( 'replace', this, attrs );
-			},
-			getPaths: function( attrs ){
-				return this.__notify( 'path', this );
-			},
-			getListener: function(){
-				return this.__notify( 'listener', this );
-			}
-		});
-		Utils.addNE( w, mixin );
-	};
-
-	var createWrapper = function( subtree, path ){
-		var w, key, i, l;
-
-		// If the subtree has a wrapper reuse it
-		if( subtree && subtree.__wrapper ) {
-			w = subtree.__wrapper;
+	Utils.addNE( this, {
+		get: function(){
+			return frozen;
+		},
+		set: function( node ){
+			frozen = notify( 'reset', frozen, node );
+			frozen.__.listener.trigger( 'immediate', frozen );
 		}
-		else {
-			if( Utils.isObject( subtree ) ){
-				w = {};
-				for( key in subtree )
-					w[ key ] = createWrapper( subtree[key] );
+	});
 
-				setMixins( w, Mixins.Hash );
-			}
-			else if( Utils.isArray( subtree ) ){
-				w = [];
-				for( i=0, l=subtree.length; i<l; i++ )
-					w[i] = createWrapper( subtree[i] );
-
-				setMixins( w, Mixins.List );
-			}
-			else {
-
-				// Return leaf nodes as they are
-				return subtree;
-			}
-
-			// Add the wrapper to the tree
-			tree.addWrapper( subtree, w );
-
-			// Freeze if possible
-			if( Object.freeze )
-				Object.freeze( w );
-		}
-
-		if( subtree.__toReturn ){
-			toReturn = w;
-			subtree.__toReturn = false;
-		}
-
-		return w;
-	};
-
-	var createId = function() {
-		return 'w' + wIndex++;
-	};
-
-	// Create the wrapper
-	this.__wrapper = createWrapper( tree.tree, [] );
+	Utils.addNE( this, { getData: this.get, setData: this.set } );
 
 	// The event store
 	this._events = [];
 }
 
-Curxor.prototype = Utils.createNonEnumerable({
-	getData: function(){
-		return this.__wrapper;
-	},
+Freezer.prototype = Utils.createNonEnumerable({}, Emitter);
 
-	setData: function( wrapper ){
-		this.__wrapper.__notify( 'reset', this.__wrapper, wrapper );
-	}
-}, Emitter);
-
-	return Curxor;
+	return Freezer;
 }));
