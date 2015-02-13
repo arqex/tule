@@ -9,12 +9,14 @@ define( deps, function( qwest ){
 		toOverride = ['post','get','put','delete'],
 		ajax = qwest,
 		setDefaults = function( options ){
-			var opts = options || { responseType: 'json', retries: 0 };
+			var opts = options || { responseType: 'json', retries: 0, timeout: 10000 };
 
 			if( !opts.responseType )
 				opts.responseType = 'json';
 			if( !opts.retries )
 				opts.retries = 1;
+			if( !opts.timeout )
+				opts.timeout = 10000;
 
 			return opts;
 		}
