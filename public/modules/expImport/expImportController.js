@@ -18,6 +18,7 @@ define(deps, function($,_,Backbone, Services, ReactController, Curxor, Export, I
 						collection: '',
 						query: '',
 						modifiers: '',
+						repeatAttribute: '',
 						results: []
 					}},
 					{name: 'Import', component: Import, options: {}}

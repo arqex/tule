@@ -79,9 +79,12 @@ var callbackIndex = function(args){
 
 	filterMethod = function(collection, method, args){
 
-		if(args[0] && method != 'insert')
-			args[0] = deepToObjectID(args[0])
-		;
+		if( method == 'distinct' ){
+			if( typeof args[1] != 'function' )
+				args[1] = deepToObjectID( args[1] );
+		}
+		else if(args[0] && method != 'insert')
+			args[0] = deepToObjectID(args[0]);
 
 		var arrayArgs = Array.isArray( args ) ? args : _.values( args );
 
@@ -179,7 +182,12 @@ var TuleCollection = {
 		if(typeof arguments[0] == 'function')
 			return mongo.Collection.prototype.count.apply(this, arguments);
 		return filterMethod(this, 'count', arguments);
-	}
+	},
+
+	distinct: function( attr, q ){
+		return filterMethod( this, 'distinct', arguments );
+	},
+
 };
 
 

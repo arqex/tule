@@ -13,7 +13,8 @@ define( deps, function( _, React, Curxor, Tabs, Ajax, Services, Alerts ){
 			return {
 				collection: options.collection || this.props.store.collections[0],
 				query: options.query,
-				modifiers: options.modifiers
+				modifiers: options.modifiers,
+				repeatAttribute: options.repeatAttribute
 			};
 		},
 
@@ -48,6 +49,10 @@ define( deps, function( _, React, Curxor, Tabs, Ajax, Services, Alerts ){
 						<tr className="field">
 							<td style={{width: '100px'}}>Modifiers: </td>
 							<td><input type="text" style={{width: '100%'}} name="modifiers" onChange={ this.onChangeInput } value={ this.state.modifiers } /></td>
+						</tr>
+						<tr className="field">
+							<td style={{width: '100px'}}>Repeat for attributes: </td>
+							<td><input type="text" style={{width: '100%'}} name="repeatAttribute" onChange={ this.onChangeInput } value={ this.state.repeatAttribute } /></td>
 						</tr>
 					</table>
 					<div class="exportControls">
@@ -95,15 +100,19 @@ define( deps, function( _, React, Curxor, Tabs, Ajax, Services, Alerts ){
 			if( error )
 				return;
 
-			Services.get('collection')
-				.collection( this.state.collection ).find( query, modifiers )
-				.then( function( results ){
+			Ajax.post('/api/import', {
+					action: 'exportData',
+					collection: this.state.collection,
+					query: query,
+					modifiers: modifiers,
+					repeatAttribute: this.state.repeatAttribute.replace( /\s/g, '' )
+				})
+				.then( function( docs ){
 					me.props.options.set({
 						query: me.state.query,
 						modifiers: me.state.modifiers,
-						results: results.results.toJSON()
+						results: docs
 					})
-					return results;
 				})
 			;
 		}

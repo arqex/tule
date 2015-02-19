@@ -17,14 +17,14 @@ var Qcollection = function( c ){
 
 Qcollection.prototype = {};
 
-var methods = ['find', 'findOne', 'insert', 'update', 'save', 'remove', 'count'];
+var methods = ['find', 'findOne', 'insert', 'update', 'save', 'remove', 'count', 'distinct'];
 
 // Promisify all the methods of a collection
 methods.forEach( function( method ){
 	Qcollection.prototype[ method ] = function() {
 
 		// If the query is a string, we suposse it is the _id
-		if( arguments.length && typeof arguments[0] == 'string' )
+		if( method != 'distinct' && arguments.length && typeof arguments[0] == 'string' )
 			arguments[0] = {_id: arguments[0] };
 
 		return Q.nfapply( this.c[method].bind( this.c ), arguments );
