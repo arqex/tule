@@ -17,7 +17,7 @@ var actions = {
 			for( var key in d ){
 				value = d[ key ];
 				date = new Date( value );
-				if( value.constructor == String && !isNaN( date.getTime() ) )
+				if( value && value.constructor == String && !isNaN( date.getTime() ) )
 					d[key] = date;
 			}
 		});

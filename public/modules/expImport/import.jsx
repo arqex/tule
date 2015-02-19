@@ -106,10 +106,21 @@ define( deps, function( _, React, Curxor, Tabs, Ajax, Services, Alerts ){
 
 			dialog.once( 'alertOk', function(){
 				Ajax.post('/api/import', {
-					action: 'importData',
-					collection: me.state.collection,
-					docs: store.dataInfo.docs.slice()
-				})
+						action: 'importData',
+						collection: me.state.collection,
+						docs: store.dataInfo.docs.slice()
+					})
+					.then( function( response ){
+						Alerts.add({
+							message: response.docs.length + ' docs imported successfully'
+						})
+					})
+					.catch( function(){
+						Alerts.add({
+							message: 'There was an error importing the docs'
+						})
+					})
+				;
 			});
 		},
 
