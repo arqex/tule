@@ -16,6 +16,7 @@ var datatypesPath = 'modules/datatypes/',
 		{route: 'settings/collections', controller: 'modules/settings/collectionSettingsController'},
 		{route: 'settings/general', controller: 'modules/settings/tuleSettingsController'},
 		{route: 'plugins', controller: 'modules/plugins/pluginController'},
+		{route: 'exportimport', controller: 'modules/expImport/expImportController'},
 		{route: '*path', controller:'modules/core/404Controller'}
 	],
 	defaultFrontendSettings = {
@@ -38,7 +39,8 @@ var datatypesPath = 'modules/datatypes/',
 		'Settings': [
 			{text: 'General', url: 'settings/general'},
 			{text: 'Navigation', url: 'settings/navigation'},
-			{text: 'Collections', url: 'settings/collections'}
+			{text: 'Collections', url: 'settings/collections'},
+			{text: 'Export Import', url: 'exportimport'}
 		],
 		'Plugins': [
 			{text: 'Installed', url: 'plugins'}

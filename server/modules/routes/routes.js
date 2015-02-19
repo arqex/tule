@@ -20,6 +20,8 @@ module.exports = [
 	{route: 'get::plugins/activate/:id', controller: 'pluginController::activate'},
 	{route: 'get::plugins/deactivate/:id', controller: 'pluginController::deactivate'},
 
+	{route: 'post::import', controller: 'importActions::hub'},
+
 	{route: 'get::/mongoreset', controller: 'mongoReset::main'},
 
 	{route: '*', controller: 'main::entry'}
