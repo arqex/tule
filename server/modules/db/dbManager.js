@@ -43,6 +43,8 @@ module.exports = {
 					hooks.trigger('db:ready');
 				})
 				.catch(function(err){
+					console.log( err );
+					console.log( err.stack );
 					deferred.reject(err);
 				})
 			;
@@ -63,6 +65,8 @@ module.exports = {
 	 * @return {Promise} To be resolved with the driver when it is ready.
 	 */
 	initDriver: function(driverFile, options){
+		console.log( 'Initializing db driver' );
+		console.log( options );
 		var deferred = when.defer(),
 			driver = require(driverFile),
 			promise = driver.init(options, app.reqHooks)

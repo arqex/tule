@@ -216,9 +216,11 @@ module.exports = {
 		//define the hooks object
 		hooks = hooksObject;
 
+		console.log( 'Driver init ');
+		console.log( options.url );
+
 		mongo.MongoClient.connect(options.url, function(err, db){
 			if(err){
-				console.log( options.url );
 				console.log( err.stack );
 				console.log( err );
 				deferred.reject(err);
