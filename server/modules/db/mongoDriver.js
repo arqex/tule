@@ -219,17 +219,23 @@ module.exports = {
 		console.log( 'Driver init ');
 		console.log( options.url );
 
-		mongo.MongoClient.connect(options.url, function(err, db){
-			if(err){
-				console.log( err.stack );
-				console.log( err );
-				deferred.reject(err);
-			}
-			else {
-				var driver = new MongoDriver(db);
-				deferred.resolve(driver);
-			}
-		});
+		try {
+			mongo.MongoClient.connect(options.url, function(err, db){
+				if(err){
+					console.log( err.stack );
+					console.log( err );
+					deferred.reject(err);
+				}
+				else {
+					var driver = new MongoDriver(db);
+					deferred.resolve(driver);
+				}
+			});
+		}
+		catch (e) {
+			console.log( e.stack );
+		}
+
 		return deferred.promise;
 
 	}
