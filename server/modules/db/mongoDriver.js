@@ -83,6 +83,18 @@ var callbackIndex = function(args){
 			if( typeof args[1] != 'function' )
 				args[1] = deepToObjectID( args[1] );
 		}
+		else if( method == 'aggregate' ){
+			var matchIndex = false;
+
+			if( args[0].$match )
+				matchIndex = 0;
+
+			else if( args[1] && args[1].$match )
+				matchIndex = 1;
+
+			if( matchIndex !== false )
+				args[ matchIndex ].$match = deepToObjectID( args[ matchIndex ].$match );
+		}
 		else if(args[0] && method != 'insert')
 			args[0] = deepToObjectID(args[0]);
 
@@ -184,9 +196,13 @@ var TuleCollection = {
 		return filterMethod(this, 'count', arguments);
 	},
 
-	distinct: function( attr, q ){
+	distinct: function(){
 		return filterMethod( this, 'distinct', arguments );
 	},
+
+	aggregate: function(){
+		return filterMethod( this, 'aggregate', arguments );
+	}
 
 };
 
@@ -201,8 +217,12 @@ module.exports = {
 		hooks = hooksObject;
 
 		mongo.MongoClient.connect(options.url, function(err, db){
-			if(err)
+			if(err){
+				console.log( options.url );
+				console.log( err.stack );
+				console.log( err );
 				deferred.reject(err);
+			}
 			else {
 				var driver = new MongoDriver(db);
 				deferred.resolve(driver);

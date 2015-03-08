@@ -17,7 +17,7 @@ var Qcollection = function( c ){
 
 Qcollection.prototype = {};
 
-var methods = ['find', 'findOne', 'insert', 'update', 'save', 'remove', 'count', 'distinct'];
+var methods = ['find', 'findOne', 'insert', 'update', 'save', 'remove', 'count', 'distinct', 'aggregate'];
 
 // Promisify all the methods of a collection
 methods.forEach( function( method ){

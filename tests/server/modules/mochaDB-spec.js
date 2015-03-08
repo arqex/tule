@@ -8,10 +8,20 @@ var path = require("path"),
 	// nedb options
 	// db = require(path.join(__dirname, "../../..", "server/plugins/nedb/nedbDriver")),
 	// options = {dataPath: path.join(__dirname, "nedb")},
-	promise
+	promise, hooks
 ;
 
-promise = db.init(options);
+hooks = {
+	filter: function( name, arg ){
+		return {
+			then: function( clbk ){
+				clbk( arg );
+			}
+		};
+	}
+};
+
+promise = db.init(options, hooks);
 
 describe("Driver API", function() {
 	var cname = "testCollectionName",
@@ -23,7 +33,7 @@ describe("Driver API", function() {
 			console.log( 'DB inited');
 			driver = d;
 			driver.getCollectionNames(function(err, names){
-				expect(err).toBeNull();
+				assert.equal( err, null);
 				collectionCount = names.length;
 				done();
 			});
@@ -35,12 +45,12 @@ describe("Driver API", function() {
 
 	it("createCollection()", function(done){
 		driver.createCollection(cname, function(err){
-			expect(err).toBeNull();
+			assert.equal( err, null );
 			driver.getCollectionNames(function(err, names){
 				var index = names.indexOf(cname);
 				console.log(names);
-				expect(names.length).toBe(collectionCount + 1);
-				expect(index).not.toBe(-1);
+				assert.equal( names.length, collectionCount + 1);
+				assert.notEqual( index, -1);
 				done();
 			});
 		});
@@ -48,13 +58,13 @@ describe("Driver API", function() {
 
 	it("collection()", function(done){
 		collection = driver.collection(cname);
-		expect(typeof collection.find).toEqual("function");
-		expect(typeof collection.findOne).toEqual("function");
-		expect(typeof collection.insert).toEqual("function");
-		expect(typeof collection.update).toEqual("function");
-		expect(typeof collection.save).toEqual("function");
-		expect(typeof collection.remove).toEqual("function");
-		expect(typeof collection.count).toEqual("function");
+		assert.equal(typeof collection.find, "function");
+		assert.equal(typeof collection.findOne, "function");
+		assert.equal(typeof collection.insert, "function");
+		assert.equal(typeof collection.update, "function");
+		assert.equal(typeof collection.save, "function");
+		assert.equal(typeof collection.remove, "function");
+		assert.equal(typeof collection.count, "function");
 		done();
 	});
 
@@ -62,7 +72,7 @@ describe("Driver API", function() {
 	it("collection.count() works without parameters", function(done){
 		collection.count(function(err, count){
 			console.log("COOOOUNT");
-			expect(count).toBe(0);
+			assert.equal(count, 0);
 			done();
 		});
 	});
@@ -70,7 +80,7 @@ describe("Driver API", function() {
 	it("single collection.insert()", function(done){
 		collection.insert({msg: "hello", integer: 0}, function(err, docs){
 			collection.count(function(err, count){
-				expect(count).toBe(1);
+				assert.equal(count, 1);
 				done();
 			});
 		});
@@ -80,7 +90,7 @@ describe("Driver API", function() {
 	it("multiple collection.insert()", function(done){
 		collection.insert([{msg: "hello", integer: 1}, {msg: "tule", integer: 2},{msg: "great", integer: 3}], function(err, docs){
 			collection.count(function(err, count){
-				expect(count).toBe(4);
+				assert.equal(count, 4);
 				done();
 			});
 		});
@@ -92,7 +102,7 @@ describe("Driver API", function() {
 				console.log(err);
 
 			assert.equal( 4, docs.length );
-			expect(docs.length).toBe(4);
+			assert.equal(docs.length, 4);
 			done();
 		});
 	});
@@ -101,14 +111,14 @@ describe("Driver API", function() {
 		collection.find({msg: "hello"}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(2);
+			assert.equal(docs.length, 2);
 			done();
 		});
 	});
 
 	it("collection.count({msg: 'hello'})", function(done){
 		collection.count({msg: "hello"}, function(err, count){
-			expect(count).toBe(2);
+			assert.equal(count, 2);
 			done();
 		});
 	});
@@ -117,8 +127,7 @@ describe("Driver API", function() {
 		collection.find({msg: "bye"}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(err).toBeNull();
-			expect(docs.length).toBe(0);
+			assert.equal(docs.length, 0);
 			done();
 		});
 	});
@@ -127,7 +136,7 @@ describe("Driver API", function() {
 		collection.find({msg: 'hello', integer: 1}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(1);
+			assert.equal(docs.length, 1)
 			done();
 		});
 	});
@@ -136,7 +145,7 @@ describe("Driver API", function() {
 		collection.find({msg: 'tule'}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs[0].integer).toBe(2);
+			assert.equal(docs[0].integer, 2)
 			done();
 		});
 	});
@@ -145,7 +154,7 @@ describe("Driver API", function() {
 		collection.find({integer: {$gt: 1}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(2);
+			assert.equal(docs.length, 2)
 			done();
 		});
 	});
@@ -154,7 +163,7 @@ describe("Driver API", function() {
 		collection.find({integer: {$gte: 1}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(3);
+			assert.equal(docs.length, 3)
 			done();
 		});
 	});
@@ -163,7 +172,7 @@ describe("Driver API", function() {
 		collection.find({integer: {$gte: 1.5}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(2);
+			assert.equal(docs.length, 2)
 			done();
 		});
 	});
@@ -172,7 +181,7 @@ describe("Driver API", function() {
 		collection.find({integer: {$lt: 1}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(1);
+			assert.equal(docs.length, 1)
 			done();
 		});
 	});
@@ -181,7 +190,7 @@ describe("Driver API", function() {
 		collection.find({integer: {$lte: 1}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(2);
+			assert.equal(docs.length, 2)
 			done();
 		});
 	});
@@ -190,7 +199,7 @@ describe("Driver API", function() {
 		collection.find({msg: {$ne: 'hello'}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(2);
+			assert.equal(docs.length, 2)
 			done();
 		});
 	});
@@ -199,7 +208,7 @@ describe("Driver API", function() {
 		collection.find({msg: {$in: ['hello', 'great']}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(3);
+			assert.equal(docs.length, 3)
 			done();
 		});
 	});
@@ -208,7 +217,7 @@ describe("Driver API", function() {
 		collection.find({msg: {$nin: ['tule', 'great']}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(2);
+			assert.equal(docs.length, 2)
 			done();
 		});
 	});
@@ -217,7 +226,7 @@ describe("Driver API", function() {
 		collection.find({$or:[{msg: 'hello'}, {integer: 3}]}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(3);
+			assert.equal(docs.length, 3)
 			done();
 		});
 	});
@@ -226,46 +235,27 @@ describe("Driver API", function() {
 		collection.find({$and:[{msg: 'hello'}, {integer: 1}]}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(1);
+			assert.equal(docs.length, 1)
 			done();
 		});
 	});
 	/*
-	it("find({$nor:[{msg: 'hello'}, {integer: 1}]}) expect 2 documents", function(done){
-		collection.find({$nor:[{msg: 'hello'}, {integer: 1}]}, function(err, docs){
+	it("find({msg: {$not: 'hello'}}) expect 2 documents", function(done){
+		collection.find( {msg: {$not: 'hello'}}, function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(2);
-			done();
-		});
-	});
 
-	it("find({integer: {$not: {$lt:1}}}) expect 3 documents", function(done){
-		collection.find({integer: {$not: {$lt:1}}}, function(err, docs){
-			if(err)
-				console.log(err);
-			expect(docs.length).toBe(3);
+			assert.equal(docs.length, 2);
 			done();
 		});
 	});
 	*/
-
-
-	it("find({$not: {msg: 'hello'}}) expect 2 documents", function(done){
-		collection.find({$not: {msg: 'hello'}}, function(err, docs){
-			if(err)
-				console.log(err);
-			expect(docs.length).toBe(2);
-			done();
-		});
-	});
-
 	it("find({msg:'hello'}, {sort:{integer: -1}})", function(done){
 		collection.find({msg:'hello'}, {sort:{integer: -1}},  function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs[0].integer).toBe(1);
-			expect(docs[1].integer).toBe(0);
+			assert.equal(docs[0].integer, 1)
+			assert.equal(docs[1].integer, 0)
 			done();
 		});
 	});
@@ -274,8 +264,8 @@ describe("Driver API", function() {
 		collection.find({msg:'hello'}, {sort:{integer: 1}},  function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs[0].integer).toBe(0);
-			expect(docs[1].integer).toBe(1);
+			assert.equal(docs[0].integer, 0)
+			assert.equal(docs[1].integer, 1)
 			done();
 		});
 	});
@@ -284,10 +274,10 @@ describe("Driver API", function() {
 		collection.find({}, {sort:{integer: -1}},  function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs[0].msg).toBe('great');
-			expect(docs[1].msg).toBe('tule');
-			expect(docs[2].integer).toBe(1);
-			expect(docs[3].integer).toBe(0);
+			assert.equal(docs[0].msg, 'great')
+			assert.equal(docs[1].msg, 'tule')
+			assert.equal(docs[2].integer, 1)
+			assert.equal(docs[3].integer, 0)
 			done();
 		});
 	});
@@ -296,9 +286,9 @@ describe("Driver API", function() {
 		collection.find({}, {sort:{integer: -1}, skip: 1},  function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs[0].msg).toBe('tule');
-			expect(docs[1].integer).toBe(1);
-			expect(docs[2].integer).toBe(0);
+			assert.equal(docs[0].msg, 'tule')
+			assert.equal(docs[1].integer, 1)
+			assert.equal(docs[2].integer, 0)
 			done();
 		});
 	});
@@ -307,8 +297,8 @@ describe("Driver API", function() {
 		collection.find({}, {sort:{integer: -1}, limit: 1},  function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(1);
-			expect(docs[0].msg).toBe('great');
+			assert.equal(docs.length, 1)
+			assert.equal(docs[0].msg, 'great')
 			done();
 		});
 	});
@@ -317,9 +307,9 @@ describe("Driver API", function() {
 		collection.find({}, {sort:{integer: -1}, limit: 2, skip:1},  function(err, docs){
 			if(err)
 				console.log(err);
-			expect(docs.length).toBe(2);
-			expect(docs[0].msg).toBe('tule');
-			expect(docs[1].integer).toBe(1);
+			assert.equal(docs.length, 2)
+			assert.equal(docs[0].msg, 'tule')
+			assert.equal(docs[1].integer, 1)
 			done();
 		});
 	});
@@ -328,7 +318,7 @@ describe("Driver API", function() {
 		collection.findOne({msg:'great'}, function(err, doc){
 			if(err)
 				console.log(err);
-			expect(doc.integer).toBe(3);
+			assert.equal(doc.integer, 3)
 			done();
 		});
 	});
@@ -337,7 +327,7 @@ describe("Driver API", function() {
 		collection.findOne({msg:'hello'}, {sort: {integer: -1}}, function(err, doc){
 			if(err)
 				console.log(err);
-			expect(doc.integer).toBe(1);
+			assert.equal(doc.integer, 1)
 			done();
 		});
 	});
@@ -347,7 +337,7 @@ describe("Driver API", function() {
 		collection.findOne({msg:'bye'}, function(err, doc){
 			if(err)
 				console.log(err);
-			expect(doc).toBeNull();
+			assert.equal(doc, null);
 			done();
 		});
 	});
@@ -358,7 +348,7 @@ describe("Driver API", function() {
 				console.log(err);
 			//Save it after json, to not depend on objectId
 			savedDoc = JSON.parse(JSON.stringify(doc));
-			expect(doc.msg).toBe('extra');
+			assert.equal(doc.msg, 'extra')
 			done();
 		});
 	});
@@ -370,12 +360,12 @@ describe("Driver API", function() {
 			if(err)
 				console.log(err);
 
-			expect(saved).toBe(1);
+			assert.equal(saved, 1)
 			collection.findOne(savedDoc, function(err, doc){
 				if(err)
 					console.log(err);
 
-				expect(doc.msg).toBe('saved');
+				assert.equal(doc.msg, 'saved')
 				done();
 			});
 		});
@@ -386,13 +376,13 @@ describe("Driver API", function() {
 			if(err)
 				console.log(err);
 
-			expect(updated).toBe(1);
+			assert.equal(updated, 1)
 			collection.findOne({_id: savedDoc._id}, function(err, doc){
 				if(err)
 					console.log(err);
 
-				expect(doc.msg).toBe('updated');
-				expect(doc.integer).toBe(4);
+				assert.equal(doc.msg, 'updated')
+				assert.equal(doc.integer, 4)
 				done();
 			});
 		});
@@ -403,13 +393,13 @@ describe("Driver API", function() {
 			if(err)
 				console.log(err);
 
-			expect(updated).toBe(1);
+			assert.equal(updated, 1)
 			collection.findOne({_id: savedDoc._id}, function(err, doc){
 				if(err)
 					console.log(err);
 
-				expect(doc.msg).toBe('replaced');
-				expect(doc.integer).toBeUndefined();
+				assert.equal(doc.msg, 'replaced');
+				assert.equal(doc.integer, undefined);
 				done();
 			});
 		});
@@ -420,12 +410,12 @@ describe("Driver API", function() {
 			if(err)
 				console.log(err);
 
-			expect(updated).toBe(1);
+			assert.equal(updated, 1)
 			collection.find({msg: 'tule'}, function(err, docs){
 				if(err)
 					console.log(err);
 
-				expect(docs.length).toBe(2);
+				assert.equal(docs.length, 2)
 				done();
 			});
 		});
@@ -436,12 +426,12 @@ describe("Driver API", function() {
 			if(err)
 				console.log(err);
 
-			expect(updated).toBe(2);
+			assert.equal(updated, 2)
 			collection.find({msg: 'tulecmjs'}, function(err, docs){
 				if(err)
 					console.log(err);
 
-				expect(docs.length).toBe(2);
+				assert.equal(docs.length, 2)
 				done();
 			});
 		});
@@ -452,12 +442,12 @@ describe("Driver API", function() {
 			if(err)
 				console.log(err);
 
-			expect(updated).toBe(0);
+			assert.equal(updated, 0)
 			collection.findOne({_id: 123}, function(err, doc){
 				if(err)
 					console.log(err);
 
-				expect(doc).toBeNull();
+				assert.equal(doc, null);
 				done();
 			});
 		});
@@ -468,12 +458,12 @@ describe("Driver API", function() {
 			if(err)
 				console.log(err);
 
-			expect(updated).toBe(1);
+			assert.equal(updated, 1)
 			collection.findOne({msg: 'existent'}, function(err, doc){
 				if(err)
 					console.log(err);
 
-				expect(doc.integer).toBe(100);
+				assert.equal(doc.integer, 100)
 				done();
 			});
 		});
@@ -485,12 +475,12 @@ describe("Driver API", function() {
 			if(err)
 				console.log(err);
 
-			expect(updated).toBe(1);
+			assert.equal(updated, 1)
 			collection.findOne({msg: 'existent'}, function(err, doc){
 				if(err)
 					console.log(err);
 
-				expect(doc.integer).toBe(100);
+				assert.equal(doc.integer, 100)
 				done();
 			});
 		});
@@ -501,10 +491,10 @@ describe("Driver API", function() {
 			docCount = count;
 
 			collection.remove({msg:'great'}, function(err, removed){
-				expect(removed).toBe(1);
+				assert.equal(removed, 1)
 
 				collection.count(function(err, recount){
-					expect(recount).toBe(docCount - 1);
+					assert.equal(recount, docCount - 1)
 					docCount = recount;
 					done();
 				});
@@ -517,10 +507,10 @@ describe("Driver API", function() {
 			docCount = count;
 
 			collection.remove({_id: savedDoc._id}, function(err, removed){
-				expect(removed).toBe(1);
+				assert.equal(removed, 1)
 
 				collection.count(function(err, recount){
-					expect(recount).toBe(docCount - 1);
+					assert.equal(recount, docCount - 1)
 					docCount = recount;
 					done();
 				});
@@ -534,47 +524,64 @@ describe("Driver API", function() {
 				console.log(err);
 
 			collection.count(function(err, count){
-				expect(count).toBe(0);
+				assert.equal(count, 0)
 				done();
 			});
 		});
 	});
 
+	it("aggregate()", function(done){
+		collection.insert([
+			{ cust_id: "abc1", ord_date: new Date("2012-11-02T17:04:11.102Z"), status: "A", amount: 50 },
+			{ cust_id: "xyz1", ord_date: new Date("2013-10-01T17:04:11.102Z"), status: "A", amount: 100 },
+			{ cust_id: "xyz1", ord_date: new Date("2013-10-12T17:04:11.102Z"), status: "D", amount: 25 },
+			{ cust_id: "xyz1", ord_date: new Date("2013-10-11T17:04:11.102Z"), status: "D", amount: 125 },
+			{ cust_id: "abc1", ord_date: new Date("2013-11-12T17:04:11.102Z"), status: "A", amount: 25 }
+		], function( err, inserted ){
+			assert.equal( inserted.length, 5);
+			collection.aggregate([
+				{ $match: { status: "A" } },
+				{ $group: { _id: "$cust_id", total: { $sum: "$amount" } } },
+				{ $sort: { total: -1 } }
+			], function( err, docs ){
+				if( err )
+					console.log( err );
+
+				assert.equal( docs.length, 2 );
+				assert.equal( docs[0]._id, "xyz1" );
+				assert.equal( docs[0].total, 100 );
+				assert.equal( docs[1]._id, "abc1" );
+				assert.equal( docs[1].total, 75 );
+				done();
+			});
+		});
+	});
 
 	it("renameCollection()", function(done){
 		driver.renameCollection(cname, 'new' + cname, function(err){
-			expect(err).toBeNull();
+			assert.equal(err, null);
 
 			driver.getCollectionNames(function(err, names){
 				var index = names.indexOf('new' + cname);
-				expect(index).not.toBe(-1);
+				assert.notEqual(index, -1);
 				console.log(names);
-				expect(names.length).toBe(collectionCount + 1);
+				assert.equal(names.length, collectionCount + 1)
 				done();
 			});
-
-			done();
 		});
 	});
 
 	it("dropCollection()", function(done){
 		driver.dropCollection('new' + cname, function(err){
-			expect(err).toBeNull();
+			assert.equal(err, null);
 			driver.getCollectionNames(function(err, names){
 				var index = names.indexOf('new' + cname);
 				console.log(names);
 
-				expect(names.length).toBe(collectionCount);
-				expect(index).toBe(-1);
+				assert.equal(names.length, collectionCount)
+				assert.equal(index, -1)
 				done();
 			});
 		});
 	});
-/*
-	it("Should remove all the test collections", function(done){
-		driver.dropCollection(cname, function(err){
-			done();
-		})
-	})
-*/
 });
