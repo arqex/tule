@@ -221,7 +221,9 @@ module.exports = {
 
 		try {
 			mongo.MongoClient.connect(options.url, function(err, db){
-				if(err){
+				console.log( 'Connect finished');
+
+				if( err ){
 					console.log( err.stack );
 					console.log( err );
 					deferred.reject(err);
@@ -234,6 +236,7 @@ module.exports = {
 			});
 		}
 		catch (e) {
+			console.log( 'DB init failed!!');
 			console.log( e.stack );
 		}
 
