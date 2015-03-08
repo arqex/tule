@@ -227,6 +227,7 @@ module.exports = {
 					deferred.reject(err);
 				}
 				else {
+					console.log( 'db inited! ' + options.url );
 					var driver = new MongoDriver(db);
 					deferred.resolve(driver);
 				}
